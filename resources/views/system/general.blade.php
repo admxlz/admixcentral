@@ -87,7 +87,7 @@
                         <div class="mb-3 form-check flex items-center">
                             <input type="checkbox"
                                 class="form-check-input rounded border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:bg-gray-900"
-                                id="dnslocalhost" name="dnslocalhost" {{ old('dnslocalhost', $dns['dnslocalhost'] ?? false) ? 'checked' : '' }}>
+                                id="dnslocalhost" name="dnslocalhost" {{ old('dnslocalhost', ($dns['dnslocalhost'] ?? '') === 'remote') ? 'checked' : '' }}>
                             <label class="form-check-label ml-2 block text-sm text-gray-900 dark:text-gray-100"
                                 for="dnslocalhost">Do not use the DNS Forwarder/DNS Resolver as a DNS server for the
                                 firewall</label>

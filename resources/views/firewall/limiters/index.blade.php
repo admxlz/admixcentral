@@ -43,9 +43,11 @@
                                     @forelse($limiters as $index => $limiter)
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                {{ $limiter['name'] ?? '' }}</td>
+                                                {{ $limiter['name'] ?? '' }}
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                {{ $limiter['descr'] ?? '' }}</td>
+                                                {{ $limiter['descr'] ?? '' }}
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                 @if(isset($limiter['bandwidth']) && is_array($limiter['bandwidth']))
                                                     @foreach($limiter['bandwidth'] as $bw)
