@@ -293,6 +293,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Services
     Route::prefix('firewall/{firewall}/services')->name('services.')->group(function () {
         Route::get('/captive-portal', [App\Http\Controllers\ServicesController::class, 'captivePortal'])->name('captive-portal');
+
         Route::get('/dhcp-relay', [App\Http\Controllers\ServicesController::class, 'dhcpRelay'])->name('dhcp-relay');
         Route::post('/dhcp-relay', [App\Http\Controllers\ServicesController::class, 'updateDhcpRelay'])->name('dhcp-relay.update');
         Route::get('/dhcpv6-relay', [App\Http\Controllers\ServicesController::class, 'dhcpv6Relay'])->name('dhcpv6-relay');
