@@ -1,15 +1,19 @@
 <?php
 
 $files = [
-    'services/captive-portal.blade.php' => ['url' => 'services_captiveportal.php', 'name' => 'Captive Portal'],
-    'status/filter-reload.blade.php' => ['url' => 'status_filter_reload.php', 'name' => 'Filter Reload Status'],
-    'status/monitoring.blade.php' => ['url' => 'status_monitoring.php', 'name' => 'Monitoring'],
-    'status/ntp.blade.php' => ['url' => 'status_ntpd.php', 'name' => 'NTP Status'],
-    'status/queues.blade.php' => ['url' => 'status_queues.php', 'name' => 'Queues Status'],
-    'status/traffic-graph.blade.php' => ['url' => 'status_graph.php?if=wan', 'name' => 'Traffic Graph'],
-    'status/upnp.blade.php' => ['url' => 'status_upnp.php', 'name' => 'UPnP & NAT-PMP Status'],
-    'status/captive-portal.blade.php' => ['url' => 'status_captiveportal.php', 'name' => 'Captive Portal Status'],
-    'status/dhcpv6-leases.blade.php' => ['url' => 'status_dhcpv6_leases.php', 'name' => 'DHCPv6 Leases'],
+    'diagnostics/backup-restore.blade.php' => ['url' => 'diag_backup.php', 'name' => 'Backup & Restore'],
+    'diagnostics/edit-file.blade.php' => ['url' => 'diag_edit.php', 'name' => 'Edit File'],
+    'diagnostics/limiter-info.blade.php' => ['url' => 'diag_limiter_info.php', 'name' => 'Limiter Info'],
+    'diagnostics/ndp-table.blade.php' => ['url' => 'diag_ndp.php', 'name' => 'NDP Table'],
+    'diagnostics/packet-capture.blade.php' => ['url' => 'diag_packet_capture.php', 'name' => 'Packet Capture'],
+    'diagnostics/pf-info.blade.php' => ['url' => 'diag_pf_info.php', 'name' => 'pfInfo'],
+    'diagnostics/pf-top.blade.php' => ['url' => 'diag_system_pftop.php', 'name' => 'pfTop'],
+    'diagnostics/routes.blade.php' => ['url' => 'diag_routes.php', 'name' => 'Routes'],
+    'diagnostics/smart-status.blade.php' => ['url' => 'diag_smart.php', 'name' => 'SMART Status'],
+    'diagnostics/sockets.blade.php' => ['url' => 'diag_sockets.php', 'name' => 'Sockets'],
+    'diagnostics/states-summary.blade.php' => ['url' => 'diag_states_summary.php', 'name' => 'States Summary'],
+    'diagnostics/system-activity.blade.php' => ['url' => 'diag_system_activity.php', 'name' => 'System Activity'],
+    'diagnostics/test-port.blade.php' => ['url' => 'diag_testport.php', 'name' => 'Test Port'],
 ];
 
 foreach ($files as $file => $data) {
