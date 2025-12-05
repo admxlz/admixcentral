@@ -20,21 +20,49 @@ class DashboardController extends Controller
         }
 
         // Collect status for each firewall
-        $firewallsWithStatus = $firewalls->map(function ($firewall) {
-            try {
-                $api = new PfSenseApiService($firewall);
-                $status = $api->getSystemStatus();
-                $firewall->status = $status;
-                $firewall->online = true;
-            } catch (\Exception $e) {
-                $firewall->status = null;
-                $firewall->online = false;
-                $firewall->error = $e->getMessage();
-            }
-            return $firewall;
-        });
+        // $firewallsWithStatus = $firewalls->map(function ($firewall) {
+        //     try {
+        //         $api = new PfSenseApiService($firewall);
+        //         $status = $api->getSystemStatus();
+        //         $firewall->status = $status;
+        //         $firewall->online = true;
+        //     } catch (\Exception $e) {
+        //         $firewall->status = null;
+        //         $firewall->online = false;
+        //         $firewall->error = $e->getMessage();
+        //     }
+        //     return $firewall;
+        // });
 
-        return view('dashboard', compact('firewallsWithStatus'));
+        return view('dashboard', ['firewallsWithStatus' => $firewalls]);
+    }
+
+    public function checkStatus(Firewall $firewall)
+    {
+        try {
+            $api = new PfSenseApiService($firewall);
+            $status = $api->getSystemStatus();
+
+            // Try to get version info if online
+            try {
+                $versionInfo = $api->getSystemVersion();
+                if (isset($versionInfo['data'])) {
+                    $status['data'] = array_merge($status['data'] ?? [], $versionInfo['data']);
+                }
+            } catch (\Exception $e) {
+                // Ignore version fetch error
+            }
+
+            return response()->json([
+                'online' => true,
+                'status' => $status
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'online' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     public function firewall(Request $request, Firewall $firewall)

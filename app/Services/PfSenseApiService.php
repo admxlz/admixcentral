@@ -654,6 +654,41 @@ class PfSenseApiService
     }
 
     /**
+     * Get IPsec Status (SAs)
+     */
+    public function getIpsecStatus()
+    {
+        return $this->get('/status/ipsec/sas');
+    }
+
+    /**
+     * Get OpenVPN Server Status
+     */
+    public function getOpenVpnServerStatus()
+    {
+        return $this->get('/status/openvpn/servers');
+    }
+
+    /**
+     * Get DHCP Leases
+     */
+    public function getDhcpLeases()
+    {
+        return $this->get('/status/dhcp_server/leases');
+    }
+
+
+
+    /**
+     * Get Services Status
+     */
+    public function getServicesStatus()
+    {
+        return $this->get('/status/services');
+    }
+
+
+    /**
      * Create Virtual IP
      */
     public function createVirtualIp(array $data)
@@ -746,6 +781,22 @@ class PfSenseApiService
     public function deleteOpenVpnServer(int $id)
     {
         return $this->delete("/vpn/openvpn/server", ['id' => $id]);
+    }
+
+    /**
+     * Get CARP Status
+     */
+    public function getCarpStatus()
+    {
+        return $this->get('/status/carp');
+    }
+
+    /**
+     * Update CARP Status
+     */
+    public function updateCarpStatus(array $data)
+    {
+        return $this->patch('/status/carp', $data);
     }
 
     /**
@@ -941,4 +992,15 @@ class PfSenseApiService
     {
         return $this->patch('/services/dhcp_server', $data);
     }
+
+    public function getWireGuardTunnels()
+    {
+        return $this->get('/vpn/wireguard/tunnels');
+    }
+
+    public function getWireGuardPeers()
+    {
+        return $this->get('/vpn/wireguard/peers');
+    }
+
 }

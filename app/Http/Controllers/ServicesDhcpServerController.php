@@ -8,8 +8,9 @@ use Illuminate\Http\Request;
 
 class ServicesDhcpServerController extends Controller
 {
-    public function index(Firewall $firewall, $interface = 'lan')
+    public function index(Request $request, Firewall $firewall)
     {
+        $interface = $request->input('interface', 'lan');
         try {
             $api = new PfSenseApiService($firewall);
 
@@ -22,8 +23,22 @@ class ServicesDhcpServerController extends Controller
             $dhcpResponse = $api->getDhcpServer($interface);
             $selectedConfig = $dhcpResponse['data'] ?? [];
 
-            return view('services.dhcp.index', compact('firewall', 'interfaces', 'selectedConfig', 'interface'));
+            // Find selected interface details
+            $selectedInterface = collect($interfaces)->firstWhere('id', $interface);
+
+            return view('services.dhcp.index', compact('firewall', 'interfaces', 'selectedConfig', 'interface', 'selectedInterface'));
         } catch (\Exception $e) {
+            // If interfaces were fetched but DHCP config failed, we can still show the page with the error
+            if (isset($interfaces)) {
+                return view('services.dhcp.index', [
+                    'firewall' => $firewall,
+                    'interfaces' => $interfaces,
+                    'selectedConfig' => [],
+                    'interface' => $interface,
+                    'selectedInterface' => collect($interfaces)->firstWhere('id', $interface),
+                ])->with('error', 'Failed to fetch DHCP configuration: ' . $e->getMessage());
+            }
+
             return back()->with('error', 'Failed to fetch DHCP configuration: ' . $e->getMessage());
         }
     }

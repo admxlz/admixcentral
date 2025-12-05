@@ -17,6 +17,17 @@ class StatusDashboardController extends Controller
             $systemStatus['connected'] = true;
             $system = $systemStatus['data'] ?? [];
 
+            // Get system version
+            try {
+                $versionStatus = $api->getSystemVersion();
+                if (isset($versionStatus['data']['version'])) {
+                    $systemStatus['data']['version'] = $versionStatus['data']['version'];
+                    $system['version'] = $versionStatus['data']['version'];
+                }
+            } catch (\Exception $e) {
+                // Ignore version fetch error, keep system status
+            }
+
             // Get interfaces status (runtime)
             $interfacesResponse = $api->getInterfacesStatus();
             $interfacesStatusData = $interfacesResponse['data'] ?? [];

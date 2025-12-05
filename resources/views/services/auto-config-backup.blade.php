@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('DNS Forwarder') }} - {{ $firewall->name }}
+            {{ __('Auto Config Backup') }} - {{ $firewall->name }}
         </h2>
     </x-slot>
 
@@ -23,8 +23,8 @@
                                 <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Feature Not
                                     Supported</h3>
                                 <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                                    <p>DNS Forwarder configuration is not currently supported via the API. Please use
-                                        the pfSense web interface to configure this service.</p>
+                                    <p>Auto Config Backup is not currently supported via the API. Please use the pfSense
+                                        web interface to configure this service.</p>
                                 </div>
                             </div>
                         </div>

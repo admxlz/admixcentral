@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoutingController;
 
 use App\Http\Controllers\VpnIpsecController;
+use App\Http\Controllers\VpnOpenVpnController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Main Dashboard
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/firewall/{firewall}/check-status', [App\Http\Controllers\DashboardController::class, 'checkStatus'])->name('firewall.check-status');
 
     // Companies (admin only)
     Route::resource('companies', App\Http\Controllers\CompanyController::class)
@@ -56,6 +58,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware(App\Http\Middleware\EnsureTenantScope::class)
         ->name('status.dashboard');
 
+    // Probe OpenVPN API
+    Route::get('/probe-openvpn', function () {
+        $firewall = \App\Models\Firewall::first();
+        $api = new \App\Services\PfSenseApiService($firewall);
+
+        $endpoints = [
+            '/vpn/openvpn/server',
+            '/vpn/openvpn/servers',
+            '/services/openvpn/server',
+            '/services/openvpn/servers',
+            '/api/v1/vpn/openvpn/server',
+        ];
+
+        $results = [];
+        foreach ($endpoints as $endpoint) {
+            try {
+                $response = $api->get($endpoint);
+                $results[$endpoint] = 'Success: ' . json_encode($response);
+            } catch (\Exception $e) {
+                $results[$endpoint] = 'Error: ' . $e->getMessage();
+            }
+        }
+        return $results;
+    });
     // Firewall-specific dashboard (must come AFTER resource routes to avoid conflicts)
     Route::get('/firewall/{firewall}', [App\Http\Controllers\DashboardController::class, 'firewall'])
         ->middleware(App\Http\Middleware\EnsureTenantScope::class)
@@ -295,6 +321,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Services
     Route::prefix('firewall/{firewall}/services')->name('services.')->group(function () {
         Route::get('/captive-portal', [App\Http\Controllers\ServicesController::class, 'captivePortal'])->name('captive-portal');
+        Route::get('/auto-config-backup', [App\Http\Controllers\ServicesController::class, 'autoConfigBackup'])->name('auto-config-backup');
 
         Route::get('/dhcp-relay', [App\Http\Controllers\ServicesController::class, 'dhcpRelay'])->name('dhcp-relay');
         Route::post('/dhcp-relay', [App\Http\Controllers\ServicesController::class, 'updateDhcpRelay'])->name('dhcp-relay.update');
@@ -320,6 +347,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/ipsec/phase2/{phase1}', [VpnIpsecController::class, 'storePhase2'])->name('ipsec.phase2.store');
         Route::delete('/ipsec/phase2/{phase1}/{uniqid}', [VpnIpsecController::class, 'destroyPhase2'])->name('ipsec.phase2.destroy');
         Route::get('/l2tp', [App\Http\Controllers\VpnController::class, 'l2tp'])->name('l2tp');
+
+        // OpenVPN
+        Route::get('/openvpn/server', [VpnOpenVpnController::class, 'servers'])->name('openvpn.servers');
+        Route::get('/openvpn/server/create', [VpnOpenVpnController::class, 'createServer'])->name('openvpn.server.create');
+        Route::post('/openvpn/server', [VpnOpenVpnController::class, 'storeServer'])->name('openvpn.server.store');
+        Route::get('/openvpn/server/{id}/edit', [VpnOpenVpnController::class, 'editServer'])->name('openvpn.server.edit');
+        Route::put('/openvpn/server/{id}', [VpnOpenVpnController::class, 'updateServer'])->name('openvpn.server.update');
+        Route::delete('/openvpn/server/{id}', [VpnOpenVpnController::class, 'destroyServer'])->name('openvpn.server.destroy');
+        Route::get('/openvpn/client', [VpnOpenVpnController::class, 'clients'])->name('openvpn.clients');
+
+        Route::get('/wireguard', [App\Http\Controllers\VpnWireGuardController::class, 'index'])->name('wireguard.index');
     });
 
     Route::get('/debug-interfaces', function () {
@@ -332,6 +370,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('firewall/{firewall}/status')->name('status.')->group(function () {
         Route::get('/captive-portal', [App\Http\Controllers\StatusController::class, 'captivePortal'])->name('captive-portal');
         Route::get('/carp', [App\Http\Controllers\StatusController::class, 'carp'])->name('carp');
+        Route::post('/carp', [App\Http\Controllers\StatusController::class, 'updateCarp'])->name('carp.update');
         Route::get('/dhcp-leases', [App\Http\Controllers\StatusController::class, 'dhcpLeases'])->name('dhcp-leases');
         Route::get('/dhcpv6-leases', [App\Http\Controllers\StatusController::class, 'dhcpv6Leases'])->name('dhcpv6-leases');
         Route::get('/filter-reload', [App\Http\Controllers\StatusController::class, 'filterReload'])->name('filter-reload');
@@ -346,6 +385,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/system-logs', [App\Http\Controllers\StatusController::class, 'systemLogs'])->name('system-logs');
         Route::get('/traffic-graph', [App\Http\Controllers\StatusController::class, 'trafficGraph'])->name('traffic-graph');
         Route::get('/upnp', [App\Http\Controllers\StatusController::class, 'upnp'])->name('upnp');
+        Route::get('/dhcp', [App\Http\Controllers\StatusController::class, 'dhcp'])->name('dhcp');
+        Route::get('/system', [App\Http\Controllers\StatusController::class, 'system'])->name('system');
     });
 
     // Diagnostics
@@ -379,26 +420,56 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-require __DIR__ . '/auth.php';
-
-Route::get('/test-igmp', function () {
+// Probe CARP API
+Route::get('/probe-carp', function () {
     $firewall = \App\Models\Firewall::first();
     $api = new \App\Services\PfSenseApiService($firewall);
 
     $endpoints = [
-        '/services/igmp_proxy',
-        '/services/igmpproxy',
-        '/services/igmp',
+        '/status/carp',
+        '/system/carp',
+        '/firewall/virtual_ips',
+        '/firewall/virtual_ip',
+        '/status/vip',
+        '/api/v1/status/carp',
     ];
 
     $results = [];
     foreach ($endpoints as $endpoint) {
         try {
-            $results[$endpoint] = $api->get($endpoint);
+            $response = $api->get($endpoint);
+            $results[$endpoint] = 'Success: ' . json_encode($response);
         } catch (\Exception $e) {
             $results[$endpoint] = 'Error: ' . $e->getMessage();
         }
     }
-
-    dd($results);
+    return $results;
 });
+
+// Probe VPN Status API
+Route::get('/probe-vpn-status', function () {
+    $firewall = \App\Models\Firewall::first();
+    $api = new \App\Services\PfSenseApiService($firewall);
+
+    $endpoints = [
+        '/status/ipsec',
+        '/vpn/ipsec/status',
+        '/status/openvpn',
+        '/vpn/openvpn/status',
+        '/status/openvpn/server',
+        '/status/openvpn/client',
+    ];
+
+    $results = [];
+    foreach ($endpoints as $endpoint) {
+        try {
+            $response = $api->get($endpoint);
+            $results[$endpoint] = 'Success: ' . json_encode($response);
+        } catch (\Exception $e) {
+            $results[$endpoint] = 'Error: ' . $e->getMessage();
+        }
+    }
+    return $results;
+});
+
+require __DIR__ . '/auth.php';

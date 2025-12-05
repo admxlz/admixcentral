@@ -56,8 +56,71 @@
 
                             <div class="pf-form-grid">
                                 {{-- Range --}}
-                                <div class="pf-form-field-full">
-                                    <h3 class="pf-section-header">Subnet / Range</h3>
+                                    @if(isset($selectedInterface['ipaddr']) && isset($selectedInterface['subnet']))
+                                        <div x-data="{
+                                            ip: '{{ $selectedInterface['ipaddr'] }}',
+                                            subnet: {{ $selectedInterface['subnet'] }},
+                                            calculateRange() {
+                                                // Simple calculation for /24 for now, can be expanded
+                                                if (this.subnet == 24) {
+                                                    let parts = this.ip.split('.');
+                                                    parts.pop();
+                                                    let prefix = parts.join('.');
+                                                    return {
+                                                        start: prefix + '.10',
+                                                        end: prefix + '.245',
+                                                        subnet: prefix + '.0/24',
+                                                        mask: '255.255.255.0'
+                                                    };
+                                                }
+                                                return null;
+                                            },
+                                            applyRange() {
+                                                let range = this.calculateRange();
+                                                if (range) {
+                                                    document.getElementById('range_from').value = range.start;
+                                                    document.getElementById('range_to').value = range.end;
+                                                }
+                                            }
+                                        }" class="mt-4 mb-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden">
+                                            <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                                                <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center">
+                                                    <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                    Network Configuration
+                                                </h4>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+                                                    Detected
+                                                </span>
+                                            </div>
+                                            <div class="p-4">
+                                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                                    <div class="bg-gray-50 dark:bg-gray-700/30 p-3 rounded-md">
+                                                        <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subnet</span>
+                                                        <span class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mt-1" x-text="calculateRange()?.subnet || 'N/A'"></span>
+                                                    </div>
+                                                    <div class="bg-gray-50 dark:bg-gray-700/30 p-3 rounded-md">
+                                                        <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subnet Mask</span>
+                                                        <span class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mt-1" x-text="calculateRange()?.mask || 'N/A'"></span>
+                                                    </div>
+                                                    <div class="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-md border border-indigo-100 dark:border-indigo-800">
+                                                        <span class="block text-xs font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Suggested Range</span>
+                                                        <span class="block text-sm font-semibold text-indigo-900 dark:text-indigo-100 mt-1" x-text="calculateRange()?.start + ' - ' + calculateRange()?.end || 'N/A'"></span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="flex justify-end">
+                                                    <button type="button" @click="applyRange()" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        Apply Suggested Range
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div>

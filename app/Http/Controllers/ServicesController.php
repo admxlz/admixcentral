@@ -12,6 +12,11 @@ class ServicesController extends Controller
         return view('services.captive-portal', compact('firewall'));
     }
 
+    public function autoConfigBackup(Firewall $firewall)
+    {
+        return view('services.auto-config-backup', compact('firewall'));
+    }
+
     public function dhcpRelay(Firewall $firewall)
     {
         $api = new \App\Services\PfSenseApiService($firewall);

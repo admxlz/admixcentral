@@ -122,6 +122,9 @@
                             <div x-show="servicesOpen"
                                 class="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                                 <div class="py-1" role="menu">
+                                    <a href="{{ route('services.auto-config-backup', request()->route('firewall')) }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Auto
+                                        Config Backup</a>
                                     <a href="{{ route('services.captive-portal', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Captive
                                         Portal</a>
@@ -164,6 +167,8 @@
                                         IGD & PCP</a>
                                     <a href="{{ route('services.wake-on-lan', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Wake-on-LAN</a>
+                                    <a href="{{ route('vpn.wireguard.index', request()->route('firewall')) }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">WireGuard</a>
                                 </div>
                             </div>
                         </div>
@@ -187,9 +192,9 @@
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">IPsec</a>
                                     <a href="{{ route('vpn.l2tp', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">L2TP</a>
-                                    <a href="{{ route('firewall.vpn.openvpn.servers', request()->route('firewall')) }}"
+                                    <a href="{{ route('vpn.openvpn.servers', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">OpenVPN</a>
-                                    <a href="#"
+                                    <a href="{{ route('vpn.wireguard.index', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">WireGuard</a>
                                 </div>
                             </div>

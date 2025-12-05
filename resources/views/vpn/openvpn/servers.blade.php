@@ -10,51 +10,82 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     @if (session('status'))
-                        <div class="alert alert-success" role="alert">
+                        <div class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
                             {{ session('status') }}
                         </div>
                     @endif
+                    @if (session('success'))
+                        <div class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
+                            {{ session('success') }}
+                        </div>
+                    @endif
                     @if (session('error'))
-                        <div class="alert alert-danger" role="alert">
+                        <div class="mb-4 font-medium text-sm text-red-600 dark:text-red-400">
                             {{ session('error') }}
                         </div>
                     @endif
 
-                    <div class="mb-3">
-                        <a href="{{ route('firewall.vpn.openvpn.server.create', $firewall) }}" class="btn btn-primary">Add
-                            Server</a>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Server List</h3>
+                        <a href="{{ route('vpn.openvpn.server.create', $firewall) }}"
+                            class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                            Add Server
+                        </a>
                     </div>
 
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Protocol</th>
-                                <th>Interface</th>
-                                <th>Port</th>
-                                <th>Tunnel Network</th>
-                                <th>Description</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($servers as $server)
+                    <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
+                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                            <thead
+                                class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
-                                    <td>{{ $server['protocol'] ?? '' }}</td>
-                                    <td>{{ $server['interface'] ?? '' }}</td>
-                                    <td>{{ $server['local_port'] ?? '' }}</td>
-                                    <td>{{ $server['tunnel_network'] ?? '' }}</td>
-                                    <td>{{ $server['description'] ?? '' }}</td>
-                                    <td>
-                                        <!-- Actions -->
-                                    </td>
+                                    <th scope="col" class="py-3 px-6">Protocol / Port</th>
+                                    <th scope="col" class="py-3 px-6">Interface</th>
+                                    <th scope="col" class="py-3 px-6">Tunnel Network</th>
+                                    <th scope="col" class="py-3 px-6">Description</th>
+                                    <th scope="col" class="py-3 px-6">Actions</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6">No OpenVPN servers found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @forelse ($servers as $server)
+                                    <tr
+                                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                        <td class="py-4 px-6">
+                                            {{ $server['protocol'] ?? 'UDP' }} / {{ $server['local_port'] ?? '1194' }}
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            {{ strtoupper($server['interface'] ?? 'WAN') }}
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            {{ $server['tunnel_network'] ?? 'N/A' }}
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            {{ $server['description'] ?? '' }}
+                                        </td>
+                                        <td class="py-4 px-6 flex space-x-2">
+                                            <a href="{{ route('vpn.openvpn.server.edit', [$firewall, $server['vpnid']]) }}"
+                                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                                            <form
+                                                action="{{ route('vpn.openvpn.server.destroy', [$firewall, $server['vpnid']]) }}"
+                                                method="POST"
+                                                onsubmit="return confirm('Are you sure you want to delete this server?');"
+                                                class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="font-medium text-red-600 dark:text-red-500 hover:underline">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <td colspan="5" class="py-4 px-6 text-center">
+                                            No OpenVPN servers found.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
