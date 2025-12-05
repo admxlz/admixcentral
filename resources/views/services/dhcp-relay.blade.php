@@ -41,15 +41,14 @@
                         <!-- Interface -->
                         <div class="mb-4">
                             <x-input-label for="interface" :value="__('Interface(s)')" />
-                            <select id="interface" name="interface[]" multiple
-                                class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                            <x-select-input id="interface" name="interface[]" multiple class="block mt-1 w-full"
                                 size="5">
                                 <option value="lan" {{ in_array('lan', $config['interface'] ?? []) ? 'selected' : '' }}>
                                     LAN</option>
                                 <option value="wan" {{ in_array('wan', $config['interface'] ?? []) ? 'selected' : '' }}>
                                     WAN</option>
                                 <!-- Add logic to list all interfaces dynamically if available -->
-                            </select>
+                            </x-select-input>
                             <p class="mt-1 text-sm text-gray-500">Select interfaces to relay. Ctrl+Click to select
                                 multiple.</p>
                         </div>
