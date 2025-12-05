@@ -1,0 +1,260 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('IPsec Phase 2') }} - {{ $firewall->name }} (Phase 1 ID: {{ $phase1Id }})
+        </h2>
+    </x-slot>
+
+    <div class="py-12" x-data="{
+        showModal: false,
+        form: {
+            mode: 'tunnel',
+            localid_type: 'network',
+            localid_address: '',
+            localid_netbits: '',
+            remoteid_type: 'network',
+            remoteid_address: '',
+            remoteid_netbits: '',
+            protocol: 'esp',
+            encryption_algorithm_name: 'aes',
+            encryption_algorithm_keylen: '128',
+            hash_algorithm: ['hmac_sha256'],
+            pfsgroup: '14',
+            lifetime: 3600,
+            descr: ''
+        }
+    }">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium">Phase 2 Entries</h3>
+                        <div class="flex space-x-2">
+                            <a href="{{ route('vpn.ipsec', $firewall) }}"
+                                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                                Back to Phase 1
+                            </a>
+                            <button @click="showModal = true"
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Add Phase 2
+                            </button>
+                        </div>
+                    </div>
+
+                    @if($phase2List->isEmpty())
+                        <p class="text-gray-500">No Phase 2 tunnels found for this Phase 1.</p>
+                    @else
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Unique ID</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Mode</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Local Subnet</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Remote Subnet</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Description</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    @foreach($phase2List as $p2)
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                                {{ $p2['uniqid'] ?? 'N/A' }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                                {{ $p2['mode'] ?? 'N/A' }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                                {{ $p2['localid_type'] ?? '' }}
+                                                @if(isset($p2['localid_address'])) : {{ $p2['localid_address'] }} @endif
+                                                @if(isset($p2['localid_netbits'])) / {{ $p2['localid_netbits'] }} @endif
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                                {{ $p2['remoteid_type'] ?? '' }}
+                                                @if(isset($p2['remoteid_address'])) : {{ $p2['remoteid_address'] }} @endif
+                                                @if(isset($p2['remoteid_netbits'])) / {{ $p2['remoteid_netbits'] }} @endif
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                                {{ $p2['descr'] ?? '' }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                                <form
+                                                    action="{{ route('vpn.ipsec.phase2.destroy', [$firewall, $phase1Id, $p2['uniqid']]) }}"
+                                                    method="POST" class="inline-block"
+                                                    onsubmit="return confirm('Are you sure you want to delete this Phase 2 entry?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="text-red-600 hover:text-red-900">Delete</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="showModal = false">
+                    <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+                </div>
+
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                <div
+                    class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    <form action="{{ route('vpn.ipsec.phase2.store', [$firewall, $phase1Id]) }}" method="POST">
+                        @csrf
+                        <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4">Add Phase 2
+                            </h3>
+
+                            <!-- Mode -->
+                            <div class="mb-4">
+                                <x-input-label for="mode" :value="__('Mode')" />
+                                <select id="mode" name="mode" x-model="form.mode"
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option value="tunnel">Tunnel IPv4</option>
+                                    <option value="tunnel6">Tunnel IPv6</option>
+                                    <option value="transport">Transport</option>
+                                    <option value="vti">VTI</option>
+                                </select>
+                            </div>
+
+                            <!-- Local Network -->
+                            <div class="mb-4">
+                                <x-input-label for="localid_type" :value="__('Local Network Type')" />
+                                <select id="localid_type" name="localid_type" x-model="form.localid_type"
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option value="address">Address</option>
+                                    <option value="network">Network</option>
+                                    <option value="lan">LAN Subnet</option>
+                                    <option value="wan">WAN Address</option>
+                                </select>
+                            </div>
+                            <div class="mb-4"
+                                x-show="form.localid_type === 'address' || form.localid_type === 'network'">
+                                <x-input-label for="localid_address" :value="__('Local Address')" />
+                                <x-text-input id="localid_address" class="block mt-1 w-full" type="text"
+                                    name="localid_address" x-model="form.localid_address" />
+                            </div>
+                            <div class="mb-4" x-show="form.localid_type === 'network'">
+                                <x-input-label for="localid_netbits" :value="__('Local Netbits')" />
+                                <x-text-input id="localid_netbits" class="block mt-1 w-full" type="number"
+                                    name="localid_netbits" x-model="form.localid_netbits" />
+                            </div>
+
+                            <!-- Remote Network -->
+                            <div class="mb-4">
+                                <x-input-label for="remoteid_type" :value="__('Remote Network Type')" />
+                                <select id="remoteid_type" name="remoteid_type" x-model="form.remoteid_type"
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option value="address">Address</option>
+                                    <option value="network">Network</option>
+                                </select>
+                            </div>
+                            <div class="mb-4"
+                                x-show="form.remoteid_type === 'address' || form.remoteid_type === 'network'">
+                                <x-input-label for="remoteid_address" :value="__('Remote Address')" />
+                                <x-text-input id="remoteid_address" class="block mt-1 w-full" type="text"
+                                    name="remoteid_address" x-model="form.remoteid_address" />
+                            </div>
+                            <div class="mb-4" x-show="form.remoteid_type === 'network'">
+                                <x-input-label for="remoteid_netbits" :value="__('Remote Netbits')" />
+                                <x-text-input id="remoteid_netbits" class="block mt-1 w-full" type="number"
+                                    name="remoteid_netbits" x-model="form.remoteid_netbits" />
+                            </div>
+
+                            <!-- Protocol -->
+                            <div class="mb-4">
+                                <x-input-label for="protocol" :value="__('Protocol')" />
+                                <select id="protocol" name="protocol" x-model="form.protocol"
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option value="esp">ESP</option>
+                                    <option value="ah">AH</option>
+                                </select>
+                            </div>
+
+                            <!-- Encryption -->
+                            <div class="mb-4">
+                                <x-input-label for="encryption_algorithm_name" :value="__('Encryption Algorithm')" />
+                                <select id="encryption_algorithm_name" name="encryption_algorithm_name"
+                                    x-model="form.encryption_algorithm_name"
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option value="aes">AES</option>
+                                    <option value="3des">3DES</option>
+                                </select>
+                            </div>
+                            <div class="mb-4" x-show="form.encryption_algorithm_name === 'aes'">
+                                <x-input-label for="encryption_algorithm_keylen" :value="__('Key Length')" />
+                                <select id="encryption_algorithm_keylen" name="encryption_algorithm_keylen"
+                                    x-model="form.encryption_algorithm_keylen"
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option value="128">128 bits</option>
+                                    <option value="256">256 bits</option>
+                                    <option value="auto">Auto</option>
+                                </select>
+                            </div>
+
+                            <!-- Hash -->
+                            <div class="mb-4">
+                                <x-input-label for="hash_algorithm" :value="__('Hash Algorithm')" />
+                                <select id="hash_algorithm" name="hash_algorithm[]" x-model="form.hash_algorithm"
+                                    multiple
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option value="hmac_sha256">SHA256</option>
+                                    <option value="hmac_sha1">SHA1</option>
+                                </select>
+                            </div>
+
+                            <!-- PFS Group -->
+                            <div class="mb-4">
+                                <x-input-label for="pfsgroup" :value="__('PFS Key Group')" />
+                                <select id="pfsgroup" name="pfsgroup" x-model="form.pfsgroup"
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option value="14">14 (2048 bit)</option>
+                                    <option value="2">2 (1024 bit)</option>
+                                    <option value="0">Off</option>
+                                </select>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-4">
+                                <x-input-label for="descr" :value="__('Description')" />
+                                <x-text-input id="descr" class="block mt-1 w-full" type="text" name="descr"
+                                    x-model="form.descr" />
+                            </div>
+
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="submit"
+                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                Save
+                            </button>
+                            <button type="button" @click="showModal = false"
+                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

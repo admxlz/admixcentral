@@ -87,7 +87,8 @@ class PfSenseApiService
             return $response->json();
         }
 
-        throw new \Exception("API request failed: " . $response->body(), $response->status());
+        $requestUrl = isset($fullUrl) ? $fullUrl : $url;
+        throw new \Exception("API request failed ({$requestUrl}): " . $response->body(), $response->status());
     }
 
     /**
@@ -800,7 +801,7 @@ class PfSenseApiService
      */
     public function getIpsecPhase1s()
     {
-        return $this->get('/vpn/ipsec/phase1s');
+        return $this->get('/vpn/ipsec/phase1s', ['limit' => 0]);
     }
 
     /**
@@ -808,7 +809,7 @@ class PfSenseApiService
      */
     public function getIpsecPhase2s()
     {
-        return $this->get('/vpn/ipsec/phase2s');
+        return $this->get('/vpn/ipsec/phase2s', ['limit' => 0]);
     }
 
     /**
@@ -838,7 +839,7 @@ class PfSenseApiService
     /**
      * Delete IPsec Phase 2
      */
-    public function deleteIpsecPhase2(int $id)
+    public function deleteIpsecPhase2(string $id)
     {
         return $this->delete("/vpn/ipsec/phase2", ['uniqid' => $id]);
     }

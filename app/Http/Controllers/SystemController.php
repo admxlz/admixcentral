@@ -235,7 +235,16 @@ class SystemController extends Controller
 
     public function update(Firewall $firewall)
     {
-        return view('system.update', compact('firewall'));
+        $api = new \App\Services\PfSenseApiService($firewall);
+        $version = [];
+
+        try {
+            $version = $api->getSystemVersion()['data'] ?? [];
+        } catch (\Exception $e) {
+            // Log error
+        }
+
+        return view('system.update', compact('firewall', 'version'));
     }
 
     public function userManager(Firewall $firewall)

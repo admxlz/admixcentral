@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoutingController;
+
+use App\Http\Controllers\VpnIpsecController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -311,8 +313,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // VPN
     Route::prefix('firewall/{firewall}/vpn')->name('vpn.')->group(function () {
-        Route::get('/ipsec', [App\Http\Controllers\VpnController::class, 'ipsec'])->name('ipsec');
+        Route::get('/ipsec', [VpnIpsecController::class, 'tunnels'])->name('ipsec');
+        Route::post('/ipsec/phase1', [VpnIpsecController::class, 'storePhase1'])->name('ipsec.phase1.store');
+        Route::delete('/ipsec/phase1/{id}', [VpnIpsecController::class, 'destroyPhase1'])->name('ipsec.phase1.destroy');
+        Route::get('/ipsec/phase2/{phase1}', [VpnIpsecController::class, 'phase2'])->name('ipsec.phase2');
+        Route::post('/ipsec/phase2/{phase1}', [VpnIpsecController::class, 'storePhase2'])->name('ipsec.phase2.store');
+        Route::delete('/ipsec/phase2/{phase1}/{uniqid}', [VpnIpsecController::class, 'destroyPhase2'])->name('ipsec.phase2.destroy');
         Route::get('/l2tp', [App\Http\Controllers\VpnController::class, 'l2tp'])->name('l2tp');
+    });
+
+    Route::get('/debug-interfaces', function () {
+        $firewall = \App\Models\Firewall::first();
+        $api = new \App\Services\PfSenseApiService($firewall);
+        dd($api->get('/interfaces'));
     });
 
     // Status
@@ -367,3 +380,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+
+Route::get('/test-igmp', function () {
+    $firewall = \App\Models\Firewall::first();
+    $api = new \App\Services\PfSenseApiService($firewall);
+
+    $endpoints = [
+        '/services/igmp_proxy',
+        '/services/igmpproxy',
+        '/services/igmp',
+    ];
+
+    $results = [];
+    foreach ($endpoints as $endpoint) {
+        try {
+            $results[$endpoint] = $api->get($endpoint);
+        } catch (\Exception $e) {
+            $results[$endpoint] = 'Error: ' . $e->getMessage();
+        }
+    }
+
+    dd($results);
+});

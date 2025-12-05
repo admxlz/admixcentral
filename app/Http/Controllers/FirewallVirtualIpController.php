@@ -78,6 +78,7 @@ class FirewallVirtualIpController extends Controller
             'subnet' => $validated['subnet'],
             'subnet_bits' => (int) $validated['subnet_bits'],
             'descr' => $validated['descr'] ?? '',
+            'id' => (int) $id,
         ];
 
         if ($validated['mode'] === 'carp') {

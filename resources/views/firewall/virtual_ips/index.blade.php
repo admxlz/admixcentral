@@ -50,7 +50,8 @@
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                {{ $vip['interface'] ?? '' }}</td>
+                                                {{ $vip['interface'] ?? '' }}
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                 {{ $vip['subnet'] ?? '' }}/{{ $vip['subnet_bits'] ?? '' }}
                                                 @if($vip['mode'] === 'carp' && !empty($vip['vhid']))
@@ -58,7 +59,8 @@
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                {{ $vip['descr'] ?? '' }}</td>
+                                                {{ $vip['descr'] ?? '' }}
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <button @click="editVip({{ $index }}, {{ json_encode($vip) }})"
                                                     class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>

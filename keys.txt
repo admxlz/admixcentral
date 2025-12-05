@@ -1,0 +1,9 @@
+/api/v2/status/ipsec/child_sa
+/api/v2/status/ipsec/sas
+/api/v2/vpn/ipsec/apply
+/api/v2/vpn/ipsec/phase1/encryption
+/api/v2/vpn/ipsec/phase1
+/api/v2/vpn/ipsec/phase1s
+/api/v2/vpn/ipsec/phase2/encryption
+/api/v2/vpn/ipsec/phase2
+/api/v2/vpn/ipsec/phase2s
