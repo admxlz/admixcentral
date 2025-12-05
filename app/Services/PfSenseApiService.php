@@ -1070,6 +1070,6 @@ class PfSenseApiService
      */
     public function getDiagnosticsTable(string $table)
     {
-        return $this->get("/diagnostics/table?table={$table}");
+        return $this->get('/diagnostics/table', ['id' => $table]);
     }
 }
