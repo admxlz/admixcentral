@@ -14,7 +14,13 @@ class Firewall extends Model
         'api_secret',
         'description',
         'is_dirty',
+        'netgate_id',
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'netgate_id';
+    }
 
     public function company()
     {

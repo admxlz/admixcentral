@@ -22,7 +22,7 @@
                     @if($firewallsWithStatus->isEmpty())
                         <p class="text-gray-500">No firewalls configured yet.</p>
                     @else
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="space-y-4">
                             @foreach($firewallsWithStatus as $firewall)
                                 <div x-data="{
                                             loading: true,
@@ -47,66 +47,154 @@
                                                         this.error = 'Failed to check status';
                                                     });
                                             }
-                                        }" class="border dark:border-gray-700 rounded-lg p-4 hover:shadow-lg transition">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <h4 class="font-bold text-lg">{{ $firewall->name }}</h4>
+                                        }" class="border dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800 hover:shadow-lg transition">
+                                    
+                                    {{-- Header Row: Name & Actions --}}
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <h4 class="font-bold text-xl">{{ $firewall->name }}</h4>
+                                            
+                                            <template x-if="loading">
+                                                <span class="bg-gray-200 text-gray-800 text-xs px-2.5 py-0.5 rounded animate-pulse">Loading...</span>
+                                            </template>
+                                            <template x-if="!loading && online">
+                                                <span class="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Online</span>
+                                            </template>
+                                            <template x-if="!loading && !online">
+                                                <span class="bg-red-100 text-red-800 text-xs px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Offline</span>
+                                            </template>
 
-                                        <template x-if="loading">
-                                            <span
-                                                class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded animate-pulse">Loading...</span>
-                                        </template>
+                                             @if(auth()->user()->role === 'admin')
+                                                <span class="text-xs text-gray-500 border-l pl-3 dark:border-gray-600">{{ $firewall->company->name }}</span>
+                                            @endif
+                                            <span class="text-xs text-gray-400 border-l pl-3 dark:border-gray-600 font-mono">{{ $firewall->url }}</span>
+                                        </div>
 
-                                        <template x-if="!loading && online">
-                                            <span class="bg-green-500 text-white text-xs px-2 py-1 rounded">Online</span>
-                                        </template>
-
-                                        <template x-if="!loading && !online">
-                                            <span class="bg-red-500 text-white text-xs px-2 py-1 rounded">Offline</span>
-                                        </template>
+                                        <div class="flex gap-2">
+                                            <a href="{{ route('firewall.dashboard', $firewall) }}"
+                                                class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded">
+                                                Manage
+                                            </a>
+                                            <a href="{{ route('firewalls.edit', $firewall) }}"
+                                                class="bg-gray-500 hover:bg-gray-700 text-white text-sm font-bold py-2 px-4 rounded">
+                                                Edit
+                                            </a>
+                                        </div>
                                     </div>
 
-                                    @if(auth()->user()->role === 'admin')
-                                        <p class="text-sm text-gray-500 mb-2">{{ $firewall->company->name }}</p>
-                                    @endif
-
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ $firewall->url }}</p>
-
-                                    <div class="min-h-[3rem]">
+                                    {{-- Content Area --}}
+                                    <div class="min-h-[6rem]">
                                         <template x-if="loading">
-                                            <div class="space-y-2 animate-pulse">
-                                                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-                                                <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+                                                <div class="space-y-2">
+                                                    <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                                                    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                                                    <div class="h-4 bg-gray-200 rounded w-full"></div>
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <div class="h-4 bg-gray-200 rounded w-full"></div>
+                                                    <div class="h-4 bg-gray-200 rounded w-full"></div>
+                                                    <div class="h-4 bg-gray-200 rounded w-full"></div>
+                                                </div>
                                             </div>
                                         </template>
 
                                         <template x-if="!loading && online && status && status.data">
-                                            <div class="text-sm space-y-1">
-                                                <template x-if="status.data.platform">
-                                                    <p><span class="font-semibold">Platform:</span> <span
-                                                            x-text="status.data.platform"></span></p>
-                                                </template>
-                                                <template x-if="status.data.version">
-                                                    <p><span class="font-semibold">Version:</span> <span
-                                                            x-text="status.data.version"></span></p>
-                                                </template>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                {{-- Left Column: System Details Table --}}
+                                                <div>
+                                                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                                        <tbody>
+                                                            <tr class="border-b dark:border-gray-700">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">Version</th>
+                                                                <td class="py-1" x-text="status.data.version"></td>
+                                                            </tr>
+                                                            <tr class="border-b dark:border-gray-700">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">Platform</th>
+                                                                <td class="py-1" x-text="status.data.platform"></td>
+                                                            </tr>
+                                                            <tr class="border-b dark:border-gray-700">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">BIOS</th>
+                                                                <td class="py-1">
+                                                                    <div class="flex flex-col text-xs">
+                                                                        <span x-text="status.data.bios_vendor"></span>
+                                                                        <span x-text="status.data.bios_version"></span>
+                                                                        <span x-text="status.data.bios_date"></span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            <tr class="border-b dark:border-gray-700">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">CPU System</th>
+                                                                <td class="py-1">
+                                                                    <div class="flex flex-col text-xs">
+                                                                        <span x-text="status.data.cpu_model"></span>
+                                                                        <span class="text-gray-500" x-text="(status.data.cpu_count || '1') + ' CPUs'"></span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            <tr class="dark:border-gray-700">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">Uptime</th>
+                                                                <td class="py-1" x-text="status.data.uptime"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                {{-- Right Column: Mini Graphs --}}
+                                                <div class="space-y-3">
+                                                    {{-- CPU --}}
+                                                    <div>
+                                                        <div class="flex justify-between mb-1 text-xs">
+                                                            <span class="font-medium text-gray-700 dark:text-gray-300">CPU Usage</span>
+                                                            <span class="text-gray-700 dark:text-gray-300" x-text="(status.data.cpu_usage || 0) + '%'"></span>
+                                                        </div>
+                                                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                                                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" :style="'width: ' + (status.data.cpu_usage || 0) + '%'"></div>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- Memory --}}
+                                                    <div>
+                                                        <div class="flex justify-between mb-1 text-xs">
+                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Memory Usage</span>
+                                                            <span class="text-gray-700 dark:text-gray-300" x-text="(status.data.mem_usage || 0) + '%'"></span>
+                                                        </div>
+                                                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                                                            <div class="bg-purple-600 h-2 rounded-full transition-all duration-500" :style="'width: ' + (status.data.mem_usage || 0) + '%'"></div>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- Swap --}}
+                                                    <div>
+                                                        <div class="flex justify-between mb-1 text-xs">
+                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Swap Usage</span>
+                                                            <span class="text-gray-700 dark:text-gray-300" x-text="(status.data.swap_usage || 0) + '%'"></span>
+                                                        </div>
+                                                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                                                            <div class="bg-red-600 h-2 rounded-full transition-all duration-500" :style="'width: ' + (status.data.swap_usage || 0) + '%'"></div>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- Disk --}}
+                                                    <div>
+                                                        <div class="flex justify-between mb-1 text-xs">
+                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Disk Usage (/)</span>
+                                                            <span class="text-gray-700 dark:text-gray-300" x-text="(status.data.disk_usage || 0) + '%'"></span>
+                                                        </div>
+                                                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                                                            <div class="bg-yellow-600 h-2 rounded-full transition-all duration-500" :style="'width: ' + (status.data.disk_usage || 0) + '%'"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </template>
 
                                         <template x-if="!loading && !online">
-                                            <p class="text-sm text-red-500 break-words" x-text="error || 'Connection failed'">
-                                            </p>
+                                            <div class="text-center py-6">
+                                                <p class="text-red-500 font-semibold">Firewall is unreachable</p>
+                                                <p class="text-sm text-gray-500" x-text="error || 'Connection timed out or refused'"></p>
+                                            </div>
                                         </template>
-                                    </div>
-
-                                    <div class="mt-4 flex gap-2">
-                                        <a href="{{ route('firewall.dashboard', $firewall) }}"
-                                            class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded">
-                                            Manage
-                                        </a>
-                                        <a href="{{ route('firewalls.edit', $firewall) }}"
-                                            class="bg-gray-500 hover:bg-gray-700 text-white text-sm font-bold py-1 px-3 rounded">
-                                            Edit
-                                        </a>
                                     </div>
                                 </div>
                             @endforeach

@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
             'api_key' => 'admin', // Placeholder, real key needed later
             'api_secret' => 'pfsense', // Placeholder
             'description' => 'Lab firewall instance',
+            'netgate_id' => '900d3b9e43d67394f4c7', // Lab Netgate ID
         ]);
     }
 }

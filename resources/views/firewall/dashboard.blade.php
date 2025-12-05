@@ -24,26 +24,199 @@
             {{-- System Status --}}
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-semibold mb-4">System Information</h3>
-                    @if(isset($systemStatus['connected']) && $systemStatus['connected'])
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">System Information</h3>
+                        @if(isset($systemStatus['connected']) && $systemStatus['connected'])
+                            <span
+                                class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Online</span>
+                        @else
+                            <span
+                                class="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Offline</span>
+                        @endif
+                    </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Status</p>
-                                <p class="text-lg font-bold text-green-600 dark:text-green-400">Online</p>
+                    @if(isset($systemStatus['connected']) && $systemStatus['connected'])
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {{-- Left Column: System Details --}}
+                            <div>
+                                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <tbody>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th scope="row"
+                                                class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                Name</th>
+                                            <td class="py-2">{{ $systemStatus['data']['hostname'] ?? $firewall->name }}</td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th scope="row"
+                                                class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                Netgate Device ID</th>
+                                            <td class="py-2 font-mono">{{ $systemStatus['data']['netgate_id'] ?? 'N/A' }}
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th scope="row"
+                                                class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                Version</th>
+                                            <td class="py-2">
+                                                {{ $systemStatus['data']['version'] ?? '2.8.1-RELEASE' }}
+                                                {{-- Fallback or parsed from API if available. The screenshot shows full
+                                                string. --}}
+                                                <div class="text-xs text-gray-400">built on
+                                                    {{ $systemStatus['data']['built_on'] ?? 'Unknown' }}</div>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th scope="row"
+                                                class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                Platform</th>
+                                            <td class="py-2">{{ $systemStatus['data']['platform'] ?? 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th scope="row"
+                                                class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                BIOS</th>
+                                            <td class="py-2">
+                                                Vendor: {{ $systemStatus['data']['bios_vendor'] ?? 'N/A' }} <br>
+                                                Version: {{ $systemStatus['data']['bios_version'] ?? 'N/A' }} <br>
+                                                Date: {{ $systemStatus['data']['bios_date'] ?? 'N/A' }}
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th scope="row" class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">CPU System</th>
+                                            <td class="py-2">
+                                                <div class="flex flex-col">
+                                                    <span>{{ $systemStatus['data']['cpu_model'] ?? 'N/A' }}</span>
+                                                    <span class="text-xs text-gray-500">{{ $systemStatus['data']['cpu_count'] ?? '1' }} CPUs</span>
+                                                </div>
+                                                <div class="mt-1 flex items-center space-x-2 text-xs">
+                                                    <span class="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                                        Load: {{ implode(', ', $systemStatus['data']['cpu_load_avg'] ?? ['-', '-', '-']) }}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th scope="row"
+                                                class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                Uptime</th>
+                                            <td class="py-2">{{ $systemStatus['data']['uptime'] ?? 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th scope="row" class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">Security</th>
+                                            <td class="py-2 space-y-1">
+                                                <div class="flex items-center">
+                                                    <span class="text-xs font-semibold w-24">Kernel PTI:</span>
+                                                    @if(isset($systemStatus['data']['kernel_pti']) && $systemStatus['data']['kernel_pti'] == '1')
+                                                        <span class="px-2 py-0.5 rounded text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Enabled</span>
+                                                    @else
+                                                        <span class="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Disabled</span>
+                                                    @endif
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <span class="text-xs font-semibold w-24">MDS Mitigation:</span>
+                                                    <span class="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                                        {{ ucfirst($systemStatus['data']['mds_mitigation'] ?? 'Inactive') }}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Platform</p>
-                                <p class="text-lg font-bold">{{ $systemStatus['data']['platform'] ?? 'Unknown' }}</p>
-                            </div>
-                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Version</p>
-                                <p class="text-lg font-bold">{{ $systemStatus['data']['version'] ?? 'Unknown' }}</p>
+
+                            {{-- Right Column: Usage Micrographs --}}
+                            <div>
+                                {{-- CPU Usage --}}
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">CPU Usage</span>
+                                        <span
+                                            class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $systemStatus['data']['cpu_usage'] ?? '0' }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-blue-600 h-2.5 rounded-full"
+                                            style="width: {{ $systemStatus['data']['cpu_usage'] ?? '0' }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- Memory Usage --}}
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Memory
+                                            Usage</span>
+                                        <span
+                                            class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $systemStatus['data']['mem_usage'] ?? '0' }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-purple-600 h-2.5 rounded-full"
+                                            style="width: {{ $systemStatus['data']['mem_usage'] ?? '0' }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- Swap Usage --}}
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Swap Usage</span>
+                                        <span
+                                            class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $systemStatus['data']['swap_usage'] ?? '0' }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-red-600 h-2.5 rounded-full"
+                                            style="width: {{ $systemStatus['data']['swap_usage'] ?? '0' }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- Disk Usage --}}
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Disk Usage
+                                            (/)</span>
+                                        <span
+                                            class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $systemStatus['data']['disk_usage'] ?? '0' }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-yellow-600 h-2.5 rounded-full"
+                                            style="width: {{ $systemStatus['data']['disk_usage'] ?? '0' }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- MBUF Usage --}}
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">MBUF Usage</span>
+                                        <span
+                                            class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $systemStatus['data']['mbuf_usage'] ?? '0' }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-indigo-600 h-2.5 rounded-full"
+                                            style="width: {{ $systemStatus['data']['mbuf_usage'] ?? '0' }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- Temperature (if available) --}}
+                                @if(!empty($systemStatus['data']['temp_c']))
+                                    <div class="mb-4">
+                                        <div class="flex justify-between mb-1">
+                                            <span
+                                                class="text-sm font-medium text-gray-700 dark:text-gray-300">Temperature</span>
+                                            <span
+                                                class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $systemStatus['data']['temp_c'] }}°C</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                            {{-- Assuming 100C is max for bar --}}
+                                            <div class="bg-orange-600 h-2.5 rounded-full"
+                                                style="width: {{ min($systemStatus['data']['temp_c'], 100) }}%"></div>
+                                        </div>
+                                    </div>
+                                @endif
+
                             </div>
                         </div>
                     @else
                         <div class="bg-red-50 dark:bg-red-900 p-4 rounded-lg">
-                            <p class="text-red-600 dark:text-red-400 font-semibold">Unable to connect to firewall</p>
+                            <p class="text-red-600 dark:text-red-400 font-semibold">Unable to connect to firewall.</p>
+                            <p class="text-sm text-red-500">{{ $apiError ?? 'Check connectivity and credentials.' }}</p>
                         </div>
                     @endif
                 </div>

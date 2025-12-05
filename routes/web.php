@@ -323,6 +323,69 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/captive-portal', [App\Http\Controllers\ServicesController::class, 'captivePortal'])->name('captive-portal');
         Route::get('/auto-config-backup', [App\Http\Controllers\ServicesController::class, 'autoConfigBackup'])->name('auto-config-backup');
 
+        // ACME (Let's Encrypt)
+        Route::get('/acme', [App\Http\Controllers\ServicesAcmeController::class, 'index'])->name('acme.index');
+        Route::get('/acme/account-keys', [App\Http\Controllers\ServicesAcmeController::class, 'accountKeys'])->name('acme.account-keys');
+        Route::post('/acme/account-keys', [App\Http\Controllers\ServicesAcmeController::class, 'storeAccountKey'])->name('acme.account-keys.store');
+        Route::delete('/acme/account-keys/{id}', [App\Http\Controllers\ServicesAcmeController::class, 'destroyAccountKey'])->name('acme.account-keys.destroy');
+        Route::get('/acme/certificates', [App\Http\Controllers\ServicesAcmeController::class, 'certificates'])->name('acme.certificates');
+        Route::post('/acme/certificates', [App\Http\Controllers\ServicesAcmeController::class, 'storeCertificate'])->name('acme.certificates.store');
+        Route::post('/acme/certificates/issue', [App\Http\Controllers\ServicesAcmeController::class, 'issueCertificate'])->name('acme.certificates.issue');
+        Route::post('/acme/certificates/renew', [App\Http\Controllers\ServicesAcmeController::class, 'renewCertificate'])->name('acme.certificates.renew');
+        Route::delete('/acme/certificates/{id}', [App\Http\Controllers\ServicesAcmeController::class, 'destroyCertificate'])->name('acme.certificates.destroy');
+        Route::get('/acme/settings', [App\Http\Controllers\ServicesAcmeController::class, 'settings'])->name('acme.settings');
+        Route::post('/acme/settings', [App\Http\Controllers\ServicesAcmeController::class, 'updateSettings'])->name('acme.settings.update');
+
+        // HAProxy
+        Route::get('/haproxy', [App\Http\Controllers\ServicesHaproxyController::class, 'index'])->name('haproxy.index');
+        Route::get('/haproxy/settings', [App\Http\Controllers\ServicesHaproxyController::class, 'settings'])->name('haproxy.settings');
+        Route::post('/haproxy/settings', [App\Http\Controllers\ServicesHaproxyController::class, 'updateSettings'])->name('haproxy.settings.update');
+
+        // HAProxy Frontends
+        Route::get('/haproxy/frontends', [App\Http\Controllers\ServicesHaproxyController::class, 'frontends'])->name('haproxy.frontends.index');
+        Route::get('/haproxy/frontends/create', [App\Http\Controllers\ServicesHaproxyController::class, 'createFrontend'])->name('haproxy.frontends.create');
+        Route::post('/haproxy/frontends', [App\Http\Controllers\ServicesHaproxyController::class, 'storeFrontend'])->name('haproxy.frontends.store');
+        Route::get('/haproxy/frontends/{id}/edit', [App\Http\Controllers\ServicesHaproxyController::class, 'editFrontend'])->name('haproxy.frontends.edit');
+        Route::put('/haproxy/frontends/{id}', [App\Http\Controllers\ServicesHaproxyController::class, 'updateFrontend'])->name('haproxy.frontends.update');
+        Route::delete('/haproxy/frontends/{id}', [App\Http\Controllers\ServicesHaproxyController::class, 'destroyFrontend'])->name('haproxy.frontends.destroy');
+
+        // HAProxy Backends
+        Route::get('/haproxy/backends', [App\Http\Controllers\ServicesHaproxyController::class, 'backends'])->name('haproxy.backends.index');
+        Route::get('/haproxy/backends/create', [App\Http\Controllers\ServicesHaproxyController::class, 'createBackend'])->name('haproxy.backends.create');
+        Route::post('/haproxy/backends', [App\Http\Controllers\ServicesHaproxyController::class, 'storeBackend'])->name('haproxy.backends.store');
+        Route::get('/haproxy/backends/{id}/edit', [App\Http\Controllers\ServicesHaproxyController::class, 'editBackend'])->name('haproxy.backends.edit');
+        Route::put('/haproxy/backends/{id}', [App\Http\Controllers\ServicesHaproxyController::class, 'updateBackend'])->name('haproxy.backends.update');
+        Route::delete('/haproxy/backends/{id}', [App\Http\Controllers\ServicesHaproxyController::class, 'destroyBackend'])->name('haproxy.backends.destroy');
+
+        // FreeRADIUS
+        Route::get('/freeradius', [App\Http\Controllers\ServicesFreeradiusController::class, 'index'])->name('freeradius.index');
+
+        // Settings
+        Route::get('/freeradius/settings', [App\Http\Controllers\ServicesFreeradiusController::class, 'settings'])->name('freeradius.settings');
+        Route::post('/freeradius/settings', [App\Http\Controllers\ServicesFreeradiusController::class, 'updateSettings'])->name('freeradius.settings.update');
+
+        // Users
+        Route::get('/freeradius/users', [App\Http\Controllers\ServicesFreeradiusController::class, 'users'])->name('freeradius.users.index');
+        Route::get('/freeradius/users/create', [App\Http\Controllers\ServicesFreeradiusController::class, 'createUser'])->name('freeradius.users.create');
+        Route::post('/freeradius/users', [App\Http\Controllers\ServicesFreeradiusController::class, 'storeUser'])->name('freeradius.users.store');
+        Route::get('/freeradius/users/{username}/edit', [App\Http\Controllers\ServicesFreeradiusController::class, 'editUser'])->name('freeradius.users.edit');
+        Route::put('/freeradius/users/{username}', [App\Http\Controllers\ServicesFreeradiusController::class, 'updateUser'])->name('freeradius.users.update');
+        Route::delete('/freeradius/users/{username}', [App\Http\Controllers\ServicesFreeradiusController::class, 'destroyUser'])->name('freeradius.users.destroy');
+
+        // Clients/NAS
+        Route::get('/freeradius/clients', [App\Http\Controllers\ServicesFreeradiusController::class, 'clients'])->name('freeradius.clients.index');
+        Route::get('/freeradius/clients/create', [App\Http\Controllers\ServicesFreeradiusController::class, 'createClient'])->name('freeradius.clients.create');
+        Route::post('/freeradius/clients', [App\Http\Controllers\ServicesFreeradiusController::class, 'storeClient'])->name('freeradius.clients.store');
+        Route::get('/freeradius/clients/{id}/edit', [App\Http\Controllers\ServicesFreeradiusController::class, 'editClient'])->name('freeradius.clients.edit');
+        Route::put('/freeradius/clients/{id}', [App\Http\Controllers\ServicesFreeradiusController::class, 'updateClient'])->name('freeradius.clients.update');
+        Route::delete('/freeradius/clients/{id}', [App\Http\Controllers\ServicesFreeradiusController::class, 'destroyClient'])->name('freeradius.clients.destroy');
+
+        // Interfaces
+        Route::get('/freeradius/interfaces', [App\Http\Controllers\ServicesFreeradiusController::class, 'interfaces'])->name('freeradius.interfaces.index');
+        Route::get('/freeradius/interfaces/create', [App\Http\Controllers\ServicesFreeradiusController::class, 'createInterface'])->name('freeradius.interfaces.create');
+        Route::post('/freeradius/interfaces', [App\Http\Controllers\ServicesFreeradiusController::class, 'storeInterface'])->name('freeradius.interfaces.store');
+        Route::delete('/freeradius/interfaces/{id}', [App\Http\Controllers\ServicesFreeradiusController::class, 'destroyInterface'])->name('freeradius.interfaces.destroy');
+
         Route::get('/dhcp-relay', [App\Http\Controllers\ServicesController::class, 'dhcpRelay'])->name('dhcp-relay');
         Route::post('/dhcp-relay', [App\Http\Controllers\ServicesController::class, 'updateDhcpRelay'])->name('dhcp-relay.update');
         Route::get('/dhcpv6-relay', [App\Http\Controllers\ServicesController::class, 'dhcpv6Relay'])->name('dhcpv6-relay');

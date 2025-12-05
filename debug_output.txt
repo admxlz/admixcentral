@@ -1,51 +1,262 @@
-/api/v2/diagnostics/halt_system
-/api/v2/status/carp
-/api/v2/status/dhcp_server/leases
-/api/v2/status/gateways
-/api/v2/status/ipsec/child_sa
-/api/v2/status/ipsec/sas
-/api/v2/status/interfaces
-/api/v2/status/logs/auth
-/api/v2/status/logs/dhcp
-/api/v2/status/logs/firewall
-/api/v2/status/logs/openvpn
-/api/v2/status/logs/settings
-/api/v2/status/logs/system
-/api/v2/status/openvpn/clients
-/api/v2/status/openvpn/server/connection
-/api/v2/status/openvpn/server/route
-/api/v2/status/openvpn/servers
-/api/v2/status/service
-/api/v2/status/services
-/api/v2/status/system
-/api/v2/system/crl
-/api/v2/system/crl/revoked_certificate
-/api/v2/system/crls
-/api/v2/system/certificate_authorities
-/api/v2/system/certificate_authority
-/api/v2/system/certificate_authority/generate
-/api/v2/system/certificate_authority/renew
-/api/v2/system/certificate
-/api/v2/system/certificate/generate
-/api/v2/system/certificate/pkcs12/export
-/api/v2/system/certificate/renew
-/api/v2/system/certificate/signing_request
-/api/v2/system/certificate/signing_request/sign
-/api/v2/system/certificates
-/api/v2/system/console
-/api/v2/system/dns
-/api/v2/system/hostname
-/api/v2/system/notifications/email_settings
-/api/v2/system/package/available
-/api/v2/system/package
-/api/v2/system/packages
-/api/v2/system/restapi/access_list
-/api/v2/system/restapi/access_list/entry
-/api/v2/system/restapi/settings
-/api/v2/system/restapi/settings/sync
-/api/v2/system/restapi/version
-/api/v2/system/timezone
-/api/v2/system/tunable
-/api/v2/system/tunables
-/api/v2/system/version
-/api/v2/system/webgui/settings
+Trying endpoint: /services/freeradius/settings ... FAILED: API request failed (https://172.30.1.129:444/api/v2/services/freeradius/settings): <!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css" type="text/css">
+		<link rel="stylesheet" href="/css/login.css" type="text/css">
+		<title>404 - File Not Found</title>
+		<script type="text/javascript">
+			//<![CDATA{
+			var events = events || [];
+			//]]>
+		</script>
+		<script src="/vendor/jquery/jquery-3.7.1.min.js"></script>
+		<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+		<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+		<script>
+			$(function(){
+				$("#logodiv").load("logo.svg");
+			});
+		</script>
+
+	</head>
+
+	<body id="login">
+		<div id="total">
+			<header>
+				<div id="headerrow">
+					<div class="row">
+						<div class="col-sm-4">
+							<div id="logodiv" style="text-align:center" class="nowarning">
+							</div>
+						</div>
+						<div class="col-sm-4 nowarning msgbox text-center text-danger">
+							The requested file does not exist.<br/>
+						</div>
+						<div class="col-sm-4 nowarning msgbox text-center">
+							<h4>404 Error</h4>
+						</div>
+					</div>
+				</div>
+			</header>
+			<div style="background: #1e3f75;" class="pagebody">
+				<div class="col-sm-4"></div>
+				<div class="col-sm-4 logoCol">
+					<div class="loginCont center-block text-center">
+						<strong><a href="/">Return to Dashboard</a></strong>
+					</div>
+				</div>
+				<div class="col-sm-4"></div>
+			</div>
+			<footer id="3">
+				<div id="footertext">
+					<p class="text-muted">
+						<a target="_blank" href="https://pfsense.org">pfSense</a>
+						software is developed and maintained by
+						<a target="_blank" href="https://netgate.com">Netgate</a>.
+						&copy; ESF 2004 - 2025
+						<a target="_blank" href="https://pfsense.org/license">View license</a>.
+					</p>
+				</div>
+			</footer>
+		</div>
+	</body>
+</html>
+
+Trying endpoint: /services/freeradius/setting ... FAILED: API request failed (https://172.30.1.129:444/api/v2/services/freeradius/setting): <!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css" type="text/css">
+		<link rel="stylesheet" href="/css/login.css" type="text/css">
+		<title>404 - File Not Found</title>
+		<script type="text/javascript">
+			//<![CDATA{
+			var events = events || [];
+			//]]>
+		</script>
+		<script src="/vendor/jquery/jquery-3.7.1.min.js"></script>
+		<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+		<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+		<script>
+			$(function(){
+				$("#logodiv").load("logo.svg");
+			});
+		</script>
+
+	</head>
+
+	<body id="login">
+		<div id="total">
+			<header>
+				<div id="headerrow">
+					<div class="row">
+						<div class="col-sm-4">
+							<div id="logodiv" style="text-align:center" class="nowarning">
+							</div>
+						</div>
+						<div class="col-sm-4 nowarning msgbox text-center text-danger">
+							The requested file does not exist.<br/>
+						</div>
+						<div class="col-sm-4 nowarning msgbox text-center">
+							<h4>404 Error</h4>
+						</div>
+					</div>
+				</div>
+			</header>
+			<div style="background: #1e3f75;" class="pagebody">
+				<div class="col-sm-4"></div>
+				<div class="col-sm-4 logoCol">
+					<div class="loginCont center-block text-center">
+						<strong><a href="/">Return to Dashboard</a></strong>
+					</div>
+				</div>
+				<div class="col-sm-4"></div>
+			</div>
+			<footer id="3">
+				<div id="footertext">
+					<p class="text-muted">
+						<a target="_blank" href="https://pfsense.org">pfSense</a>
+						software is developed and maintained by
+						<a target="_blank" href="https://netgate.com">Netgate</a>.
+						&copy; ESF 2004 - 2025
+						<a target="_blank" href="https://pfsense.org/license">View license</a>.
+					</p>
+				</div>
+			</footer>
+		</div>
+	</body>
+</html>
+
+Trying endpoint: /services/freeradius/config ... FAILED: API request failed (https://172.30.1.129:444/api/v2/services/freeradius/config): <!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css" type="text/css">
+		<link rel="stylesheet" href="/css/login.css" type="text/css">
+		<title>404 - File Not Found</title>
+		<script type="text/javascript">
+			//<![CDATA{
+			var events = events || [];
+			//]]>
+		</script>
+		<script src="/vendor/jquery/jquery-3.7.1.min.js"></script>
+		<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+		<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+		<script>
+			$(function(){
+				$("#logodiv").load("logo.svg");
+			});
+		</script>
+
+	</head>
+
+	<body id="login">
+		<div id="total">
+			<header>
+				<div id="headerrow">
+					<div class="row">
+						<div class="col-sm-4">
+							<div id="logodiv" style="text-align:center" class="nowarning">
+							</div>
+						</div>
+						<div class="col-sm-4 nowarning msgbox text-center text-danger">
+							The requested file does not exist.<br/>
+						</div>
+						<div class="col-sm-4 nowarning msgbox text-center">
+							<h4>404 Error</h4>
+						</div>
+					</div>
+				</div>
+			</header>
+			<div style="background: #1e3f75;" class="pagebody">
+				<div class="col-sm-4"></div>
+				<div class="col-sm-4 logoCol">
+					<div class="loginCont center-block text-center">
+						<strong><a href="/">Return to Dashboard</a></strong>
+					</div>
+				</div>
+				<div class="col-sm-4"></div>
+			</div>
+			<footer id="3">
+				<div id="footertext">
+					<p class="text-muted">
+						<a target="_blank" href="https://pfsense.org">pfSense</a>
+						software is developed and maintained by
+						<a target="_blank" href="https://netgate.com">Netgate</a>.
+						&copy; ESF 2004 - 2025
+						<a target="_blank" href="https://pfsense.org/license">View license</a>.
+					</p>
+				</div>
+			</footer>
+		</div>
+	</body>
+</html>
+
+Trying endpoint: /services/freeradius ... FAILED: API request failed (https://172.30.1.129:444/api/v2/services/freeradius): <!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css" type="text/css">
+		<link rel="stylesheet" href="/css/login.css" type="text/css">
+		<title>404 - File Not Found</title>
+		<script type="text/javascript">
+			//<![CDATA{
+			var events = events || [];
+			//]]>
+		</script>
+		<script src="/vendor/jquery/jquery-3.7.1.min.js"></script>
+		<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+		<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+		<script>
+			$(function(){
+				$("#logodiv").load("logo.svg");
+			});
+		</script>
+
+	</head>
+
+	<body id="login">
+		<div id="total">
+			<header>
+				<div id="headerrow">
+					<div class="row">
+						<div class="col-sm-4">
+							<div id="logodiv" style="text-align:center" class="nowarning">
+							</div>
+						</div>
+						<div class="col-sm-4 nowarning msgbox text-center text-danger">
+							The requested file does not exist.<br/>
+						</div>
+						<div class="col-sm-4 nowarning msgbox text-center">
+							<h4>404 Error</h4>
+						</div>
+					</div>
+				</div>
+			</header>
+			<div style="background: #1e3f75;" class="pagebody">
+				<div class="col-sm-4"></div>
+				<div class="col-sm-4 logoCol">
+					<div class="loginCont center-block text-center">
+						<strong><a href="/">Return to Dashboard</a></strong>
+					</div>
+				</div>
+				<div class="col-sm-4"></div>
+			</div>
+			<footer id="3">
+				<div id="footertext">
+					<p class="text-muted">
+						<a target="_blank" href="https://pfsense.org">pfSense</a>
+						software is developed and maintained by
+						<a target="_blank" href="https://netgate.com">Netgate</a>.
+						&copy; ESF 2004 - 2025
+						<a target="_blank" href="https://pfsense.org/license">View license</a>.
+					</p>
+				</div>
+			</footer>
+		</div>
+	</body>
+</html>
+
+Trying endpoint: /services/freeradius/user ... FAILED: API request failed (https://172.30.1.129:444/api/v2/services/freeradius/user): {"code":400,"status":"bad request","response_id":"MODEL_REQUIRES_ID","message":"Field `id` is required.","data":[]}
+

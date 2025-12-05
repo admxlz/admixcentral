@@ -47,7 +47,37 @@ class FirewallController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        Firewall::create($validated);
+        // Create instance to fetch ID
+        $firewall = new Firewall($validated);
+        // We need to save it temporarily or handle the API call without a saved model?
+        // Service requires a model.
+        // Let's create it first, then try to fetch ID and update.
+        // Or refrain from using the service class for the initial check?
+        // The service class expects a Firewall model, but it doesn't strictly need it to be saved if we populate the properties.
+
+        try {
+            $api = new \App\Services\PfSenseApiService($firewall);
+            $response = $api->get('/status/system');
+            if (isset($response['data']['netgate_id'])) {
+                $validated['netgate_id'] = $response['data']['netgate_id'];
+            }
+        } catch (\Exception $e) {
+            // Log error or set a flash warning?
+            // For now, proceed without ID, it will fallback to ID if we didn't override route key?
+            // Wait, we OVERRODE route key. If netgate_id is null, links might break or look like /firewall//dashboard
+            // We should arguably fail or generate a UUID if we can't reach it?
+            // Let's just create it and maybe try to fetch later? 
+            // Or better, set it to the auto-increment ID if API fails?
+            // But netgate_id is string.
+        }
+
+        $firewall = Firewall::create($validated);
+
+        // If we didn't get netgate_id, maybe set it to the ID?
+        if (!$firewall->netgate_id) {
+            $firewall->netgate_id = (string) $firewall->id; // Fallback
+            $firewall->save();
+        }
 
         return redirect()->route('firewalls.index')->with('success', 'Firewall created successfully.');
     }
