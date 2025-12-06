@@ -77,12 +77,15 @@
                     }
                 }">
 
+
+                    <x-apply-changes-banner :firewall="$firewall" />
+
                     {{-- Interface Tabs --}}
                     <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
                         <nav class="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
                             @foreach($interfaces as $iface)
-                                <a href="{{ route('firewall.rules.index', ['firewall' => $firewall->id, 'interface' => $iface['if'] ?? $iface['id']]) }}"
-                                    class="{{ $selectedInterface === ($iface['if'] ?? $iface['id']) ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                <a href="{{ route('firewall.rules.index', ['firewall' => $firewall, 'interface' => $iface['id'] ?? $iface['if']]) }}"
+                                    class="{{ $selectedInterface === ($iface['id'] ?? $iface['if']) ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                                     {{ strtoupper($iface['descr'] ?? $iface['id']) }}
                                 </a>
                             @endforeach
@@ -98,14 +101,7 @@
                         {{-- Actions Toolbar --}}
                         <div class="flex justify-between mb-4">
                             <div class="flex space-x-2">
-                                {{-- Apply Changes Button --}}
-                                <div class="inline-block">
-                                    <button type="button"
-                                        onclick="document.getElementById('apply-changes-form').submit()"
-                                        class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:bg-green-500 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                        Apply Changes
-                                    </button>
-                                </div>
+
 
                                 {{-- Bulk Actions --}}
                                 <div class="flex space-x-2">
@@ -177,12 +173,7 @@
                                         <th scope="col"
                                             class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Gateway</th>
-                                        <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                            Queue</th>
-                                        <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                            Schedule</th>
+
                                         <th scope="col"
                                             class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Description</th>
@@ -205,7 +196,7 @@
                                                 <div class="flex flex-col space-y-1">
                                                     @if($index > 0)
                                                         <form method="POST"
-                                                            action="{{ route('firewall.rules.move', ['firewall' => $firewall->id, 'tracker' => $rule['tracker']]) }}">
+                                                            action="{{ route('firewall.rules.move', ['firewall' => $firewall, 'tracker' => $rule['tracker']]) }}">
                                                             @csrf
                                                             <input type="hidden" name="direction" value="up">
                                                             <input type="hidden" name="interface"
@@ -222,7 +213,7 @@
                                                     @endif
                                                     @if($index < count($filteredRules) - 1)
                                                         <form method="POST"
-                                                            action="{{ route('firewall.rules.move', ['firewall' => $firewall->id, 'tracker' => $rule['tracker']]) }}">
+                                                            action="{{ route('firewall.rules.move', ['firewall' => $firewall, 'tracker' => $rule['tracker']]) }}">
                                                             @csrf
                                                             <input type="hidden" name="direction" value="down">
                                                             <input type="hidden" name="interface"
@@ -297,21 +288,14 @@
                                                 class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                                 {{ $rule['gateway'] ?? '*' }}
                                             </td>
-                                            <td
-                                                class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ $rule['defaultqueue'] ?? 'none' }}
-                                            </td>
-                                            <td
-                                                class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ $rule['sched'] ?? '*' }}
-                                            </td>
+
                                             <td class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
                                                 {{ $rule['descr'] ?? '' }}
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-center">
                                                 <div class="flex justify-center space-x-2">
                                                     {{-- Edit Button --}}
-                                                    <a href="{{ route('firewall.rules.edit', ['firewall' => $firewall->id, 'tracker' => $rule['tracker']]) }}"
+                                                    <a href="{{ route('firewall.rules.edit', ['firewall' => $firewall, 'tracker' => $rule['tracker']]) }}"
                                                         class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                                                         title="Edit">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor"
@@ -371,7 +355,7 @@
                     {{-- Hidden Delete Forms --}}
                     @foreach($filteredRules as $rule)
                         <form id="delete-form-{{ $rule['tracker'] }}" method="POST"
-                            action="{{ route('firewall.rules.destroy', ['firewall' => $firewall->id, 'tracker' => $rule['tracker']]) }}"
+                            action="{{ route('firewall.rules.destroy', ['firewall' => $firewall, 'tracker' => $rule['tracker']]) }}"
                             class="hidden">
                             @csrf
                             @method('DELETE')

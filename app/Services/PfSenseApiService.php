@@ -461,7 +461,7 @@ class PfSenseApiService
 
     public function deleteFirewallRule(int $id)
     {
-        return $this->delete("/firewall/rule?id={$id}");
+        return $this->delete('/firewall/rule', ['id' => $id]);
     }
 
     public function updateInterface(string $id, array $data)
@@ -514,7 +514,7 @@ class PfSenseApiService
      */
     public function deleteNatPortForward(int $id)
     {
-        return $this->delete("/firewall/nat/port_forward?id={$id}");
+        return $this->delete('/firewall/nat/port_forward', ['id' => $id]);
     }
 
     /**

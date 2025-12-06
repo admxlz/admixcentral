@@ -91,6 +91,8 @@
     }" @open-create-modal.window="resetForm(); showModal = true">
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <x-apply-changes-banner :firewall="$firewall" />
+
             @if(session('success'))
                 <div class="pf-alert pf-alert-success mb-4">
                     {{ session('success') }}
@@ -352,7 +354,8 @@
                         </div>
                     </div>
                     <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <form :action="'{{ url('firewall/' . $firewall->id . '/nat/port-forward') }}/' + deleteId"
+                        <form
+                            :action="'{{ url('firewall/' . $firewall->getRouteKey() . '/nat/port-forward') }}/' + deleteId"
                             method="POST">
                             @csrf
                             @method('DELETE')

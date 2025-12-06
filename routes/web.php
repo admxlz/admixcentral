@@ -151,10 +151,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/firewall/{firewall}/rules/{tracker}/move', [App\Http\Controllers\FirewallRuleController::class, 'move'])
         ->middleware(App\Http\Middleware\EnsureTenantScope::class)
         ->name('firewall.rules.move');
-    // Keeping show for consistency if needed, but edit covers most needs
-    Route::get('/firewall/{firewall}/rules/{rule}', [App\Http\Controllers\FirewallRuleController::class, 'show'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.rules.show');
     Route::post('/firewall/{firewall}/apply', [App\Http\Controllers\FirewallApplyController::class, 'apply'])
         ->middleware(App\Http\Middleware\EnsureTenantScope::class)
         ->name('firewall.apply');

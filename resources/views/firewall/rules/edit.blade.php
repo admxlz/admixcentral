@@ -10,7 +10,7 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <form method="POST"
-                        action="{{ isset($rule['tracker']) ? route('firewall.rules.update', ['firewall' => $firewall->id, 'tracker' => $rule['tracker']]) : route('firewall.rules.store', $firewall) }}"
+                        action="{{ isset($rule['tracker']) ? route('firewall.rules.update', ['firewall' => $firewall, 'tracker' => $rule['tracker']]) : route('firewall.rules.store', $firewall) }}"
                         x-data="{ 
                               protocol: '{{ $rule['protocol'] ?? 'tcp' }}', 
                               sourceType: '{{ is_array($rule['source'] ?? null) ? (isset($rule['source']['address']) ? 'address' : (isset($rule['source']['network']) ? 'network' : 'any')) : 'any' }}',
