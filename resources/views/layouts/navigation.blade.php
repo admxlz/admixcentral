@@ -4,8 +4,21 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <!-- Navigation Links with Dropdowns -->
-                <div class="hidden space-x-8 sm:-my-px sm:flex">
+                <!-- Logo - Removed as per user request -->
+                <!--
+                <div class="shrink-0 flex items-center">
+                    <a href="{{ route('dashboard') }}">
+                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                    </a>
+                </div>
+                -->
+
+                <!-- Navigation Centered Group -->
+                <div class="hidden space-x-8 sm:flex flex-1 justify-center items-center">
+
+                    @if(request()->route('firewall'))
+                        <!-- Separator removed as per user request -->
+                    @endif
                     @if(request()->route('firewall'))
                         <!-- pfSense-Style Dropdowns (only when managing a firewall) -->
 
@@ -374,6 +387,19 @@
             <x-responsive-nav-link :href="route('firewalls.index')" :active="request()->routeIs('firewalls.*')">
                 {{ __('Firewalls') }}
             </x-responsive-nav-link>
+            @if(Auth::user()->isGlobalAdmin())
+                <x-responsive-nav-link :href="route('companies.index')" :active="request()->routeIs('companies.*')">
+                    {{ __('Companies') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                    {{ __('Users') }}
+                </x-responsive-nav-link>
+            @elseif(Auth::user()->isCompanyAdmin())
+                <x-responsive-nav-link :href="route('companies.show', Auth::user()->company_id)"
+                    :active="request()->routeIs('companies.show')">
+                    {{ __('My Company') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

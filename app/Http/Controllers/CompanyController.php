@@ -11,54 +11,90 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        //
+        // Only Global Admins should see the full list.
+        // If Company Admin accesses this, redirect to their own company page.
+        $user = auth()->user();
+        if ($user->isCompanyAdmin()) {
+            return redirect()->route('companies.show', $user->company_id);
+        }
+        if (!$user->isGlobalAdmin()) {
+            abort(403);
+        }
+
+        $companies = \App\Models\Company::withCount(['users', 'firewalls'])->get();
+        return view('companies.index', compact('companies'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        if (!auth()->user()->isGlobalAdmin()) {
+            abort(403);
+        }
+        return view('companies.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        if (!auth()->user()->isGlobalAdmin()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        \App\Models\Company::create($validated);
+
+        return redirect()->route('companies.index')->with('success', 'Company created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(\App\Models\Company $company)
     {
-        //
+        $user = auth()->user();
+        if ($user->isCompanyAdmin() && $user->company_id !== $company->id) {
+            abort(403);
+        }
+        if (!$user->isGlobalAdmin() && !$user->isCompanyAdmin()) {
+            abort(403);
+        }
+
+        $company->load(['users', 'firewalls']);
+        return view('companies.show', compact('company'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(\App\Models\Company $company)
     {
-        //
+        if (!auth()->user()->isGlobalAdmin()) {
+            abort(403);
+        }
+        return view('companies.edit', compact('company'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, \App\Models\Company $company)
     {
-        //
+        if (!auth()->user()->isGlobalAdmin()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $company->update($validated);
+
+        return redirect()->route('companies.index')->with('success', 'Company updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(\App\Models\Company $company)
     {
-        //
+        if (!auth()->user()->isGlobalAdmin()) {
+            abort(403);
+        }
+
+        $company->delete();
+
+        return redirect()->route('companies.index')->with('success', 'Company deleted successfully.');
     }
 }

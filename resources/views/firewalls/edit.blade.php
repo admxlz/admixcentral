@@ -13,7 +13,7 @@
                         @csrf
                         @method('PUT')
 
-                        @if(auth()->user()->role === 'admin')
+                        @if(auth()->user()->isGlobalAdmin())
                             <div class="mb-4">
                                 <label for="company_id" class="block text-sm font-medium mb-2">Company</label>
                                 <select name="company_id" id="company_id" required

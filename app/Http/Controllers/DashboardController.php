@@ -13,7 +13,8 @@ class DashboardController extends Controller
         $user = $request->user();
 
         // Get firewalls based on user role
-        if ($user->role === 'admin') {
+        // Get firewalls based on user role
+        if ($user->isGlobalAdmin()) {
             $firewalls = Firewall::with('company')->get();
         } else {
             $firewalls = Firewall::where('company_id', $user->company_id)->get();

@@ -44,9 +44,10 @@
                                     Name <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="name" id="name" value="{{ old('name', $alias['name'] ?? '') }}"
-                                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:bg-gray-900 dark:border-gray-600 dark:text-gray-300"
+                                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:bg-gray-900 dark:border-gray-600 dark:text-gray-300 {{ isset($alias['id']) ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : '' }}"
                                     required pattern="[a-zA-Z0-9_]+" maxlength="255"
-                                    placeholder="Alphanumeric and underscore only">
+                                    placeholder="Alphanumeric and underscore only"
+                                    {{ isset($alias['id']) ? 'readonly' : '' }}>
                                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">The name may only consist of
                                     letters, numbers, and underscores.</p>
                             </div>

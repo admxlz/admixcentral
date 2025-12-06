@@ -12,13 +12,15 @@
                     <form action="{{ route('firewalls.store') }}" method="POST">
                         @csrf
 
-                        @if(auth()->user()->role === 'admin')
+                        {{-- Company Selection --}}
+                        @if($companies->count() > 1 || auth()->user()->isGlobalAdmin())
                             <div class="mb-4">
-                                <label for="company_id" class="block text-sm font-medium mb-2">Company</label>
+                                <label for="company_id"
+                                    class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Company</label>
                                 <select name="company_id" id="company_id" required
-                                    class="w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                                    class="w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
                                     @foreach($companies as $company)
-                                        <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                                        <option value="{{ $company->id }}" {{ (old('company_id') == $company->id || request('company_id') == $company->id) ? 'selected' : '' }}>
                                             {{ $company->name }}
                                         </option>
                                     @endforeach
@@ -28,7 +30,14 @@
                                 @enderror
                             </div>
                         @else
-                            <input type="hidden" name="company_id" value="{{ auth()->user()->company_id }}">
+                            {{-- Single company available (Company Admin) --}}
+                            <input type="hidden" name="company_id" value="{{ $companies->first()->id }}">
+                            <div class="mb-4">
+                                <label
+                                    class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Company</label>
+                                <input type="text" disabled value="{{ $companies->first()->name }}"
+                                    class="w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-400">
+                            </div>
                         @endif
 
                         <div class="mb-4">
@@ -53,7 +62,8 @@
 
                         <div x-data="{ authMethod: '{{ old('auth_method', 'basic') }}' }">
                             <div class="mb-4">
-                                <label for="auth_method" class="block text-sm font-medium mb-2">Authentication Method</label>
+                                <label for="auth_method" class="block text-sm font-medium mb-2">Authentication
+                                    Method</label>
                                 <select name="auth_method" id="auth_method" x-model="authMethod"
                                     class="w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
                                     <option value="basic">Basic Auth (Username/Password)</option>

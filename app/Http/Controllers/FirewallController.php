@@ -15,7 +15,7 @@ class FirewallController extends Controller
     {
         $user = $request->user();
 
-        if ($user->role === 'admin') {
+        if ($user->isGlobalAdmin()) {
             $firewalls = Firewall::with('company')->get();
         } else {
             $firewalls = Firewall::where('company_id', $user->company_id)->get();
@@ -24,20 +24,21 @@ class FirewallController extends Controller
         return view('firewalls.index', compact('firewalls'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        $companies = Company::all();
+        $user = auth()->user();
+        if ($user->isGlobalAdmin()) {
+            $companies = Company::all();
+        } else {
+            $companies = collect([$user->company]);
+        }
         return view('firewalls.create', compact('companies'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
+        $user = auth()->user();
+
         $validated = $request->validate([
             'company_id' => 'required|exists:companies,id',
             'name' => 'required|string|max:255',
@@ -49,84 +50,105 @@ class FirewallController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        // Create instance to fetch ID
+        if ($user->isCompanyAdmin()) {
+            if ((int) $validated['company_id'] !== (int) $user->company_id) {
+                abort(403, 'You can only create firewalls for your own company.');
+            }
+        } elseif (!$user->isGlobalAdmin()) {
+            abort(403);
+        }
+
         $firewall = new Firewall($validated);
-        // We need to save it temporarily or handle the API call without a saved model?
-        // Service requires a model.
-        // Let's create it first, then try to fetch ID and update.
-        // Or refrain from using the service class for the initial check?
-        // The service class expects a Firewall model, but it doesn't strictly need it to be saved if we populate the properties.
 
         try {
             $api = new \App\Services\PfSenseApiService($firewall);
+            // We need to set credentials manually on the service if the model isn't saved/mutated yet?
+            // PfSenseApiService constructor uses model attributes.
+            // Model attributes are set in new Firewall($validated).
+            // Encrypted casting might not happen if not saving? 
+            // Actually, casts happen on set/save. If we just 'new', attributes are raw.
+            // But Service expects raw/decrypted.
+            // Wait, if I set 'api_key' on model, it might auto-encrypt if cast is 'encrypted'.
+            // If I read it back, it decrypts.
+            // So new Firewall($validated) should work in memory.
+
             $response = $api->get('/status/system');
             if (isset($response['data']['netgate_id'])) {
                 $validated['netgate_id'] = $response['data']['netgate_id'];
             }
         } catch (\Exception $e) {
-            // Log error or set a flash warning?
-            // For now, proceed without ID, it will fallback to ID if we didn't override route key?
-            // Wait, we OVERRODE route key. If netgate_id is null, links might break or look like /firewall//dashboard
-            // We should arguably fail or generate a UUID if we can't reach it?
-            // Let's just create it and maybe try to fetch later? 
-            // Or better, set it to the auto-increment ID if API fails?
-            // But netgate_id is string.
+            // Log or ignore
         }
 
         $firewall = Firewall::create($validated);
 
-        // If we didn't get netgate_id, maybe set it to the ID?
         if (!$firewall->netgate_id) {
-            $firewall->netgate_id = (string) $firewall->id; // Fallback
+            $firewall->netgate_id = (string) $firewall->id;
             $firewall->save();
         }
 
         return redirect()->route('firewalls.index')->with('success', 'Firewall created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Firewall $firewall)
     {
+        // Middleware EnsureTenantScope handles access, but good to be explicit or leave it.
+        // We'll rely on middleware for 'firewall' bound model access, 
+        // but here it's implicit binding.
+        // EnsureTenantScope usually applies to routes under /firewall/{firewall}.
+        // This specific route might not be covered if not in that group?
+        // Route::resource('firewalls') has middleware EnsureTenantScope applied in web.php.
         return redirect()->route('firewall.dashboard', $firewall);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Firewall $firewall)
     {
-        $companies = Company::all();
+        // Scope check
+        $user = auth()->user();
+        if ($user->isCompanyAdmin() && $firewall->company_id !== $user->company_id) {
+            abort(403);
+        }
+
+        if ($user->isGlobalAdmin()) {
+            $companies = Company::all();
+        } else {
+            $companies = collect([$user->company]);
+        }
         return view('firewalls.edit', compact('firewall', 'companies'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Firewall $firewall)
     {
+        $user = auth()->user();
+        if ($user->isCompanyAdmin() && $firewall->company_id !== $user->company_id) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'company_id' => 'required|exists:companies,id',
             'name' => 'required|string|max:255',
             'url' => 'required|url',
             'auth_method' => 'required|in:basic,token',
             'api_key' => 'required_if:auth_method,basic|nullable|string',
-            'api_secret' => 'nullable|string', // Nullable because we might be keeping existing
+            'api_secret' => 'nullable|string',
             'api_token' => 'required_if:auth_method,token|nullable|string',
             'description' => 'nullable|string',
         ]);
+
+        if ($user->isCompanyAdmin()) {
+            if ((int) $validated['company_id'] !== (int) $user->company_id) {
+                // Prevent moving firewall to another company
+                abort(403);
+            }
+        }
 
         if ($validated['auth_method'] === 'token') {
             $validated['api_key'] = null;
             $validated['api_secret'] = null;
         } else {
             $validated['api_token'] = null;
-
-            // Handle password update for Basic Auth
             if (empty($validated['api_secret'])) {
                 if (empty($firewall->api_secret) && $firewall->auth_method !== 'basic') {
-                    // Switching to Basic but no password provided and no existing password
                     return back()->withErrors(['api_secret' => 'Password is required when switching to Basic Authentication.'])->withInput();
                 }
                 unset($validated['api_secret']);
@@ -138,11 +160,16 @@ class FirewallController extends Controller
         return redirect()->route('firewalls.index')->with('success', 'Firewall updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Firewall $firewall)
     {
+        $user = auth()->user();
+        if ($user->isCompanyAdmin() && $firewall->company_id !== $user->company_id) {
+            abort(403);
+        }
+        if (!$user->isGlobalAdmin() && !$user->isCompanyAdmin()) {
+            abort(403);
+        }
+
         $firewall->delete();
 
         return redirect()->route('firewalls.index')->with('success', 'Firewall deleted successfully.');

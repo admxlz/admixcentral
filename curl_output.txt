@@ -1,2 +1,33 @@
-HTTP Code: 200
-Output: {"code":200,"status":"ok","response_id":"SUCCESS","message":"","data":[{"id":0,"name":"wan","descr":"WAN","hwif":"hn0","macaddr":"00:15:5d:01:14:1a","mtu":"1500","enable":false,"status":"up","ipaddr":"172.30.1.129","subnet":"255.255.255.0","linklocal":"fe80::215:5dff:fe01:141a%hn0","ipaddrv6":"2001:db8::200","subnetv6":"128","inerrs":0,"outerrs":0,"collisions":0,"inbytes":175515775,"inbytespass":175515775,"outbytes":148965355,"outbytespass":148965355,"inpkts":2229940,"inpktspass":2229940,"outpkts":2244504,"outpktspass":2244504,"dhcplink":"up","media":"10Gbase-T <full-duplex>","gateway":"172.30.1.1","gatewayv6":null},{"id":1,"name":"lan","descr":"LAN INTERFACE TEST","hwif":"hn1","macaddr":"00:15:5d:01:14:1b","mtu":"1500","enable":false,"status":"up","ipaddr":"192.168.1.100","subnet":"255.255.255.0","linklocal":"fe80::215:5dff:fe01:141b%hn1","ipaddrv6":null,"subnetv6":null,"inerrs":0,"outerrs":0,"collisions":0,"inbytes":0,"inbytespass":0,"outbytes":1441984,"outbytespass":1441984,"inpkts"
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 127.0.0.1:8000...
+* Connected to 127.0.0.1 (127.0.0.1) port 8000
+* using HTTP/1.x
+> HEAD /setup HTTP/1.1
+> Host: 127.0.0.1:8000
+> User-Agent: curl/8.15.0
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Host: 127.0.0.1:8000
+< Connection: close
+< X-Powered-By: PHP/8.4.15
+< Content-Type: text/html; charset=UTF-8
+< Cache-Control: no-cache, private
+< Date: Sat, 06 Dec 2025 01:39:57 GMT
+< Set-Cookie: XSRF-TOKEN=eyJpdiI6Ik5JeEt6eUk2NEdEZFZxbEwxOC8xOHc9PSIsInZhbHVlIjoiRTZ2STVaMzk3UngwUGtFeGhjemNQNjVqaVo0OGdPLzlwek11RkppWkZoa25USlpIQ0F2VVFpRStRUWZLaXdrTDAzeVg4T3VZS2NWcW9JSnVDZ3owUkZCRDl4VklodndvUk5lUElFY1VHdmZwaXkrNmpBTWk2OTF6T2VoZkJXOXUiLCJtYWMiOiI3MjEyNmU3Yzk0NjI0Y2FkNzFhN2RkY2FmNzljMGE4N2ZkNjBlNTNkZjQyOWM4MjhjOWYxOTA2ZGM4NjFjOGFkIiwidGFnIjoiIn0%3D; expires=Sat, 06 Dec 2025 03:39:57 GMT; Max-Age=7200; path=/; samesite=lax
+< Set-Cookie: admixcentral-session=eyJpdiI6Im9VODc0M2FYMjFXbXFtSnRlWUdJTkE9PSIsInZhbHVlIjoiOHh6K2R0bU5hQU1odVVwSWJyNStoZm9TOFhRNGdldHpQL0RESS8vblZxb2htNWhHd2JXbkpVSFFnMlUrQmhQYmEzNmYwdmdvRytxaitEU0txUTRxTStjOXRRN1VFVGh1YklOeFhwT2cvcVdyVlVxZERNMVpHejc4OGFoZTYrSlUiLCJtYWMiOiIzZDFmNzc2ZWY5ZGIyZTJiMTI4ZmRmOThiMWJhNDA2M2I4YzVmOGY3Y2UzYzMwMTBlYjJlYWY2MWY0NzgyNjFiIiwidGFnIjoiIn0%3D; expires=Sat, 06 Dec 2025 03:39:57 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+< 
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+* shutting down connection #0
+HTTP/1.1 200 OK
+Host: 127.0.0.1:8000
+Connection: close
+X-Powered-By: PHP/8.4.15
+Content-Type: text/html; charset=UTF-8
+Cache-Control: no-cache, private
+Date: Sat, 06 Dec 2025 01:39:57 GMT
+Set-Cookie: XSRF-TOKEN=eyJpdiI6Ik5JeEt6eUk2NEdEZFZxbEwxOC8xOHc9PSIsInZhbHVlIjoiRTZ2STVaMzk3UngwUGtFeGhjemNQNjVqaVo0OGdPLzlwek11RkppWkZoa25USlpIQ0F2VVFpRStRUWZLaXdrTDAzeVg4T3VZS2NWcW9JSnVDZ3owUkZCRDl4VklodndvUk5lUElFY1VHdmZwaXkrNmpBTWk2OTF6T2VoZkJXOXUiLCJtYWMiOiI3MjEyNmU3Yzk0NjI0Y2FkNzFhN2RkY2FmNzljMGE4N2ZkNjBlNTNkZjQyOWM4MjhjOWYxOTA2ZGM4NjFjOGFkIiwidGFnIjoiIn0%3D; expires=Sat, 06 Dec 2025 03:39:57 GMT; Max-Age=7200; path=/; samesite=lax
+Set-Cookie: admixcentral-session=eyJpdiI6Im9VODc0M2FYMjFXbXFtSnRlWUdJTkE9PSIsInZhbHVlIjoiOHh6K2R0bU5hQU1odVVwSWJyNStoZm9TOFhRNGdldHpQL0RESS8vblZxb2htNWhHd2JXbkpVSFFnMlUrQmhQYmEzNmYwdmdvRytxaitEU0txUTRxTStjOXRRN1VFVGh1YklOeFhwT2cvcVdyVlVxZERNMVpHejc4OGFoZTYrSlUiLCJtYWMiOiIzZDFmNzc2ZWY5ZGIyZTJiMTI4ZmRmOThiMWJhNDA2M2I4YzVmOGY3Y2UzYzMwMTBlYjJlYWY2MWY0NzgyNjFiIiwidGFnIjoiIn0%3D; expires=Sat, 06 Dec 2025 03:39:57 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+

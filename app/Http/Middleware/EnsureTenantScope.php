@@ -14,7 +14,7 @@ class EnsureTenantScope
         $user = $request->user();
 
         // Global admins can see everything
-        if ($user && $user->role === 'admin') {
+        if ($user && $user->isGlobalAdmin()) {
             return $next($request);
         }
 

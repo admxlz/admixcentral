@@ -15,6 +15,10 @@ Route::get('/test-routing', function () {
     return 'Routing Works';
 });
 
+// Setup Wizard (protected by CheckSystemSetup middleware to only be accessible when no users exist)
+Route::get('/setup', [App\Http\Controllers\SetupController::class, 'welcome'])->name('setup.welcome');
+Route::post('/setup', [App\Http\Controllers\SetupController::class, 'store'])->name('setup.store');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     // Profile management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -42,6 +46,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Main Dashboard
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/firewall/{firewall}/check-status', [App\Http\Controllers\DashboardController::class, 'checkStatus'])->name('firewall.check-status');
+
+    // Bulk Firewall Actions
+    Route::post('/firewalls/bulk/action', [App\Http\Controllers\FirewallBulkController::class, 'handle'])->name('firewalls.bulk.action');
+    Route::get('/firewalls/bulk/create/{type}', [App\Http\Controllers\FirewallBulkController::class, 'create'])->name('firewalls.bulk.create');
+    Route::post('/firewalls/bulk/store/{type}', [App\Http\Controllers\FirewallBulkController::class, 'store'])->name('firewalls.bulk.store');
 
     // Companies (admin only)
     Route::resource('companies', App\Http\Controllers\CompanyController::class)

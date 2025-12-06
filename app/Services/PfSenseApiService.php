@@ -600,6 +600,39 @@ class PfSenseApiService
     }
 
     /**
+     * Get Firewall Aliases
+     */
+    public function getAliases()
+    {
+        return $this->get('/firewall/aliases');
+    }
+
+    /**
+     * Create Firewall Alias
+     */
+    public function createAlias(array $data)
+    {
+        return $this->post('/firewall/alias', $data);
+    }
+
+    /**
+     * Update Firewall Alias
+     */
+    public function updateAlias(string $id, array $data)
+    {
+        $data['id'] = $id;
+        return $this->patch('/firewall/alias', $data);
+    }
+
+    /**
+     * Delete Firewall Alias
+     */
+    public function deleteAlias(string $id)
+    {
+        return $this->delete("/firewall/alias?id={$id}");
+    }
+
+    /**
      * Get Firewall Schedules
      */
     public function getSchedules()

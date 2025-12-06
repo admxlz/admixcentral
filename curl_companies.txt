@@ -1,0 +1,35 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 127.0.0.1:8000...
+* Connected to 127.0.0.1 (127.0.0.1) port 8000
+* using HTTP/1.x
+> HEAD /companies HTTP/1.1
+> Host: 127.0.0.1:8000
+> User-Agent: curl/8.15.0
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/1.1 302 Found
+< Host: 127.0.0.1:8000
+< Connection: close
+< X-Powered-By: PHP/8.4.15
+< Cache-Control: no-cache, private
+< Date: Sat, 06 Dec 2025 01:40:06 GMT
+< Location: http://127.0.0.1:8000/login
+< Content-Type: text/html; charset=utf-8
+< Set-Cookie: XSRF-TOKEN=eyJpdiI6IlFYWkFIalE4cHA5TWpRN3c5UWpuUHc9PSIsInZhbHVlIjoiUFljN0U4K0pJSUJ0YzNjQzloZm1VQmRqUXFmRG44cEhPVmZtTEtLTEdxQ3Q1OU8rWlRDcFpsdU4xTVkyUXN1OGREU2VLbm1vem95RGRKMlgxSkpHZFg2UXVWWlczVnRNNmJscE1vczlrK3RUYVF5cm5aWGRCUzdZTEFsQ1A4bXgiLCJtYWMiOiJmMDE3MTRlOTFkNGEyM2VhNjNkOGFmODE3Y2RlZTRjMjk1Yjc4M2ZlODhkNjY5ZjRhZTA5YmE5M2Q5Mzg1NzE5IiwidGFnIjoiIn0%3D; expires=Sat, 06 Dec 2025 03:40:06 GMT; Max-Age=7200; path=/; samesite=lax
+< Set-Cookie: admixcentral-session=eyJpdiI6IlY0K0w5cGlUYnh4R0ljRXgzaWRZdXc9PSIsInZhbHVlIjoiNzVGQTBSSWJ3cjB6VFVXZ2JpMzZoUGNNOXpkbmRSOS9oL0o2aUR1R1FTbG5RYU5nc01mMVpTVUEyNVh0NjI4WnUvNVY0SW1HZVlRSkdTUHZ3MWZuc29waDFncjI3TG0waTd1cy9RVEh3UHBwTzVPQWNjTlVPVkM1OExXOVl3aHYiLCJtYWMiOiJlMGIyZGYyM2MzNzYyNzEzMDM3MmQ4MjM1Nzk5ZmY5MzcxZjI4ZGVmYWRkN2JmMTI0ZWU5MWY1ZjE2MDlhY2VhIiwidGFnIjoiIn0%3D; expires=Sat, 06 Dec 2025 03:40:06 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+< 
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+* shutting down connection #0
+HTTP/1.1 302 Found
+Host: 127.0.0.1:8000
+Connection: close
+X-Powered-By: PHP/8.4.15
+Cache-Control: no-cache, private
+Date: Sat, 06 Dec 2025 01:40:06 GMT
+Location: http://127.0.0.1:8000/login
+Content-Type: text/html; charset=utf-8
+Set-Cookie: XSRF-TOKEN=eyJpdiI6IlFYWkFIalE4cHA5TWpRN3c5UWpuUHc9PSIsInZhbHVlIjoiUFljN0U4K0pJSUJ0YzNjQzloZm1VQmRqUXFmRG44cEhPVmZtTEtLTEdxQ3Q1OU8rWlRDcFpsdU4xTVkyUXN1OGREU2VLbm1vem95RGRKMlgxSkpHZFg2UXVWWlczVnRNNmJscE1vczlrK3RUYVF5cm5aWGRCUzdZTEFsQ1A4bXgiLCJtYWMiOiJmMDE3MTRlOTFkNGEyM2VhNjNkOGFmODE3Y2RlZTRjMjk1Yjc4M2ZlODhkNjY5ZjRhZTA5YmE5M2Q5Mzg1NzE5IiwidGFnIjoiIn0%3D; expires=Sat, 06 Dec 2025 03:40:06 GMT; Max-Age=7200; path=/; samesite=lax
+Set-Cookie: admixcentral-session=eyJpdiI6IlY0K0w5cGlUYnh4R0ljRXgzaWRZdXc9PSIsInZhbHVlIjoiNzVGQTBSSWJ3cjB6VFVXZ2JpMzZoUGNNOXpkbmRSOS9oL0o2aUR1R1FTbG5RYU5nc01mMVpTVUEyNVh0NjI4WnUvNVY0SW1HZVlRSkdTUHZ3MWZuc29waDFncjI3TG0waTd1cy9RVEh3UHBwTzVPQWNjTlVPVkM1OExXOVl3aHYiLCJtYWMiOiJlMGIyZGYyM2MzNzYyNzEzMDM3MmQ4MjM1Nzk5ZmY5MzcxZjI4ZGVmYWRkN2JmMTI0ZWU5MWY1ZjE2MDlhY2VhIiwidGFnIjoiIn0%3D; expires=Sat, 06 Dec 2025 03:40:06 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+

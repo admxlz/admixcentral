@@ -76,19 +76,18 @@ descr' => '',
     {
         try {
             $api = new PfSenseApiService($firewall);
-            $response = $api->get('/firewall/alias');
-            $aliases = $response['data'] ?? [];
-
-            // Find alias by ID
-            $alias = collect($aliases)->firstWhere('id', $id);
+            // Fetch specific alias by ID
+            $response = $api->get('/firewall/alias', ['id' => $id]);
+            $alias = $response['data'] ?? null;
 
             if (!$alias) {
                 return back()->with('error', 'Alias not found.');
             }
 
             // Parse address and detail fields
-            $alias['address'] = !empty($alias['address']) ? explode(' ', $alias['address']) : [''];
-            $alias['detail'] = !empty($alias['detail']) ? explode('||', $alias['detail']) : [''];
+            // API might return string (space separated) or array
+            $alias['address'] = is_string($alias['address'] ?? '') ? explode(' ', $alias['address']) : ($alias['address'] ?? ['']);
+            $alias['detail'] = is_string($alias['detail'] ?? '') ? explode('||', $alias['detail']) : ($alias['detail'] ?? ['']);
 
             // Ensure arrays have same length
             $alias['address'] = array_pad($alias['address'], max(count($alias['address']), 1), '');
@@ -116,13 +115,14 @@ descr' => '',
             'name' => $validated['name'],
             'type' => $validated['type'],
             'descr' => $validated['descr'] ?? '',
-            'address' => implode(' ', array_filter($validated['address'])),
-            'detail' => implode('||', array_map(fn($d) => $d ?? '', $validated['detail'])),
+            'address' => array_values(array_filter($validated['address'])),
+            'detail' => array_values(array_map(fn($d) => $d ?? '', $validated['detail'])),
         ];
 
         try {
             $api = new PfSenseApiService($firewall);
-            $api->put('/firewall/alias/' . $id, $data);
+            // Use updateAlias method which uses correct PATCH logic
+            $api->updateAlias($id, $data);
             $firewall->update(['is_dirty' => true]);
 
             return redirect()->route('firewall.aliases.index', $firewall)
@@ -136,7 +136,8 @@ descr' => '',
     {
         try {
             $api = new PfSenseApiService($firewall);
-            $api->delete('/firewall/alias', ['id' => $id]);
+            // Use deleteAlias method
+            $api->deleteAlias($id);
             $firewall->update(['is_dirty' => true]);
 
             return back()->with('success', 'Alias deleted successfully. Please apply changes.');

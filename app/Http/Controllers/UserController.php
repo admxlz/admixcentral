@@ -26,6 +26,45 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
+    public function create()
+    {
+        $currentUser = Auth::user();
+        $companies = collect();
+
+        if ($currentUser->isGlobalAdmin()) {
+            $companies = Company::all();
+        } elseif ($currentUser->isCompanyAdmin()) {
+            $companies = collect([$currentUser->company]);
+        } else {
+            abort(403);
+        }
+
+        return view('users.create', compact('companies'));
+    }
+
+    public function edit(User $user)
+    {
+        $currentUser = Auth::user();
+
+        // Access control
+        if ($currentUser->isCompanyAdmin()) {
+            if ($user->company_id !== $currentUser->company_id) {
+                abort(403);
+            }
+        } elseif (!$currentUser->isGlobalAdmin()) {
+            abort(403);
+        }
+
+        $companies = collect();
+        if ($currentUser->isGlobalAdmin()) {
+            $companies = Company::all();
+        } else {
+            $companies = collect([$currentUser->company]);
+        }
+
+        return view('users.edit', compact('user', 'companies'));
+    }
+
     public function store(Request $request)
     {
         $currentUser = Auth::user();
