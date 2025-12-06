@@ -134,7 +134,6 @@ descr' => '',
 
     public function destroy(Firewall $firewall, string $id)
     {
-        Log::info("Attempting to delete alias: {$id} on firewall {$firewall->id}");
         try {
             $api = new PfSenseApiService($firewall);
             // Use deleteAlias method

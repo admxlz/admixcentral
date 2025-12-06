@@ -60,11 +60,11 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                                        @if($alias['type'] === 'host') bg-blue-100 text-blue-800
-                                                                        @elseif($alias['type'] === 'network') bg-green-100 text-green-800
-                                                                        @elseif($alias['type'] === 'port') bg-purple-100 text-purple-800
-                                                                        @else bg-gray-100 text-gray-800
-                                                                        @endif">
+                                                                @if($alias['type'] === 'host') bg-blue-100 text-blue-800
+                                                                @elseif($alias['type'] === 'network') bg-green-100 text-green-800
+                                                                @elseif($alias['type'] === 'port') bg-purple-100 text-purple-800
+                                                                @else bg-gray-100 text-gray-800
+                                                                @endif">
                                                 {{ strtoupper($alias['type']) }}
                                             </span>
                                         </td>
@@ -79,7 +79,7 @@
                                                 class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 mr-3">Edit</a>
                                             <form
                                                 action="{{ route('firewall.aliases.destroy', [$firewall, $alias['id']]) }}"
-                                                method="POST" class="inline-block"
+                                                method="POST" class="inline"
                                                 onsubmit="return confirm('Are you sure you want to delete this alias?');">
                                                 @csrf
                                                 @method('DELETE')
