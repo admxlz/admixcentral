@@ -15,18 +15,14 @@
                     deleteTunable(id) {
                         if (confirm('Are you sure you want to delete this tunable?')) {
                             let form = document.getElementById('delete-tunable-form');
-                            form.action = '/firewall/{{ $firewall->id }}/system/advanced/tunables/' + id;
-                            form.submit();
-                        }
-                    }
-                }">
+                            form.action = " {{ route('system.advanced.tunables.destroy', ['firewall' => $firewall, 'id' => 'PLACEHOLDER']) }}".replace('PLACEHOLDER', id); form.submit(); } } }">
 
                     <!-- Tabs -->
                     <div class="mb-6 border-b border-gray-200">
                         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
                             @foreach(['admin' => 'Admin Access', 'firewall' => 'Firewall & NAT', 'networking' => 'Networking', 'miscellaneous' => 'Miscellaneous', 'tunables' => 'System Tunables', 'notifications' => 'Notifications'] as $key => $label)
-                                <a href="{{ route('system.advanced', ['firewall' => $firewall->id, 'tab' => $key]) }}"
-                                    class="{{ $tab === $key ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                <a href="{{ route('system.advanced', ['firewall' => $firewall, 'tab' => $key]) }}"
+                                    class="{{ $tab === $key ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                                     {{ $label }}
                                 </a>
                             @endforeach
@@ -34,8 +30,9 @@
                     </div>
 
                     <!-- Form -->
-                    <form method="POST" action="{{ route('system.advanced.update', $firewall->id) }}">
+                    <form method="POST" action="{{ route('system.advanced.update', ['firewall' => $firewall]) }}">
                         @csrf
+                        <!-- Add tab as hidden input -->
                         <input type="hidden" name="tab" value="{{ $tab }}">
 
                         @if($tab === 'admin')
@@ -102,25 +99,12 @@
                             </div>
 
                         @elseif($tab === 'networking' || $tab === 'miscellaneous')
-                            <!-- Networking & Miscellaneous Tabs (Placeholder) -->
-                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                                <div class="flex">
-                                    <div class="flex-shrink-0">
-                                        <!-- Heroicon name: mini/exclamation-triangle -->
-                                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                            <path fill-rule="evenodd"
-                                                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-3">
-                                        <p class="text-sm text-yellow-700">
-                                            This section is not currently supported by the API.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Networking & Miscellaneous Tabs -->
+                            @php
+                                $featureName = $tab === 'networking' ? 'Networking' : 'Miscellaneous';
+                                $suffix = $tab === 'networking' ? 'system_advanced_network.php' : 'system_advanced_misc.php';
+                            @endphp
+                            <x-api-not-supported :firewall="$firewall" :urlSuffix="$suffix" :featureName="$featureName" />
 
                         @elseif($tab === 'notifications')
                             <!-- Notifications Tab -->
@@ -258,7 +242,7 @@
                             <div x-show="showModal"
                                 class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                                 <form
-                                    :action="editing ? '{{ route('system.advanced.tunables.update', ['firewall' => $firewall->id, 'id' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', form.id) : '{{ route('system.advanced.tunables.store', ['firewall' => $firewall->id]) }}'"
+                                    :action="editing ? '{{ route('system.advanced.tunables.update', ['firewall' => $firewall, 'id' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', form.id) : '{{ route('system.advanced.tunables.store', ['firewall' => $firewall]) }}'"
                                     method="POST">
                                     @csrf
                                     <template x-if="editing">

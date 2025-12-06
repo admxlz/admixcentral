@@ -14,25 +14,36 @@ class SystemController extends Controller
         $tab = $request->query('tab', 'admin');
 
         $data = [];
-        switch ($tab) {
-            case 'admin':
-                $data['webgui'] = $api->getSystemWebGui()['data'] ?? [];
-                $data['ssh'] = $api->getSystemSsh()['data'] ?? [];
-                $data['console'] = $api->getSystemConsole()['data'] ?? [];
-                break;
-            case 'firewall':
-                $data['firewall'] = $api->getSystemFirewallAdvanced()['data'] ?? [];
-                break;
-            case 'notifications':
-                $data['notifications'] = $api->getSystemNotifications()['data'] ?? [];
-                break;
-            case 'tunables':
-                $data['tunables'] = $api->getSystemTunables()['data'] ?? [];
-                break;
-            case 'networking':
-            case 'miscellaneous':
-                // Not supported by API yet
-                break;
+        try {
+            switch ($tab) {
+                case 'admin':
+                    $data['webgui'] = $api->getSystemWebGui()['data'] ?? [];
+                    $data['ssh'] = $api->getSystemSsh()['data'] ?? [];
+                    $data['console'] = $api->getSystemConsole()['data'] ?? [];
+                    break;
+                case 'firewall':
+                    $data['firewall'] = $api->getSystemFirewallAdvanced()['data'] ?? [];
+                    break;
+                case 'notifications':
+                    $data['notifications'] = $api->getSystemNotifications()['data'] ?? [];
+                    break;
+                case 'tunables':
+                    $data['tunables'] = $api->getSystemTunables()['data'] ?? [];
+                    break;
+                case 'networking':
+                case 'miscellaneous':
+                    // Not supported by API yet
+                    break;
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to fetch data for tab {$tab}: " . $e->getMessage());
+            // If the API call fails (e.g. 404), we probably want to show the 'Not Supported' view
+            // or at least not crash.
+            // For now, let's allow the view to render with empty data, but maybe pass an error flag.
+            // Or better, if it's a 404, specifically handle it.
+            if ($e->getCode() == 404) {
+                return view('system.advanced-not-supported', compact('firewall', 'tab'));
+            }
         }
 
         return view('system.advanced', compact('firewall', 'tab', 'data'));
@@ -90,7 +101,7 @@ class SystemController extends Controller
 
             $firewall->update(['is_dirty' => true]);
 
-            return redirect()->route('system.advanced', ['firewall' => $firewall->id, 'tab' => $tab])
+            return redirect()->route('system.advanced', ['firewall' => $firewall, 'tab' => $tab])
                 ->with('success', 'System settings updated successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to update system settings: ' . $e->getMessage()]);
@@ -110,7 +121,7 @@ class SystemController extends Controller
             $api->createSystemTunable($request->only(['tunable', 'value', 'descr']));
             $firewall->update(['is_dirty' => true]);
 
-            return redirect()->route('system.advanced', ['firewall' => $firewall->id, 'tab' => 'tunables'])
+            return redirect()->route('system.advanced', ['firewall' => $firewall, 'tab' => 'tunables'])
                 ->with('success', 'Tunable created successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to create tunable: ' . $e->getMessage()]);
@@ -139,11 +150,10 @@ class SystemController extends Controller
             // It's likely we need to merge the ID into the data.
             $data = $request->only(['tunable', 'value', 'descr']);
             $data['id'] = $id;
-            $data['id'] = $id;
             $api->updateSystemTunable($data);
             $firewall->update(['is_dirty' => true]);
 
-            return redirect()->route('system.advanced', ['firewall' => $firewall->id, 'tab' => 'tunables'])
+            return redirect()->route('system.advanced', ['firewall' => $firewall, 'tab' => 'tunables'])
                 ->with('success', 'Tunable updated successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to update tunable: ' . $e->getMessage()]);
@@ -157,7 +167,7 @@ class SystemController extends Controller
             $api->deleteSystemTunable($id);
             $firewall->update(['is_dirty' => true]);
 
-            return redirect()->route('system.advanced', ['firewall' => $firewall->id, 'tab' => 'tunables'])
+            return redirect()->route('system.advanced', ['firewall' => $firewall, 'tab' => 'tunables'])
                 ->with('success', 'Tunable deleted successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to delete tunable: ' . $e->getMessage()]);

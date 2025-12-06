@@ -12,16 +12,27 @@ class PfSenseApiService
     protected $baseUrl;
     protected $username;
     protected $password;
+    protected $apiToken;
+    protected $authMethod;
 
     public function __construct(Firewall $firewall)
     {
         $this->firewall = $firewall;
         $this->baseUrl = rtrim($firewall->url, '/') . '/api/v2';
-        $this->username = $firewall->api_key;
-        $this->password = $firewall->api_secret;
+        $this->authMethod = $firewall->auth_method ?? 'basic'; // Default to basic if null
 
-        if (empty($this->username) || empty($this->password)) {
-            throw new \Exception("Firewall API credentials are missing for firewall ID: " . $firewall->id);
+        if ($this->authMethod === 'token') {
+            $this->apiToken = $firewall->api_token;
+            if (empty($this->apiToken)) {
+                throw new \Exception("Firewall API token is missing for firewall ID: " . $firewall->id);
+            }
+        } else {
+            $this->username = $firewall->api_key;
+            $this->password = $firewall->api_secret;
+
+            if (empty($this->username) || empty($this->password)) {
+                throw new \Exception("Firewall API credentials are missing for firewall ID: " . $firewall->id);
+            }
         }
     }
 
@@ -73,9 +84,14 @@ class PfSenseApiService
         $url = $this->baseUrl . '/' . ltrim($endpoint, '/');
 
         $client = Http::withOptions(['verify' => false])
-            ->withBasicAuth($this->username, $this->password)
             ->acceptJson()
             ->timeout(30);
+
+        if ($this->authMethod === 'token') {
+            $client->withToken($this->apiToken);
+        } else {
+            $client->withBasicAuth($this->username, $this->password);
+        }
 
         if ($method === 'DELETE' && !empty($data)) {
             $response = $client->send('DELETE', $url, ['json' => $data]);

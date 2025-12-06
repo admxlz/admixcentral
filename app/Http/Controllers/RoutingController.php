@@ -22,9 +22,13 @@ class RoutingController extends Controller
                     break;
                 case 'static_routes':
                     $data['static_routes'] = $api->getRoutingStaticRoutes()['data'] ?? [];
+                    // We need gateways for the modal select
+                    $data['gateways'] = $api->getRoutingGateways()['data'] ?? [];
                     break;
                 case 'gateway_groups':
                     $data['gateway_groups'] = $api->getRoutingGatewayGroups()['data'] ?? [];
+                    // We need gateways for the modal select
+                    $data['gateways'] = $api->getRoutingGateways()['data'] ?? [];
                     break;
             }
         } catch (\Exception $e) {
@@ -50,7 +54,7 @@ class RoutingController extends Controller
             $api = new PfSenseApiService($firewall);
             $api->createRoutingGateway($request->all());
             $firewall->update(['is_dirty' => true]);
-            return redirect()->route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'gateways'])
+            return redirect()->route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'gateways'])
                 ->with('success', 'Gateway created successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to create gateway: ' . $e->getMessage()]);
@@ -74,7 +78,7 @@ class RoutingController extends Controller
             $data['id'] = $id; // Ensure ID is passed if API expects it in body
             $api->updateRoutingGateway($data);
             $firewall->update(['is_dirty' => true]);
-            return redirect()->route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'gateways'])
+            return redirect()->route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'gateways'])
                 ->with('success', 'Gateway updated successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to update gateway: ' . $e->getMessage()]);
@@ -87,7 +91,7 @@ class RoutingController extends Controller
             $api = new PfSenseApiService($firewall);
             $api->deleteRoutingGateway($id);
             $firewall->update(['is_dirty' => true]);
-            return redirect()->route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'gateways'])
+            return redirect()->route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'gateways'])
                 ->with('success', 'Gateway deleted successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to delete gateway: ' . $e->getMessage()]);
@@ -107,7 +111,7 @@ class RoutingController extends Controller
             $api = new PfSenseApiService($firewall);
             $api->createRoutingStaticRoute($request->all());
             $firewall->update(['is_dirty' => true]);
-            return redirect()->route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'static_routes'])
+            return redirect()->route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'static_routes'])
                 ->with('success', 'Static route created successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to create static route: ' . $e->getMessage()]);
@@ -128,7 +132,7 @@ class RoutingController extends Controller
             $data['id'] = $id;
             $api->updateRoutingStaticRoute($data);
             $firewall->update(['is_dirty' => true]);
-            return redirect()->route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'static_routes'])
+            return redirect()->route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'static_routes'])
                 ->with('success', 'Static route updated successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to update static route: ' . $e->getMessage()]);
@@ -141,7 +145,7 @@ class RoutingController extends Controller
             $api = new PfSenseApiService($firewall);
             $api->deleteRoutingStaticRoute($id);
             $firewall->update(['is_dirty' => true]);
-            return redirect()->route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'static_routes'])
+            return redirect()->route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'static_routes'])
                 ->with('success', 'Static route deleted successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to delete static route: ' . $e->getMessage()]);
@@ -162,7 +166,7 @@ class RoutingController extends Controller
             $api = new PfSenseApiService($firewall);
             $api->createRoutingGatewayGroup($request->all());
             $firewall->update(['is_dirty' => true]);
-            return redirect()->route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'gateway_groups'])
+            return redirect()->route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'gateway_groups'])
                 ->with('success', 'Gateway group created successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to create gateway group: ' . $e->getMessage()]);
@@ -184,7 +188,7 @@ class RoutingController extends Controller
             $data['id'] = $id;
             $api->updateRoutingGatewayGroup($data);
             $firewall->update(['is_dirty' => true]);
-            return redirect()->route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'gateway_groups'])
+            return redirect()->route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'gateway_groups'])
                 ->with('success', 'Gateway group updated successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to update gateway group: ' . $e->getMessage()]);
@@ -197,7 +201,7 @@ class RoutingController extends Controller
             $api = new PfSenseApiService($firewall);
             $api->deleteRoutingGatewayGroup($id);
             $firewall->update(['is_dirty' => true]);
-            return redirect()->route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'gateway_groups'])
+            return redirect()->route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'gateway_groups'])
                 ->with('success', 'Gateway group deleted successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to delete gateway group: ' . $e->getMessage()]);

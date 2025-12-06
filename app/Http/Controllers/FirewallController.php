@@ -42,8 +42,10 @@ class FirewallController extends Controller
             'company_id' => 'required|exists:companies,id',
             'name' => 'required|string|max:255',
             'url' => 'required|url',
-            'api_key' => 'required|string',
-            'api_secret' => 'required|string',
+            'auth_method' => 'required|in:basic,token',
+            'api_key' => 'required_if:auth_method,basic|nullable|string',
+            'api_secret' => 'required_if:auth_method,basic|nullable|string',
+            'api_token' => 'required_if:auth_method,token|nullable|string',
             'description' => 'nullable|string',
         ]);
 
@@ -108,10 +110,28 @@ class FirewallController extends Controller
             'company_id' => 'required|exists:companies,id',
             'name' => 'required|string|max:255',
             'url' => 'required|url',
-            'api_key' => 'required|string',
-            'api_secret' => 'required|string',
+            'auth_method' => 'required|in:basic,token',
+            'api_key' => 'required_if:auth_method,basic|nullable|string',
+            'api_secret' => 'nullable|string', // Nullable because we might be keeping existing
+            'api_token' => 'required_if:auth_method,token|nullable|string',
             'description' => 'nullable|string',
         ]);
+
+        if ($validated['auth_method'] === 'token') {
+            $validated['api_key'] = null;
+            $validated['api_secret'] = null;
+        } else {
+            $validated['api_token'] = null;
+
+            // Handle password update for Basic Auth
+            if (empty($validated['api_secret'])) {
+                if (empty($firewall->api_secret) && $firewall->auth_method !== 'basic') {
+                    // Switching to Basic but no password provided and no existing password
+                    return back()->withErrors(['api_secret' => 'Password is required when switching to Basic Authentication.'])->withInput();
+                }
+                unset($validated['api_secret']);
+            }
+        }
 
         $firewall->update($validated);
 

@@ -51,23 +51,51 @@
                             @enderror
                         </div>
 
-                        <div class="mb-4">
-                            <label for="api_key" class="block text-sm font-medium mb-2">API Username</label>
-                            <input type="text" name="api_key" id="api_key" value="{{ old('api_key') }}" required
-                                class="w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
-                                placeholder="admin">
-                            @error('api_key')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        <div x-data="{ authMethod: '{{ old('auth_method', 'basic') }}' }">
+                            <div class="mb-4">
+                                <label for="auth_method" class="block text-sm font-medium mb-2">Authentication Method</label>
+                                <select name="auth_method" id="auth_method" x-model="authMethod"
+                                    class="w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                                    <option value="basic">Basic Auth (Username/Password)</option>
+                                    <option value="token">Bearer Token</option>
+                                </select>
+                            </div>
 
-                        <div class="mb-4">
-                            <label for="api_secret" class="block text-sm font-medium mb-2">API Password</label>
-                            <input type="password" name="api_secret" id="api_secret" required
-                                class="w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-                            @error('api_secret')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
+                            <div x-show="authMethod === 'basic'">
+                                <div class="mb-4">
+                                    <label for="api_key" class="block text-sm font-medium mb-2">API Username</label>
+                                    <input type="text" name="api_key" id="api_key" value="{{ old('api_key') }}"
+                                        :required="authMethod === 'basic'"
+                                        class="w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                                        placeholder="admin">
+                                    @error('api_key')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="api_secret" class="block text-sm font-medium mb-2">API Password</label>
+                                    <input type="password" name="api_secret" id="api_secret"
+                                        :required="authMethod === 'basic'"
+                                        class="w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                                    @error('api_secret')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div x-show="authMethod === 'token'">
+                                <div class="mb-4">
+                                    <label for="api_token" class="block text-sm font-medium mb-2">API Token</label>
+                                    <textarea name="api_token" id="api_token" rows="3"
+                                        :required="authMethod === 'token'"
+                                        class="w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                                        placeholder="ey..."></textarea>
+                                    @error('api_token')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mb-4">

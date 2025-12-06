@@ -61,15 +61,15 @@
                     <!-- Tabs -->
                     <div class="mb-6 border-b border-gray-200">
                         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                            <a href="{{ route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'gateways']) }}"
+                            <a href="{{ route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'gateways']) }}"
                                 class="{{ $tab === 'gateways' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                                 Gateways
                             </a>
-                            <a href="{{ route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'static_routes']) }}"
+                            <a href="{{ route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'static_routes']) }}"
                                 class="{{ $tab === 'static_routes' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                                 Static Routes
                             </a>
-                            <a href="{{ route('firewall.system.routing', ['firewall' => $firewall->id, 'tab' => 'gateway_groups']) }}"
+                            <a href="{{ route('firewall.system.routing', ['firewall' => $firewall, 'tab' => 'gateway_groups']) }}"
                                 class="{{ $tab === 'gateway_groups' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                                 Gateway Groups
                             </a>
@@ -119,7 +119,7 @@
                                                 <button @click="openGatewayModal({{ json_encode($gateway) }})"
                                                     class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
                                                 <button
-                                                    @click="confirmDelete('{{ route('firewall.system.routing.gateways.destroy', ['firewall' => $firewall->id, 'id' => $gateway['id']]) }}')"
+                                                    @click="confirmDelete('{{ route('firewall.system.routing.gateways.destroy', ['firewall' => $firewall, 'id' => $gateway['id']]) }}')"
                                                     class="text-red-600 hover:text-red-900">Delete</button>
                                             </td>
                                         </tr>
@@ -171,7 +171,7 @@
                                                 <button @click="openStaticRouteModal({{ json_encode($route) }})"
                                                     class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
                                                 <button
-                                                    @click="confirmDelete('{{ route('firewall.system.routing.static-routes.destroy', ['firewall' => $firewall->id, 'id' => $route['id']]) }}')"
+                                                    @click="confirmDelete('{{ route('firewall.system.routing.static-routes.destroy', ['firewall' => $firewall, 'id' => $route['id']]) }}')"
                                                     class="text-red-600 hover:text-red-900">Delete</button>
                                             </td>
                                         </tr>
@@ -230,7 +230,7 @@
                                                 <button @click="openGatewayGroupModal({{ json_encode($group) }})"
                                                     class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
                                                 <button
-                                                    @click="confirmDelete('{{ route('firewall.system.routing.gateway-groups.destroy', ['firewall' => $firewall->id, 'id' => $group['id'] ?? '']) }}')"
+                                                    @click="confirmDelete('{{ route('firewall.system.routing.gateway-groups.destroy', ['firewall' => $firewall, 'id' => $group['id'] ?? '']) }}')"
                                                     class="text-red-600 hover:text-red-900">Delete</button>
                                             </td>
                                         </tr>
@@ -259,7 +259,7 @@
 
                                 <!-- Gateway Form -->
                                 <form x-show="activeTab === 'gateways'"
-                                    :action="editing ? '{{ route('firewall.system.routing.gateways.update', ['firewall' => $firewall->id, 'id' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', gatewayForm.id) : '{{ route('firewall.system.routing.gateways.store', ['firewall' => $firewall->id]) }}'"
+                                    :action="editing ? '{{ route('firewall.system.routing.gateways.update', ['firewall' => $firewall, 'id' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', gatewayForm.id) : '{{ route('firewall.system.routing.gateways.store', ['firewall' => $firewall]) }}'"
                                     method="POST">
                                     @csrf
                                     <template x-if="editing"><input type="hidden" name="_method"
@@ -311,7 +311,7 @@
 
                                 <!-- Static Route Form -->
                                 <form x-show="activeTab === 'static_routes'"
-                                    :action="editing ? '{{ route('firewall.system.routing.static-routes.update', ['firewall' => $firewall->id, 'id' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', staticRouteForm.id) : '{{ route('firewall.system.routing.static-routes.store', ['firewall' => $firewall->id]) }}'"
+                                    :action="editing ? '{{ route('firewall.system.routing.static-routes.update', ['firewall' => $firewall, 'id' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', staticRouteForm.id) : '{{ route('firewall.system.routing.static-routes.store', ['firewall' => $firewall]) }}'"
                                     method="POST">
                                     @csrf
                                     <template x-if="editing"><input type="hidden" name="_method"
@@ -327,8 +327,16 @@
                                             </div>
                                             <div>
                                                 <x-input-label for="sr_gateway" :value="__('Gateway')" />
-                                                <x-text-input id="sr_gateway" class="block mt-1 w-full" type="text"
-                                                    name="gateway" x-model="staticRouteForm.gateway" required />
+                                                <select id="sr_gateway" name="gateway" x-model="staticRouteForm.gateway"
+                                                        class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">
+                                                    @isset($data['gateways'])
+                                                        @foreach($data['gateways'] as $gw)
+                                                            <option value="{{ $gw['name'] }}">{{ $gw['name'] }} ({{ $gw['gateway'] }})</option>
+                                                        @endforeach
+                                                    @endisset
+                                                    <option value="Null4">Null4 - 127.0.0.1</option>
+                                                    <option value="Null6">Null6 - ::1</option>
+                                                </select>
                                             </div>
                                             <div>
                                                 <x-input-label for="sr_descr" :value="__('Description')" />
@@ -347,7 +355,7 @@
 
                                 <!-- Gateway Group Form -->
                                 <form x-show="activeTab === 'gateway_groups'"
-                                    :action="editing ? '{{ route('firewall.system.routing.gateway-groups.update', ['firewall' => $firewall->id, 'id' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', gatewayGroupForm.id) : '{{ route('firewall.system.routing.gateway-groups.store', ['firewall' => $firewall->id]) }}'"
+                                    :action="editing ? '{{ route('firewall.system.routing.gateway-groups.update', ['firewall' => $firewall, 'id' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', gatewayGroupForm.id) : '{{ route('firewall.system.routing.gateway-groups.store', ['firewall' => $firewall]) }}'"
                                     method="POST">
                                     @csrf
                                     <template x-if="editing"><input type="hidden" name="_method"
