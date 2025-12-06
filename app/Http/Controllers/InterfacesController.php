@@ -89,6 +89,12 @@ class InterfacesController extends Controller
             'pcp' => 'nullable|integer',
         ]);
 
+        // Explicitly cast to integer for API
+        $data['tag'] = (int) $data['tag'];
+        if (isset($data['pcp'])) {
+            $data['pcp'] = (int) $data['pcp'];
+        }
+
         try {
             $api->createVlan($data);
             return redirect()->route('interfaces.vlans.index', $firewall)->with('success', 'VLAN created successfully.');
@@ -154,6 +160,12 @@ class InterfacesController extends Controller
             'descr' => 'nullable|string',
             'pcp' => 'nullable|integer',
         ]);
+
+        // Explicitly cast to integer for API
+        $data['tag'] = (int) $data['tag'];
+        if (isset($data['pcp'])) {
+            $data['pcp'] = (int) $data['pcp'];
+        }
 
         // API updateVlan expects ID.
         // If ID is numeric index, we pass it.
