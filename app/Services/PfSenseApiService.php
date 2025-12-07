@@ -316,9 +316,9 @@ class PfSenseApiService
         return $this->post('/system/package', ['name' => $name]);
     }
 
-    public function uninstallSystemPackage(string $name)
+    public function uninstallSystemPackage(int $id)
     {
-        return $this->delete('/system/package', ['name' => $name]);
+        return $this->delete('/system/package', ['id' => $id]);
     }
 
     // System - User Manager - Users

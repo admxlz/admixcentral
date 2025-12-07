@@ -84,6 +84,11 @@ class FirewallBulkController extends Controller
             'firewall_ids' => 'required|array',
         ]);
 
+        // Package type has its own dedicated handler
+        if ($type === 'package') {
+            return $this->createPackage($request);
+        }
+
         $ids = implode(',', $request->firewall_ids);
 
         return view('firewalls.bulk.create', [
@@ -94,6 +99,11 @@ class FirewallBulkController extends Controller
 
     public function store(Request $request, $type)
     {
+        // Package type has its own dedicated handler
+        if ($type === 'package') {
+            return $this->storePackage($request);
+        }
+
         $request->validate([
             'firewall_ids' => 'required|string', // Comma separated
         ]);
@@ -319,6 +329,102 @@ class FirewallBulkController extends Controller
         return redirect()->route('firewalls.index')->with([
             'bulk_results' => $results,
             'success' => "Config pushed to {$successCount} firewalls.",
+        ]);
+    }
+
+    /**
+     * Show package selection form for bulk installation
+     */
+    public function createPackage(Request $request)
+    {
+        $request->validate([
+            'firewall_ids' => 'required|array',
+        ]);
+
+        $ids = implode(',', $request->firewall_ids);
+        $packages = [];
+        $error = null;
+
+        // Use first firewall to get available packages list
+        $firstFirewallId = $request->firewall_ids[0];
+        $firstFirewall = Firewall::find($firstFirewallId);
+
+        if ($firstFirewall) {
+            try {
+                $api = new PfSenseApiService($firstFirewall);
+                $packages = $api->getSystemAvailablePackages()['data'] ?? [];
+            } catch (\Exception $e) {
+                $error = "Could not fetch available packages from {$firstFirewall->name}: " . $e->getMessage();
+            }
+        }
+
+        return view('firewalls.bulk.package', [
+            'firewall_ids' => $ids,
+            'packages' => $packages,
+            'error' => $error,
+        ]);
+    }
+
+    /**
+     * Install selected package on all firewalls (skipping those that already have it)
+     */
+    public function storePackage(Request $request)
+    {
+        $request->validate([
+            'firewall_ids' => 'required|string',
+            'package' => 'required|string',
+        ]);
+
+        $firewall_ids = explode(',', $request->firewall_ids);
+        $firewalls = Firewall::find($firewall_ids);
+        $packageName = $request->package;
+
+        $successCount = 0;
+        $skippedCount = 0;
+        $failureCount = 0;
+        $results = [];
+
+        foreach ($firewalls as $firewall) {
+            if (!auth()->user()->isGlobalAdmin() && $firewall->company_id !== auth()->user()->company_id) {
+                continue;
+            }
+
+            try {
+                $api = new PfSenseApiService($firewall);
+
+                // Check if package is already installed
+                $installedPackages = $api->getSystemPackages()['data'] ?? [];
+                $alreadyInstalled = false;
+
+                foreach ($installedPackages as $pkg) {
+                    $name = $pkg['name'] ?? '';
+                    $shortname = $pkg['shortname'] ?? '';
+                    if ($name === $packageName || $shortname === $packageName) {
+                        $alreadyInstalled = true;
+                        break;
+                    }
+                }
+
+                if ($alreadyInstalled) {
+                    $results[] = "{$firewall->name}: Package already installed - skipped.";
+                    $skippedCount++;
+                    continue;
+                }
+
+                // Install the package
+                $api->installSystemPackage($packageName);
+                $results[] = "{$firewall->name}: Package installation started.";
+                $successCount++;
+
+            } catch (\Exception $e) {
+                $results[] = "{$firewall->name}: Failed - " . $e->getMessage();
+                $failureCount++;
+            }
+        }
+
+        return redirect()->route('firewalls.index')->with([
+            'bulk_results' => $results,
+            'success' => "Package '{$packageName}' deployed to {$successCount} firewalls. Skipped: {$skippedCount}. Errors: {$failureCount}.",
         ]);
     }
 }

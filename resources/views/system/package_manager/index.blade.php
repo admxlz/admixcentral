@@ -69,7 +69,7 @@
                                     <tr>
                                         <td
                                             class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                                            {{ $pkg['name'] }}
+                                            {{ $pkg['name'] ?? 'Unknown' }}
                                             @if(!empty($pkg['shortname']))
                                                 <br><span
                                                     class="text-xs text-gray-500 dark:text-gray-400">({{ $pkg['shortname'] }})</span>
@@ -79,26 +79,28 @@
                                             {{ $pkg['category'] ?? 'Other' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                            {{ $pkg['version'] }}
+                                            {{ $pkg['version'] ?? '-' }}
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate"
-                                            title="{{ $pkg['descr'] }}">{{ $pkg['descr'] }}</td>
+                                            title="{{ $pkg['descr'] ?? '' }}">{{ $pkg['descr'] ?? '-' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             @if($tab === 'installed')
                                                 <form action="{{ route('system.package_manager.uninstall', $firewall) }}"
                                                     method="POST" class="inline-block"
-                                                    onsubmit="return confirm('Are you sure you want to uninstall {{ $pkg['name'] }}?');">
+                                                    onsubmit="return confirm('Are you sure you want to uninstall {{ $pkg['name'] ?? 'this package' }}?');">
                                                     @csrf
-                                                    <input type="hidden" name="name" value="{{ $pkg['name'] }}">
+                                                    {{-- API uses 0-based array index as ID for package operations --}}
+                                                    <input type="hidden" name="id" value="{{ $loop->index }}">
+                                                    <input type="hidden" name="name" value="{{ $pkg['name'] ?? '' }}">
                                                     <button type="submit"
                                                         class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">Uninstall</button>
                                                 </form>
                                             @else
                                                 <form action="{{ route('system.package_manager.install', $firewall) }}"
                                                     method="POST" class="inline-block"
-                                                    onsubmit="return confirm('Are you sure you want to install {{ $pkg['name'] }}?');">
+                                                    onsubmit="return confirm('Are you sure you want to install {{ $pkg['name'] ?? 'this package' }}?');">
                                                     @csrf
-                                                    <input type="hidden" name="name" value="{{ $pkg['name'] }}">
+                                                    <input type="hidden" name="name" value="{{ $pkg['name'] ?? '' }}">
                                                     <button type="submit"
                                                         class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300">Install</button>
                                                 </form>

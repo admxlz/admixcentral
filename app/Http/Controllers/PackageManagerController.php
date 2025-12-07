@@ -18,11 +18,43 @@ class PackageManagerController extends Controller
             if ($tab === 'installed') {
                 $data['packages'] = $api->getSystemPackages()['data'] ?? [];
             } elseif ($tab === 'available') {
-                $data['packages'] = $api->getSystemAvailablePackages()['data'] ?? [];
+                // Fetch both installed and available packages
+                $installedPackages = $api->getSystemPackages()['data'] ?? [];
+                $availablePackages = $api->getSystemAvailablePackages()['data'] ?? [];
+
+                // Build a list of installed package names/shortnames for filtering
+                $installedNames = [];
+                foreach ($installedPackages as $pkg) {
+                    if (!empty($pkg['name'])) {
+                        $installedNames[] = $pkg['name'];
+                    }
+                    if (!empty($pkg['shortname'])) {
+                        $installedNames[] = $pkg['shortname'];
+                    }
+                }
+
+                // Filter out installed packages from available
+                $data['packages'] = array_filter($availablePackages, function ($pkg) use ($installedNames) {
+                    $name = $pkg['name'] ?? '';
+                    $shortname = $pkg['shortname'] ?? '';
+                    return !in_array($name, $installedNames) && !in_array($shortname, $installedNames);
+                });
+                // Re-index the array
+                $data['packages'] = array_values($data['packages']);
             }
         } catch (\Exception $e) {
             // Handle API errors gracefully, maybe the endpoint is slow or times out
-            $data['error'] = $e->getMessage();
+            \Illuminate\Support\Facades\Log::error('PackageManager Error', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'class' => get_class($e),
+                'tab' => $tab,
+            ]);
+            $errorMsg = $e->getMessage();
+            if (empty($errorMsg)) {
+                $errorMsg = 'API request failed (possibly timeout or connection issue). ' . get_class($e);
+            }
+            $data['error'] = $errorMsg;
             $data['packages'] = [];
         }
 
@@ -46,10 +78,11 @@ class PackageManagerController extends Controller
     public function uninstall(Firewall $firewall, Request $request)
     {
         $api = new PfSenseApiService($firewall);
-        $name = $request->input('name');
+        $id = $request->input('id');
+        $name = $request->input('name', 'package');
 
         try {
-            $api->uninstallSystemPackage($name);
+            $api->uninstallSystemPackage($id);
             return redirect()->route('system.package_manager.index', ['firewall' => $firewall, 'tab' => 'installed'])
                 ->with('success', "Package '$name' uninstallation started.");
         } catch (\Exception $e) {

@@ -49,6 +49,7 @@
                                     <option value="reboot">Reboot</option>
                                     <option value="update">System Update</option>
                                     <option value="update_rest_api">Update REST API</option>
+                                    <option value="create_package">Install Package</option>
                                 </optgroup>
                                 <optgroup label="Configuration (Add to All)">
                                     <option value="create_alias">Add Alias</option>
@@ -183,7 +184,7 @@
             } else {
                 // POST action (reboot/update)
                 if (action === 'reboot') {
-                     if (!confirm('WARNING: Are you sure you want to REBOOT the selected firewalls? usage of this command will cause network downtime.')) {
+                    if (!confirm('WARNING: Are you sure you want to REBOOT the selected firewalls? usage of this command will cause network downtime.')) {
                         return;
                     }
                 } else if (!confirm('Are you sure you want to perform this action on selected firewalls?')) {
