@@ -4,8 +4,11 @@ AdmixCentral is a centralized firewall management dashboard tailored for managin
 
 ## Features
 
-- **Multi-Tenancy**: Manage multiple companies and their respective firewalls.
+- **Multi-Tenancy**: Manage multiple companies and their respective firewalls securely with isolated scopes.
 - **Unified Dashboard**: View system status, resource usage (CPU, RAM, Swap), and critical alerts across all managed firewalls.
+- **System Customization**:
+    - **Branding**: Upload custom Logos and Favicons.
+    - **Theming**: Toggle between Dark and Light modes for the entire application.
 - **Firewall Management**:
     - **Aliases**: Create, edit, and delete aliases with bulk update capabilities.
     - **NAT**: Full support for Port Forward, Outbound, and 1:1 NAT mapping management.
@@ -36,7 +39,11 @@ AdmixCentral is a centralized firewall management dashboard tailored for managin
 - **Database**: SQLite (default), MySQL/PostgreSQL supported
 - **API Integration**: Custom service layer interacting with [jaredhendrickson13/pfsense-api](https://github.com/jaredhendrickson13/pfsense-api)
 
-## Installation Guide
+---
+
+## Development & Testing Setup
+
+Use these instructions for setting up a local development environment.
 
 ### Prerequisites
 
@@ -64,7 +71,7 @@ AdmixCentral is a centralized firewall management dashboard tailored for managin
    cp .env.example .env
    php artisan key:generate
    ```
-   *Note: creating the sqlite database file might be required if it doesn't exist:*
+   *Note: creating the sqlite database file works best if you create it first:*
    ```bash
    touch database/database.sqlite
    ```
@@ -81,7 +88,7 @@ AdmixCentral is a centralized firewall management dashboard tailored for managin
    npm run build
    ```
 
-6. **Serve the Application**
+6. **Serve the Application (Development Mode)**
    ```bash
    php artisan serve
    ```
@@ -90,6 +97,107 @@ AdmixCentral is a centralized firewall management dashboard tailored for managin
    composer run dev
    ```
    The application will be available at `http://127.0.0.1:8000`.
+
+---
+
+## Production Deployment (Nginx + PHP-FPM + SSL)
+
+For a production environment, it is recommended to use Nginx with PHP-FPM and SSL enabled.
+
+### 1. Requirements
+Ensure your server has the following installed:
+- Nginx
+- PHP 8.2 or higher + FPM (`php8.2-fpm`)
+- MySql / MariaDB (Recommended for production over SQLite)
+- Certbot (for SSL)
+
+### 2. File Ownership & Permissions
+Set the correct permissions for the web server user (usually `www-data`):
+
+```bash
+cd /var/www/admixcentral
+
+# Create storage link
+php artisan storage:link
+
+# Set ownership
+chown -R www-data:www-data .
+
+# Set permissions for storage directory
+chmod -R 775 storage bootstrap/cache
+```
+
+### 3. Nginx Configuration
+Create a new configuration file at `/etc/nginx/sites-available/admixcentral`:
+
+```nginx
+server {
+    listen 80;
+    server_name dashboard.yourdomain.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name dashboard.yourdomain.com;
+    root /var/www/admixcentral/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.html index.htm index.php;
+
+    charset utf-8;
+
+    # SSL Configuration (Let's Encrypt placeholders)
+    # ssl_certificate /etc/letsencrypt/live/dashboard.yourdomain.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/dashboard.yourdomain.com/privkey.pem;
+    # include /etc/letsencrypt/options-ssl-nginx.conf;
+    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
+
+Enable the site:
+```bash
+ln -s /etc/nginx/sites-available/admixcentral /etc/nginx/sites-enabled/
+nginx -t
+systemctl reload nginx
+```
+
+### 4. Enable SSL with Certbot
+The easiest way to secure your application is using Certbot (Let's Encrypt):
+
+```bash
+# Install Certbot
+sudo apt install certbot python3-certbot-nginx
+
+# Obtain and install certificate
+sudo certbot --nginx -d dashboard.yourdomain.com
+```
+Certbot will automatically update your Nginx configuration with the correct SSL paths.
+
+---
 
 ## Default Credentials
 
@@ -108,4 +216,3 @@ To manage a pfSense firewall, ensure the [pfsense-api](https://github.com/jaredh
 2. Navigate to **Firewalls > Add Firewall**.
 3. Enter the **pfSense URL** and **API Credentials** (Username/Password).
 4. Click **Connect**. AdmixCentral will automatically verify the connection and retrieve system details.
-   *(Note: Netgate ID is no longer required for adding a firewall)*
