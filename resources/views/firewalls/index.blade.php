@@ -46,7 +46,7 @@
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
                                 <option value="">Select Action...</option>
                                 <optgroup label="System">
-                                    <option value="reboot">Reboot Selected</option>
+                                    <option value="reboot">Reboot</option>
                                     <option value="update">System Update (pfSense-upgrade)</option>
                                     <option value="update_rest_api">Update REST API (New)</option>
                                 </optgroup>
@@ -182,7 +182,11 @@
                 window.location.href = `${url}?${queryString}`;
             } else {
                 // POST action (reboot/update)
-                if (!confirm('Are you sure you want to perform this action on selected firewalls?')) {
+                if (action === 'reboot') {
+                     if (!confirm('WARNING: Are you sure you want to REBOOT the selected firewalls? usage of this command will cause network downtime.')) {
+                        return;
+                    }
+                } else if (!confirm('Are you sure you want to perform this action on selected firewalls?')) {
                     return;
                 }
                 const form = document.getElementById('bulkForm');
