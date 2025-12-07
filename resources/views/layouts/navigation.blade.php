@@ -1,4 +1,4 @@
-<nav x-data="{ open: false, systemOpen: false, firewallOpen: false, servicesOpen: false, vpnOpen: false, statusOpen: false, diagnosticsOpen: false }"
+<nav x-data="{ open: false, systemOpen: false, firewallOpen: false, servicesOpen: false, vpnOpen: false, statusOpen: false, diagnosticsOpen: false, systemActive: {{ request()->routeIs('system.*') || request()->routeIs('firewall.system.*') ? 'true' : 'false' }}, firewallActive: {{ request()->routeIs('firewall.aliases.*') || request()->routeIs('firewall.nat.*') || request()->routeIs('firewall.rules.*') || request()->routeIs('firewall.schedules.*') || request()->routeIs('firewall.limiters.*') || request()->routeIs('firewall.virtual_ips.*') ? 'true' : 'false' }}, servicesActive: {{ request()->routeIs('services.*') ? 'true' : 'false' }}, vpnActive: {{ request()->routeIs('vpn.*') ? 'true' : 'false' }}, statusActive: {{ request()->routeIs('status.*') ? 'true' : 'false' }}, diagnosticsActive: {{ request()->routeIs('diagnostics.*') ? 'true' : 'false' }} }"
     class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,7 +34,7 @@
                                         clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <div x-show="systemOpen"
+                            <div x-show="systemOpen" style="display: none;"
                                 class="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                                 <div class="py-1" role="menu">
                                     <a href="{{ route('system.advanced', request()->route('firewall')) }}"
@@ -90,7 +90,7 @@
                         <div class="relative" @click.away="firewallOpen = false">
                             <button @click="firewallOpen = !firewallOpen"
                                 class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out"
-                                :class="{'border-indigo-400 dark:border-indigo-600 text-gray-900 dark:text-gray-100': '{{ request()->routeIs('firewall.*') ? 'true' : 'false' }}' === 'true', 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': '{{ request()->routeIs('firewall.*') ? 'true' : 'false' }}' !== 'true'}">
+                                :class="{'border-indigo-400 dark:border-indigo-600 text-gray-900 dark:text-gray-100': firewallOpen || firewallActive, 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': !firewallOpen && !firewallActive}">
                                 Firewall
                                 <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -99,7 +99,7 @@
                                         clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <div x-show="firewallOpen"
+                            <div x-show="firewallOpen" style="display: none;"
                                 class="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                                 <div class="py-1" role="menu">
                                     <a href="{{ route('firewall.aliases.index', request()->route('firewall')) }}"
@@ -132,7 +132,7 @@
                                         clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <div x-show="servicesOpen"
+                            <div x-show="servicesOpen" style="display: none;"
                                 class="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                                 <div class="py-1" role="menu">
                                     <a href="{{ route('services.auto-config-backup', request()->route('firewall')) }}"
@@ -198,7 +198,7 @@
                                         clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <div x-show="vpnOpen"
+                            <div x-show="vpnOpen" style="display: none;"
                                 class="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                                 <div class="py-1" role="menu">
                                     <a href="{{ route('vpn.ipsec', request()->route('firewall')) }}"
@@ -225,7 +225,7 @@
                                         clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <div x-show="statusOpen"
+                            <div x-show="statusOpen" style="display: none;"
                                 class="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                                 <div class="py-1" role="menu">
                                     <a href="{{ route('status.captive-portal', request()->route('firewall')) }}"
@@ -286,7 +286,7 @@
                                         clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <div x-show="diagnosticsOpen"
+                            <div x-show="diagnosticsOpen" style="display: none;"
                                 class="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                                 <div class="py-1" role="menu">
                                     <a href="{{ route('diagnostics.arp-table', request()->route('firewall')) }}"

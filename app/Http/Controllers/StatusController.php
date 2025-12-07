@@ -170,10 +170,39 @@ class StatusController extends Controller
     public function systemLogs(Firewall $firewall)
     {
         $api = new \App\Services\PfSenseApiService($firewall);
+        $rawLogs = [];
         $logs = [];
+        $type = request('type', 'system');
+
         try {
-            // Default to system logs
-            $logs = $api->getSystemLogs('system')['data'] ?? [];
+            $rawLogs = $api->getSystemLogs($type)['data'] ?? [];
+
+            foreach ($rawLogs as $log) {
+                if (isset($log['text'])) {
+                    // Parse syslog format: "Month Day Time Host Process[PID]: Message"
+                    // Regex: Time Host Process [PID]? : Message
+                    if (preg_match('/^([A-Z][a-z]{2}\s+\d+\s\d{2}:\d{2}:\d{2})\s+(\S+)\s+([^:\[\s]+)(?:\[(\d+)\])?:\s+(.*)$/', $log['text'], $matches)) {
+                        $logs[] = [
+                            'time' => $matches[1],
+                            // 'host' => $matches[2], 
+                            'process' => $matches[3],
+                            'pid' => $matches[4] ?? '-',
+                            'message' => $matches[5],
+                        ];
+                    } else {
+                        // Fallback for non-matching lines
+                        $logs[] = [
+                            'time' => '-',
+                            'process' => '-',
+                            'pid' => '-',
+                            'message' => $log['text'],
+                        ];
+                    }
+                }
+            }
+
+            $logs = array_reverse($logs); // Show newest first
+
         } catch (\Exception $e) {
             // Log error
         }
