@@ -47,8 +47,8 @@
                                 <option value="">Select Action...</option>
                                 <optgroup label="System">
                                     <option value="reboot">Reboot</option>
-                                    <option value="update">System Update (pfSense-upgrade)</option>
-                                    <option value="update_rest_api">Update REST API (New)</option>
+                                    <option value="update">System Update</option>
+                                    <option value="update_rest_api">Update REST API</option>
                                 </optgroup>
                                 <optgroup label="Configuration (Add to All)">
                                     <option value="create_alias">Add Alias</option>
