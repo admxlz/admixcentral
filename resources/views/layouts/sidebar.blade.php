@@ -42,6 +42,15 @@
             </a>
 
             @if(Auth::user()->isAdmin())
+                <a href="{{ route('companies.index') }}"
+                    class="group flex items-center px-2 py-2 text-base font-medium rounded-md {{ request()->routeIs('companies.*') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
+                    <svg class="mr-3 h-6 w-6 flex-shrink-0 {{ request()->routeIs('companies.*') ? 'text-white' : 'text-gray-400 group-hover:text-gray-300' }}"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span x-show="!collapsed" class="transition-opacity duration-300">{{ __('Companies') }}</span>
+                </a>
                 <a href="{{ route('users.index') }}"
                     class="group flex items-center px-2 py-2 text-base font-medium rounded-md {{ request()->routeIs('users.*') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
                     <svg class="mr-3 h-6 w-6 flex-shrink-0 {{ request()->routeIs('users.*') ? 'text-white' : 'text-gray-400 group-hover:text-gray-300' }}"
