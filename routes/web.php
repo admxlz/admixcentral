@@ -119,6 +119,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/wireless/{id}/edit', [App\Http\Controllers\InterfacesWirelessController::class, 'edit'])->name('wireless.edit');
         Route::patch('/wireless/{id}', [App\Http\Controllers\InterfacesWirelessController::class, 'update'])->name('wireless.update');
         Route::delete('/wireless/{id}', [App\Http\Controllers\InterfacesWirelessController::class, 'destroy'])->name('wireless.destroy');
+
+        // Interface Groups
+        Route::get('/groups', [App\Http\Controllers\InterfacesGroupController::class, 'index'])->name('groups.index');
+        Route::get('/groups/create', [App\Http\Controllers\InterfacesGroupController::class, 'create'])->name('groups.create');
+        Route::post('/groups', [App\Http\Controllers\InterfacesGroupController::class, 'store'])->name('groups.store');
+        Route::get('/groups/{id}/edit', [App\Http\Controllers\InterfacesGroupController::class, 'edit'])->name('groups.edit');
+        Route::patch('/groups/{id}', [App\Http\Controllers\InterfacesGroupController::class, 'update'])->name('groups.update');
+        Route::delete('/groups/{id}', [App\Http\Controllers\InterfacesGroupController::class, 'destroy'])->name('groups.destroy');
     });
 
     // Interfaces management

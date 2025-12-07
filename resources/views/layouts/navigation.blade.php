@@ -86,8 +86,18 @@
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Overview</a>
                                     <a href="{{ route('interfaces.assignments', [request()->route('firewall')]) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Assignments</a>
+                                    <a href="{{ route('interfaces.bridges.index', [request()->route('firewall')]) }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Bridges</a>
+                                    <a href="{{ route('interfaces.gre.index', [request()->route('firewall')]) }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">GRE</a>
+                                    <a href="{{ route('interfaces.groups.index', [request()->route('firewall')]) }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Groups</a>
+                                    <a href="{{ route('interfaces.laggs.index', [request()->route('firewall')]) }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">LAGGs</a>
                                     <a href="{{ route('interfaces.vlans.index', [request()->route('firewall')]) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">VLANs</a>
+                                    <a href="{{ route('interfaces.wireless.index', [request()->route('firewall')]) }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Wireless</a>
                                 </div>
                             </div>
                         </div>
