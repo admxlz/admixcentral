@@ -296,7 +296,7 @@
                                         Table</a>
                                     <a href="{{ route('diagnostics.authentication', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Authentication</a>
-                                    <a href="{{ route('diagnostics.backup-restore', request()->route('firewall')) }}"
+                                    <a href="{{ route('diagnostics.backup.index', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Backup
                                         & Restore</a>
                                     <a href="{{ route('diagnostics.command-prompt', request()->route('firewall')) }}"
@@ -320,7 +320,7 @@
                                     <a href="{{ route('diagnostics.ndp-table', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">NDP
                                         Table</a>
-                                    <a href="{{ route('diagnostics.packet-capture', request()->route('firewall')) }}"
+                                    <a href="{{ route('diagnostics.packet_capture.index', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Packet
                                         Capture</a>
                                     <a href="{{ route('diagnostics.pf-info', request()->route('firewall')) }}"
@@ -348,7 +348,7 @@
                                         Activity</a>
                                     <a href="{{ route('diagnostics.tables', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Tables</a>
-                                    <a href="{{ route('diagnostics.test-port', request()->route('firewall')) }}"
+                                    <a href="{{ route('diagnostics.test_port.index', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Test
                                         Port</a>
                                     <a href="{{ route('diagnostics.traceroute', request()->route('firewall')) }}"

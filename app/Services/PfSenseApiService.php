@@ -81,7 +81,12 @@ class PfSenseApiService
      */
     protected function request(string $method, string $endpoint, array $data = [])
     {
-        $url = $this->baseUrl . '/' . ltrim($endpoint, '/');
+        // If endpoint starts with /api/, treat it as absolute path from host root
+        if (str_starts_with($endpoint, '/api/')) {
+            $url = rtrim($this->firewall->url, '/') . '/' . ltrim($endpoint, '/');
+        } else {
+            $url = $this->baseUrl . '/' . ltrim($endpoint, '/');
+        }
 
         $client = Http::withOptions(['verify' => false])
             ->acceptJson()
@@ -1179,5 +1184,245 @@ class PfSenseApiService
         // Using PATCH as it's a modification
         $data['id'] = $id;
         return $this->patch('/system/crl', $data);
+    }
+
+    /**
+     * Get Bridges
+     */
+    public function getBridges()
+    {
+        return $this->get('/interfaces/bridge');
+    }
+
+    /**
+     * Get specific Bridge
+     */
+    public function getBridge($id)
+    {
+        return $this->get('/interfaces/bridge', ['id' => $id]);
+    }
+
+    /**
+     * Create Bridge
+     */
+    public function createBridge(array $data)
+    {
+        return $this->post('/interfaces/bridge', $data);
+    }
+
+    /**
+     * Update Bridge
+     */
+    public function updateBridge($id, array $data)
+    {
+        $data['id'] = $id;
+        return $this->patch('/interfaces/bridge', $data);
+    }
+
+    /**
+     * Delete Bridge
+     */
+    public function deleteBridge($id)
+    {
+        return $this->delete('/interfaces/bridge', ['id' => $id]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interfaces: LAGGs
+    |--------------------------------------------------------------------------
+    */
+
+    public function getLaggs()
+    {
+        return $this->get('/interfaces/lagg');
+    }
+
+    public function getLagg($id)
+    {
+        return $this->get('/interfaces/lagg', ['id' => $id]);
+    }
+
+    public function createLagg(array $data)
+    {
+        return $this->post('/interfaces/lagg', $data);
+    }
+
+    public function updateLagg($id, array $data)
+    {
+        $data['id'] = $id;
+        return $this->patch('/interfaces/lagg', $data);
+    }
+
+    public function deleteLagg($id)
+    {
+        return $this->delete('/interfaces/lagg', ['id' => $id]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interfaces: GRE
+    |--------------------------------------------------------------------------
+    */
+
+    public function getGres()
+    {
+        return $this->get('/interfaces/gre');
+    }
+
+    public function getGre($id)
+    {
+        return $this->get('/interfaces/gre', ['id' => $id]);
+    }
+
+    public function createGre(array $data)
+    {
+        return $this->post('/interfaces/gre', $data);
+    }
+
+    public function updateGre($id, array $data)
+    {
+        $data['id'] = $id;
+        return $this->patch('/interfaces/gre', $data);
+    }
+
+    public function deleteGre($id)
+    {
+        return $this->delete('/interfaces/gre', ['id' => $id]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interfaces: Wireless
+    |--------------------------------------------------------------------------
+    */
+
+    public function getWireless()
+    {
+        return $this->get('/interfaces/wireless');
+    }
+
+    public function getWirelessDevice($id)
+    {
+        return $this->get('/interfaces/wireless', ['id' => $id]);
+    }
+
+    public function createWireless(array $data)
+    {
+        return $this->post('/interfaces/wireless', $data);
+    }
+
+    public function updateWireless($id, array $data)
+    {
+        $data['id'] = $id;
+        return $this->patch('/interfaces/wireless', $data);
+    }
+
+    public function deleteWireless($id)
+    {
+        return $this->delete('/interfaces/wireless', ['id' => $id]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Diagnostics: Backup/Restore
+    |--------------------------------------------------------------------------
+    */
+
+    public function backupConfiguration()
+    {
+        return $this->get('/diagnostics/backup');
+    }
+
+    public function restoreConfiguration(array $data)
+    {
+        return $this->post('/diagnostics/restore', $data);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Diagnostics: Packet Capture
+    |--------------------------------------------------------------------------
+    */
+
+    public function getPacketCapture()
+    {
+        return $this->get('/diagnostics/packet_capture');
+    }
+
+    public function startPacketCapture(array $data)
+    {
+        return $this->post('/diagnostics/packet_capture', $data);
+    }
+
+    public function stopPacketCapture()
+    {
+        return $this->post('/diagnostics/packet_capture/stop');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Diagnostics: Test Port
+    |--------------------------------------------------------------------------
+    */
+
+    public function testPort(array $data)
+    {
+        return $this->post('/diagnostics/test_port', $data);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Services: NTP
+    |--------------------------------------------------------------------------
+    */
+    public function getNtp()
+    {
+        return $this->get('/api/v1/services/ntp');
+    }
+
+    public function updateNtp(array $data)
+    {
+        return $this->put('/api/v1/services/ntp', $data);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Services: SNMP
+    |--------------------------------------------------------------------------
+    */
+    public function getSnmp()
+    {
+        return $this->get('/api/v1/services/snmp');
+    }
+
+    public function updateSnmp(array $data)
+    {
+        return $this->put('/api/v1/services/snmp', $data);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Services: Captive Portal
+    |--------------------------------------------------------------------------
+    */
+    public function getCaptivePortalZones()
+    {
+        return $this->get('/api/v1/services/captiveportal');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Services: UPnP
+    |--------------------------------------------------------------------------
+    */
+    public function getUpnp()
+    {
+        return $this->get('/api/v1/services/upnp');
+    }
+
+    public function updateUpnp(array $data)
+    {
+        return $this->put('/api/v1/services/upnp', $data);
     }
 }

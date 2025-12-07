@@ -87,6 +87,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/vlans/{id}/edit', [App\Http\Controllers\InterfacesController::class, 'editVlan'])->name('vlans.edit');
         Route::patch('/vlans/{id}', [App\Http\Controllers\InterfacesController::class, 'updateVlan'])->name('vlans.update');
         Route::delete('/vlans/{id}', [App\Http\Controllers\InterfacesController::class, 'destroyVlan'])->name('vlans.destroy');
+
+        // Bridges
+        Route::get('/bridges', [App\Http\Controllers\InterfacesBridgeController::class, 'index'])->name('bridges.index');
+        Route::get('/bridges/create', [App\Http\Controllers\InterfacesBridgeController::class, 'create'])->name('bridges.create');
+        Route::post('/bridges', [App\Http\Controllers\InterfacesBridgeController::class, 'store'])->name('bridges.store');
+        Route::get('/bridges/{id}/edit', [App\Http\Controllers\InterfacesBridgeController::class, 'edit'])->name('bridges.edit');
+        Route::patch('/bridges/{id}', [App\Http\Controllers\InterfacesBridgeController::class, 'update'])->name('bridges.update');
+        Route::delete('/bridges/{id}', [App\Http\Controllers\InterfacesBridgeController::class, 'destroy'])->name('bridges.destroy');
+
+        // LAGGs
+        Route::get('/laggs', [App\Http\Controllers\InterfacesLaggController::class, 'index'])->name('laggs.index');
+        Route::get('/laggs/create', [App\Http\Controllers\InterfacesLaggController::class, 'create'])->name('laggs.create');
+        Route::post('/laggs', [App\Http\Controllers\InterfacesLaggController::class, 'store'])->name('laggs.store');
+        Route::get('/laggs/{id}/edit', [App\Http\Controllers\InterfacesLaggController::class, 'edit'])->name('laggs.edit');
+        Route::patch('/laggs/{id}', [App\Http\Controllers\InterfacesLaggController::class, 'update'])->name('laggs.update');
+        Route::delete('/laggs/{id}', [App\Http\Controllers\InterfacesLaggController::class, 'destroy'])->name('laggs.destroy');
+
+        // GRE
+        Route::get('/gre', [App\Http\Controllers\InterfacesGreController::class, 'index'])->name('gre.index');
+        Route::get('/gre/create', [App\Http\Controllers\InterfacesGreController::class, 'create'])->name('gre.create');
+        Route::post('/gre', [App\Http\Controllers\InterfacesGreController::class, 'store'])->name('gre.store');
+        Route::get('/gre/{id}/edit', [App\Http\Controllers\InterfacesGreController::class, 'edit'])->name('gre.edit');
+        Route::patch('/gre/{id}', [App\Http\Controllers\InterfacesGreController::class, 'update'])->name('gre.update');
+        Route::delete('/gre/{id}', [App\Http\Controllers\InterfacesGreController::class, 'destroy'])->name('gre.destroy');
+
+        // Wireless
+        Route::get('/wireless', [App\Http\Controllers\InterfacesWirelessController::class, 'index'])->name('wireless.index');
+        Route::get('/wireless/create', [App\Http\Controllers\InterfacesWirelessController::class, 'create'])->name('wireless.create');
+        Route::post('/wireless', [App\Http\Controllers\InterfacesWirelessController::class, 'store'])->name('wireless.store');
+        Route::get('/wireless/{id}/edit', [App\Http\Controllers\InterfacesWirelessController::class, 'edit'])->name('wireless.edit');
+        Route::patch('/wireless/{id}', [App\Http\Controllers\InterfacesWirelessController::class, 'update'])->name('wireless.update');
+        Route::delete('/wireless/{id}', [App\Http\Controllers\InterfacesWirelessController::class, 'destroy'])->name('wireless.destroy');
     });
 
     // Interfaces management
@@ -390,11 +422,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dns-forwarder', [App\Http\Controllers\ServicesController::class, 'dnsForwarder'])->name('dns-forwarder');
         Route::get('/dynamic-dns', [App\Http\Controllers\ServicesController::class, 'dynamicDns'])->name('dynamic-dns');
         Route::get('/igmp-proxy', [App\Http\Controllers\ServicesController::class, 'igmpProxy'])->name('igmp-proxy');
-        Route::get('/ntp', [App\Http\Controllers\ServicesController::class, 'ntp'])->name('ntp');
+        Route::get('/ntp', [App\Http\Controllers\ServicesNtpController::class, 'index'])->name('ntp');
+        Route::put('/ntp', [App\Http\Controllers\ServicesNtpController::class, 'update'])->name('ntp.update');
         Route::get('/pppoe-server', [App\Http\Controllers\ServicesController::class, 'pppoeServer'])->name('pppoe-server');
         Route::get('/router-advertisement', [App\Http\Controllers\ServicesController::class, 'routerAdvertisement'])->name('router-advertisement');
-        Route::get('/snmp', [App\Http\Controllers\ServicesController::class, 'snmp'])->name('snmp');
-        Route::get('/upnp', [App\Http\Controllers\ServicesController::class, 'upnp'])->name('upnp');
+        Route::get('/snmp', [App\Http\Controllers\ServicesSnmpController::class, 'index'])->name('snmp');
+        Route::put('/snmp', [App\Http\Controllers\ServicesSnmpController::class, 'update'])->name('snmp.update');
+        Route::get('/upnp', [App\Http\Controllers\ServicesUpnpController::class, 'index'])->name('upnp');
+        Route::put('/upnp', [App\Http\Controllers\ServicesUpnpController::class, 'update'])->name('upnp.update');
+        Route::get('/captive-portal', [App\Http\Controllers\ServicesCaptivePortalController::class, 'index'])->name('captive-portal');
         Route::get('/wake-on-lan', [App\Http\Controllers\ServicesController::class, 'wakeOnLan'])->name('wake-on-lan');
     });
 
@@ -453,7 +489,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('firewall/{firewall}/diagnostics')->name('diagnostics.')->group(function () {
         Route::get('/arp-table', [App\Http\Controllers\DiagnosticsController::class, 'arpTable'])->name('arp-table');
         Route::get('/authentication', [App\Http\Controllers\DiagnosticsController::class, 'authentication'])->name('authentication');
-        Route::get('/backup-restore', [App\Http\Controllers\DiagnosticsController::class, 'backupRestore'])->name('backup-restore');
+        Route::get('/backup', [App\Http\Controllers\DiagnosticsBackupController::class, 'index'])->name('backup.index');
+        Route::get('/backup/download', [App\Http\Controllers\DiagnosticsBackupController::class, 'backup'])->name('backup.download');
+        Route::post('/backup/restore', [App\Http\Controllers\DiagnosticsBackupController::class, 'restore'])->name('restore.upload');
         Route::match(['get', 'post'], '/command-prompt', [App\Http\Controllers\DiagnosticsController::class, 'commandPrompt'])->name('command-prompt');
         Route::match(['get', 'post'], '/dns-lookup', [App\Http\Controllers\DiagnosticsController::class, 'dnsLookup'])->name('dns-lookup');
         Route::get('/edit-file', [App\Http\Controllers\DiagnosticsController::class, 'editFile'])->name('edit-file');
@@ -461,7 +499,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::match(['get', 'post'], '/halt-system', [App\Http\Controllers\DiagnosticsController::class, 'haltSystem'])->name('halt-system');
         Route::get('/limiter-info', [App\Http\Controllers\DiagnosticsController::class, 'limiterInfo'])->name('limiter-info');
         Route::get('/ndp-table', [App\Http\Controllers\DiagnosticsController::class, 'ndpTable'])->name('ndp-table');
-        Route::get('/packet-capture', [App\Http\Controllers\DiagnosticsController::class, 'packetCapture'])->name('packet-capture');
+        Route::get('/packet-capture', [App\Http\Controllers\DiagnosticsPacketCaptureController::class, 'index'])->name('packet_capture.index');
+        Route::post('/packet-capture/start', [App\Http\Controllers\DiagnosticsPacketCaptureController::class, 'start'])->name('packet_capture.start');
+        Route::post('/packet-capture/stop', [App\Http\Controllers\DiagnosticsPacketCaptureController::class, 'stop'])->name('packet_capture.stop');
         Route::get('/pf-info', [App\Http\Controllers\DiagnosticsController::class, 'pfInfo'])->name('pf-info');
         Route::get('/pf-top', [App\Http\Controllers\DiagnosticsController::class, 'pfTop'])->name('pf-top');
         Route::match(['get', 'post'], '/ping', [App\Http\Controllers\DiagnosticsController::class, 'ping'])->name('ping');
@@ -473,7 +513,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/states-summary', [App\Http\Controllers\DiagnosticsController::class, 'statesSummary'])->name('states-summary');
         Route::get('/system-activity', [App\Http\Controllers\DiagnosticsController::class, 'systemActivity'])->name('system-activity');
         Route::get('/tables', [App\Http\Controllers\DiagnosticsController::class, 'tables'])->name('tables');
-        Route::get('/test-port', [App\Http\Controllers\DiagnosticsController::class, 'testPort'])->name('test-port');
+        Route::get('/test-port', [App\Http\Controllers\DiagnosticsTestPortController::class, 'index'])->name('test_port.index');
+        Route::post('/test-port', [App\Http\Controllers\DiagnosticsTestPortController::class, 'test'])->name('test_port.test');
         Route::match(['get', 'post'], '/traceroute', [App\Http\Controllers\DiagnosticsController::class, 'traceroute'])->name('traceroute');
     });
 
