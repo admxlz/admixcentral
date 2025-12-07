@@ -1,1 +1,0 @@
-<?php echo "I AM HERE IN PFCONSOLE"; ?>
