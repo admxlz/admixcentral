@@ -28,6 +28,15 @@ class StatusDashboardController extends Controller
                 // Ignore version fetch error, keep system status
             }
 
+            // Fetch REST API Version
+            try {
+                $apiVersionResponse = $api->getApiVersion();
+                $apiVersion = $apiVersionResponse['data']['output'] ?? 'Unknown';
+                $system['api_version'] = trim($apiVersion);
+            } catch (\Exception $e) {
+                $system['api_version'] = 'N/A';
+            }
+
             // Get interfaces status (runtime)
             $interfacesResponse = $api->getInterfacesStatus();
             $interfacesStatusData = $interfacesResponse['data'] ?? [];

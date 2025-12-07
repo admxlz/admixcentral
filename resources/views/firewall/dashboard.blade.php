@@ -60,11 +60,16 @@
                                                 Version</th>
                                             <td class="py-2">
                                                 {{ $systemStatus['data']['version'] ?? '2.8.1-RELEASE' }}
-                                                {{-- Fallback or parsed from API if available. The screenshot shows full
-                                                string. --}}
                                                 <div class="text-xs text-gray-400">built on
-                                                    {{ $systemStatus['data']['built_on'] ?? 'Unknown' }}</div>
+                                                    {{ $systemStatus['data']['built_on'] ?? 'Unknown' }}
+                                                </div>
                                             </td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th scope="row"
+                                                class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                REST API Version</th>
+                                            <td class="py-2">{{ $systemStatus['api_version'] ?? 'Unknown' }}</td>
                                         </tr>
                                         <tr class="border-b dark:border-gray-700">
                                             <th scope="row"
@@ -83,15 +88,21 @@
                                             </td>
                                         </tr>
                                         <tr class="border-b dark:border-gray-700">
-                                            <th scope="row" class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">CPU System</th>
+                                            <th scope="row"
+                                                class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">CPU
+                                                System</th>
                                             <td class="py-2">
                                                 <div class="flex flex-col">
                                                     <span>{{ $systemStatus['data']['cpu_model'] ?? 'N/A' }}</span>
-                                                    <span class="text-xs text-gray-500">{{ $systemStatus['data']['cpu_count'] ?? '1' }} CPUs</span>
+                                                    <span
+                                                        class="text-xs text-gray-500">{{ $systemStatus['data']['cpu_count'] ?? '1' }}
+                                                        CPUs</span>
                                                 </div>
                                                 <div class="mt-1 flex items-center space-x-2 text-xs">
-                                                    <span class="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                                        Load: {{ implode(', ', $systemStatus['data']['cpu_load_avg'] ?? ['-', '-', '-']) }}
+                                                    <span
+                                                        class="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                                        Load:
+                                                        {{ implode(', ', $systemStatus['data']['cpu_load_avg'] ?? ['-', '-', '-']) }}
                                                     </span>
                                                 </div>
                                             </td>
@@ -103,19 +114,24 @@
                                             <td class="py-2">{{ $systemStatus['data']['uptime'] ?? 'N/A' }}</td>
                                         </tr>
                                         <tr class="border-b dark:border-gray-700">
-                                            <th scope="row" class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">Security</th>
+                                            <th scope="row"
+                                                class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                Security</th>
                                             <td class="py-2 space-y-1">
                                                 <div class="flex items-center">
                                                     <span class="text-xs font-semibold w-24">Kernel PTI:</span>
                                                     @if(isset($systemStatus['data']['kernel_pti']) && $systemStatus['data']['kernel_pti'] == '1')
-                                                        <span class="px-2 py-0.5 rounded text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Enabled</span>
+                                                        <span
+                                                            class="px-2 py-0.5 rounded text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Enabled</span>
                                                     @else
-                                                        <span class="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Disabled</span>
+                                                        <span
+                                                            class="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Disabled</span>
                                                     @endif
                                                 </div>
                                                 <div class="flex items-center">
                                                     <span class="text-xs font-semibold w-24">MDS Mitigation:</span>
-                                                    <span class="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                                    <span
+                                                        class="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
                                                         {{ ucfirst($systemStatus['data']['mds_mitigation'] ?? 'Inactive') }}
                                                     </span>
                                                 </div>

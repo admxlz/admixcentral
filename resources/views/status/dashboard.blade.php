@@ -26,7 +26,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-lg font-semibold mb-4">System Information</h3>
                     @if(isset($systemStatus['connected']) && $systemStatus['connected'])
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
                                 <p class="text-sm text-gray-600 dark:text-gray-400">Status</p>
                                 <p class="text-lg font-bold text-green-600 dark:text-green-400">Online</p>
@@ -38,6 +38,10 @@
                             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                                 <p class="text-sm text-gray-600 dark:text-gray-400">Version</p>
                                 <p class="text-lg font-bold">{{ $systemStatus['data']['version'] ?? 'Unknown' }}</p>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">REST API</p>
+                                <p class="text-lg font-bold">{{ $system['api_version'] ?? 'Unknown' }}</p>
                             </div>
                         </div>
                     @else

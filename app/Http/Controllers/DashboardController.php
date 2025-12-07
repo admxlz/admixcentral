@@ -54,6 +54,16 @@ class DashboardController extends Controller
                 // Ignore version fetch error
             }
 
+            // Fetch REST API Version
+            try {
+                $apiVersionResponse = $api->getApiVersion();
+                $apiVersion = $apiVersionResponse['data']['output'] ?? 'Unknown';
+                // Clean up output if it contains newlines or extra text (pkg return can be verbose)
+                $status['api_version'] = trim($apiVersion);
+            } catch (\Exception $e) {
+                $status['api_version'] = 'N/A';
+            }
+
             return response()->json([
                 'online' => true,
                 'status' => $status
@@ -86,6 +96,15 @@ class DashboardController extends Controller
                 }
             } catch (\Exception $e) {
                 // Ignore version fetch error
+            }
+
+            // Fetch REST API Version
+            try {
+                $apiVersionResponse = $api->getApiVersion();
+                $apiVersion = $apiVersionResponse['data']['output'] ?? 'Unknown';
+                $systemStatus['api_version'] = trim($apiVersion);
+            } catch (\Exception $e) {
+                // Ignore
             }
         } catch (\Exception $e) {
             $apiError = "System Status: " . $e->getMessage();

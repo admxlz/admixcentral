@@ -110,6 +110,10 @@
                                                                 <td class="py-1" x-text="status.data.version"></td>
                                                             </tr>
                                                             <tr class="border-b dark:border-gray-700">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">REST API</th>
+                                                                <td class="py-1" x-text="status.api_version || 'Unknown'"></td>
+                                                            </tr>
+                                                            <tr class="border-b dark:border-gray-700">
                                                                 <th class="py-1 font-medium text-gray-900 dark:text-gray-300">Platform</th>
                                                                 <td class="py-1" x-text="status.data.platform"></td>
                                                             </tr>

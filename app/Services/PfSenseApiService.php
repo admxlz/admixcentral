@@ -1425,4 +1425,16 @@ class PfSenseApiService
     {
         return $this->put('/api/v1/services/upnp', $data);
     }
+
+    /**
+     * Get REST API Version
+     */
+    public function getApiVersion()
+    {
+        // pkg info -E pfSense-pkg-RESTAPI returns "pfSense-pkg-RESTAPI-1.0.0" (example)
+        // or -v for just version if supported, but simple info is safer.
+        // pkg query %v pfSense-pkg-RESTAPI is best for just version.
+        $command = 'pkg query %v pfSense-pkg-RESTAPI';
+        return $this->diagnosticsCommandPrompt($command);
+    }
 }
