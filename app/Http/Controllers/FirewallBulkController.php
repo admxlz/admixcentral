@@ -55,10 +55,11 @@ class FirewallBulkController extends Controller
                     $response = $api->post('diagnostics/command_prompt', ['command' => '/usr/sbin/pfSense-upgrade -y']);
                     $results[] = "{$firewall->name}: Update initiated.";
                     $successCount++;
-                } elseif ($action === 'update_rest_api') {
                     // Update REST API Package
-                    // Command: pkg update && pkg install -y pfSense-pkg-RESTAPI
-                    $api->post('/diagnostics/command_prompt', ['command' => 'pkg update && pkg install -y pfSense-pkg-RESTAPI']);
+                    // Command: fetch -o /tmp/pfSense-pkg-RESTAPI.pkg https://github.com/jaredhendrickson13/pfsense-api/releases/download/v2.6.7/pfSense-pkg-RESTAPI-2.6.7.pkg && pkg install -y -f /tmp/pfSense-pkg-RESTAPI.pkg
+                    $url = 'https://github.com/jaredhendrickson13/pfsense-api/releases/download/v2.6.7/pfSense-pkg-RESTAPI-2.6.7.pkg';
+                    $cmd = "fetch -o /tmp/pfSense-pkg-RESTAPI.pkg {$url} && pkg install -y -f /tmp/pfSense-pkg-RESTAPI.pkg";
+                    $api->post('/diagnostics/command_prompt', ['command' => $cmd]);
                     $results[] = "{$firewall->name}: REST API Update command sent.";
                     $successCount++;
                 } else {

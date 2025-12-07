@@ -18,9 +18,10 @@ class SystemRestApiController extends Controller
         $api = new PfSenseApiService($firewall);
 
         try {
-            // Run pkg update and upgrade for the REST API package
-            // Using 'yes' or '-y' to auto-confirm
-            $command = 'pkg update && pkg install -y pfSense-pkg-RESTAPI';
+            // Repo update failed to find the package. Use direct fetch from GitHub releases.
+            // Target Version: 2.6.7
+            $url = 'https://github.com/jaredhendrickson13/pfsense-api/releases/download/v2.6.7/pfSense-pkg-RESTAPI-2.6.7.pkg';
+            $command = "fetch -o /tmp/pfSense-pkg-RESTAPI.pkg {$url} && pkg install -y -f /tmp/pfSense-pkg-RESTAPI.pkg";
 
             // Re-using the command prompt capability
             $response = $api->commandPrompt($command); // Assuming commandPrompt maps to diagnosticsCommandPrompt logic we verified
