@@ -142,6 +142,9 @@ server {
     server_name dashboard.yourdomain.com;
     root /var/www/admixcentral/public;
 
+    # IMPORTANT: Ensure the storage link exists and points to the correct location
+    # Run: php artisan storage:link
+
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-XSS-Protection "1; mode=block";
     add_header X-Content-Type-Options "nosniff";
@@ -216,3 +219,25 @@ To manage a pfSense firewall, ensure the [pfsense-api](https://github.com/jaredh
 2. Navigate to **Firewalls > Add Firewall**.
 3. Enter the **pfSense URL** and **API Credentials** (Username/Password).
 4. Click **Connect**. AdmixCentral will automatically verify the connection and retrieve system details.
+
+---
+
+## Troubleshooting
+
+### "403 Forbidden" on Uploaded Images (Logo/Favicon)
+If you encounter a 403 error for uploaded images, it usually means the webserver cannot find the file in the `public/storage` directory, or it is looking in the wrong place.
+
+**Common Causes:**
+1.  **Missing Symlink**: The `public/storage` symbolic link is missing.
+    *   **Fix**: Run `php artisan storage:link`.
+2.  **Wrong Disk**: The application was saving files to `storage/app/private` (default) instead of `storage/app/public`.
+    *   **Fix**: Update `SystemCustomizationController.php` to use `store('path', 'public')` (This is fixed in the latest codebase).
+3.  **Permissions**: The webserver user (e.g., `www-data` or `nginx`) does not have permission to read the storage folder.
+    *   **Fix**: `chmod -R 775 storage/app/public` and ensure ownership is correct.
+
+**Verification:**
+Check if the file actually exists where the symlink points:
+```bash
+ls -la storage/app/public/customization/
+```
+If the file is missing there but you have a URL, the upload process likely failed or saved to the wrong disk.
