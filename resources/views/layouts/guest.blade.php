@@ -1,5 +1,10 @@
+@php
+    $settings = \App\Models\SystemSetting::all()->pluck('value', 'key');
+    $theme = $settings['theme'] ?? 'light';
+    $logo = $settings['logo_path'] ?? null;
+@endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{ $theme === 'dark' ? 'dark' : '' }}">
 
 <head>
     <meta charset="utf-8">
@@ -20,7 +25,12 @@
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
         <div>
             <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" style="width: 5rem; height: 5rem;" />
+                @if($logo)
+                    <img src="{{ $logo }}" class="fill-current text-gray-500"
+                        style="width: 5rem; height: 5rem; object-fit: contain;" alt="Logo" />
+                @else
+                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" style="width: 5rem; height: 5rem;" />
+                @endif
             </a>
         </div>
 
