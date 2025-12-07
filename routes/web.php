@@ -498,6 +498,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/authentication', [App\Http\Controllers\DiagnosticsController::class, 'authentication'])->name('authentication');
         Route::get('/backup', [App\Http\Controllers\DiagnosticsBackupController::class, 'index'])->name('backup.index');
         Route::get('/backup/download', [App\Http\Controllers\DiagnosticsBackupController::class, 'backup'])->name('backup.download');
+        Route::post('/backup/restore', [App\Http\Controllers\DiagnosticsBackupController::class, 'restore'])->name('backup.restore');
+
+        Route::get('/reboot', [App\Http\Controllers\DiagnosticsRebootController::class, 'index'])->name('reboot.index');
+        Route::post('/reboot', [App\Http\Controllers\DiagnosticsRebootController::class, 'reboot'])->name('reboot.update');
         Route::post('/backup/restore', [App\Http\Controllers\DiagnosticsBackupController::class, 'restore'])->name('restore.upload');
         Route::match(['get', 'post'], '/command-prompt', [App\Http\Controllers\DiagnosticsController::class, 'commandPrompt'])->name('command-prompt');
         Route::match(['get', 'post'], '/dns-lookup', [App\Http\Controllers\DiagnosticsController::class, 'dnsLookup'])->name('dns-lookup');

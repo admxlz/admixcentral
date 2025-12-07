@@ -332,7 +332,7 @@
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">pfTop</a>
                                     <a href="{{ route('diagnostics.ping', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Ping</a>
-                                    <a href="{{ route('diagnostics.reboot', request()->route('firewall')) }}"
+                                    <a href="{{ route('diagnostics.reboot.index', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Reboot</a>
                                     <a href="{{ route('diagnostics.routes', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Routes</a>
