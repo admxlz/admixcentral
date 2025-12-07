@@ -103,7 +103,15 @@ class DiagnosticsController extends Controller
 
     public function pfInfo(Firewall $firewall)
     {
-        return view('diagnostics.pf-info', compact('firewall'));
+        $api = new \App\Services\PfSenseApiService($firewall);
+        $output = '';
+        try {
+            $response = $api->commandPrompt("pfctl -si");
+            $output = $response['data']['output'] ?? 'No output returned.';
+        } catch (\Exception $e) {
+            $output = 'Error fetching pfInfo: ' . $e->getMessage();
+        }
+        return view('diagnostics.pf-info', compact('firewall', 'output'));
     }
 
     public function pfTop(Firewall $firewall)
@@ -186,7 +194,19 @@ class DiagnosticsController extends Controller
 
     public function systemActivity(Firewall $firewall)
     {
-        return view('diagnostics.system-activity', compact('firewall'));
+        $api = new \App\Services\PfSenseApiService($firewall);
+        $output = '';
+        try {
+            // Run top in batch mode equivalent (for FreeBSD top: -d 1 for 1 frame)
+            // Force terminal dimensions to ensure we get process list
+            $command = "env LINES=1000 COLUMNS=200 top -aSH -d 1";
+            $response = $api->commandPrompt($command);
+            $output = $response['data']['output'] ?? 'No output returned.';
+        } catch (\Exception $e) {
+            $output = 'Error fetching system activity: ' . $e->getMessage();
+        }
+
+        return view('diagnostics.system-activity', compact('firewall', 'output'));
     }
 
     public function tables(Request $request, Firewall $firewall)
