@@ -56,7 +56,7 @@ Use these instructions for setting up a local development environment.
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/admixcentral.git
+   git clone https://github.com/admxlz/admixcentral.git
    cd admixcentral
    ```
 
