@@ -125,19 +125,162 @@ class FirewallBulkController extends Controller
                     $api->createAlias($data);
 
                 } elseif ($type === 'nat') {
-                    // ... implementation for NAT
-                    $data = $request->all(); // Filtered by model/validation
-                    // For mass add, we rely on the specific method.
-                    // Assuming API service has createNatPortForward
+                    // Map form inputs to API payload structure
+                    $input = $request->all();
+
+                    $data = [
+                        'interface' => $input['interface'] ?? 'wan',
+                        'protocol' => $input['protocol'] ?? 'tcp',
+                        'destination_port' => $input['dstport'],
+                        'target' => $input['target'],
+                        'local_port' => $input['local_port'],
+                        'descr' => $input['descr'] ?? '',
+                        'associated-rule-id' => $input['associated_rule'] ?? 'pass',
+                        'natreflection' => $input['natreflection'] ?? 'system-default',
+                    ];
+
+                    // Handle Source
+                    $src = $input['src'] ?? 'any';
+                    $data['source'] = ($src === 'any') ? 'any' : $src;
+
+                    if (!empty($input['srcport']) && $input['srcport'] !== 'any') {
+                        $data['source_port'] = $input['srcport'];
+                    }
+
+                    // Handle Destination (default to any/wan address if not explicit in bulk, 
+                    // but usually Bulk NAT implies redirection from WAN IP)
+                    // The form only asks for Destination Port. 
+                    // Standard Port Forward implies Destination = Interface Address often, or 'any' if not specified?
+                    // Edit form defaults 'dst' to 'any' or WAN address in UI?
+                    // API requires 'destination'.
+                    $data['destination'] = [
+                        'network' => 'any' // Default to any or interface address? FirewallNatController uses 'any' default if empty.
+                        // Ideally we should have asked for Destination Address in the bulk form too, but user didn't explicitly ask for it, just Source.
+                        // But wait, user said "source" was missing.
+                        // I will assume destination is 'any' or based on interface if not provided.
+                        // Let's restart the loop or check if we added destination input.
+                        // I didn't add Destination Input. I only added Source, Protocol, etc.
+                        // I'll default destination to 'any' for now as safer default, or 'wanip'?
+                        // Actually, 'any' is safe.
+                    ];
+                    // Wait, API expects: 'destination' => 'any' or array?
+                    // FirewallNatController: 'destination' => ($validated['dst'] ?? 'any') === 'any' ? 'any' : $validated['dst']
+                    $data['destination'] = 'any'; // Default for Bulk if not specified
+
                     $api->createNatPortForward($data);
                 } elseif ($type === 'rule') {
                     $data = $request->all();
                     $api->createFirewallRule($data);
 
                 } elseif ($type === 'ipsec') {
-                    $data = $request->all();
-                    // Default to Phase 1 creation for "Add IPSec Tunnel"
-                    $api->createIpsecPhase1($data);
+                    $validated = $request->validate([
+                        'iketype' => 'required|in:ikev1,ikev2,auto',
+                        'protocol' => 'required|in:inet,inet6',
+                        'interface' => 'required|string',
+                        'remote_gateway' => 'required|string',
+                        'descr' => 'nullable|string',
+                        'authentication_method' => 'required|in:pre_shared_key',
+                        'pre_shared_key' => 'required|string',
+                        'myid_type' => 'required|string',
+                        'myid_data' => 'nullable|string',
+                        'peerid_type' => 'required|string',
+                        'peerid_data' => 'nullable|string',
+                        'encryption_algorithm_name' => 'required|string',
+                        'encryption_algorithm_keylen' => 'required_if:encryption_algorithm_name,aes',
+                        'hash_algorithm' => 'required|string',
+                        'dhgroup' => 'required|integer',
+                        'lifetime' => 'nullable|integer',
+                    ]);
+
+                    $data = [
+                        'iketype' => $validated['iketype'],
+                        'protocol' => $validated['protocol'],
+                        'interface' => $validated['interface'],
+                        'remote_gateway' => $validated['remote_gateway'],
+                        'descr' => $validated['descr'] ?? '',
+                        'authentication_method' => $validated['authentication_method'],
+                        'pre_shared_key' => $validated['pre_shared_key'],
+                        'myid_type' => $validated['myid_type'],
+                        'myid_data' => $validated['myid_data'] ?? null,
+                        'peerid_type' => $validated['peerid_type'],
+                        'peerid_data' => $validated['peerid_data'] ?? null,
+                        'encryption' => [
+                            [
+                                'encryption_algorithm_name' => $validated['encryption_algorithm_name'],
+                                'encryption_algorithm_keylen' => (int) ($validated['encryption_algorithm_keylen'] ?? 'auto'),
+                                'hash_algorithm' => $validated['hash_algorithm'],
+                                'dhgroup' => (int) $validated['dhgroup'],
+                            ]
+                        ],
+                        'lifetime' => (int) ($validated['lifetime'] ?? 28800),
+                    ];
+
+                    $p1Response = $api->createIpsecPhase1($data);
+
+                    // Phase 2 Logic
+                    if ($request->has('enable_phase2')) {
+                        // Validate Phase 2
+                        $p2Validated = $request->validate([
+                            'p2_mode' => 'required',
+                            'p2_protocol' => 'required',
+                            'p2_local_network' => 'required',
+                            'p2_local_network_custom' => 'nullable|string',
+                            'p2_remote_network' => 'required|string',
+                            'p2_encryption' => 'required',
+                            'p2_keylen' => 'nullable',
+                            'p2_hash' => 'required|array',
+                            'p2_pfsgroup' => 'required',
+                            'p2_lifetime' => 'nullable|integer',
+                        ]);
+
+                        $ikeid = $p1Response['data']['ikeid'] ?? null;
+
+                        if ($ikeid) {
+                            // Prepare Local Network
+                            $localType = $p2Validated['p2_local_network'];
+                            $localAddress = null;
+                            $localNetbits = null;
+
+                            if ($localType === 'network' && !empty($p2Validated['p2_local_network_custom'])) {
+                                // Parse CIDR
+                                $parts = explode('/', $p2Validated['p2_local_network_custom']);
+                                $localAddress = $parts[0] ?? '';
+                                $localNetbits = $parts[1] ?? 32;
+                            }
+
+                            // Prepare Remote Network (Always CIDR in bulk form for simplicity)
+                            $parts = explode('/', $p2Validated['p2_remote_network']);
+                            $remoteAddress = $parts[0] ?? '';
+                            $remoteNetbits = $parts[1] ?? 32;
+
+                            $p2Data = [
+                                'ikeid' => $ikeid,
+                                'mode' => $p2Validated['p2_mode'],
+                                'protocol' => $p2Validated['p2_protocol'],
+                                'localid_type' => $localType,
+                                'localid_address' => $localAddress,
+                                'localid_netbits' => (int) $localNetbits,
+                                'remoteid_type' => 'network',
+                                'remoteid_address' => $remoteAddress,
+                                'remoteid_netbits' => (int) $remoteNetbits,
+                                'encryption_algorithm_option' => [
+                                    [
+                                        'name' => $p2Validated['p2_encryption'],
+                                        'keylen' => ($p2Validated['p2_encryption'] === 'aes') ? ($p2Validated['p2_keylen'] ?? 'auto') : 'auto',
+                                    ]
+                                ],
+                                'hash_algorithm_option' => $p2Validated['p2_hash'],
+                                'pfsgroup' => (int) $p2Validated['p2_pfsgroup'],
+                                'lifetime' => (int) ($p2Validated['p2_lifetime'] ?? 3600),
+                                'descr' => ($validated['descr'] ?? '') . ' (P2)',
+                            ];
+
+                            $api->createIpsecPhase2($p2Data);
+                            $results[] = "{$firewall->name}: Phase 2 created.";
+                        } else {
+                            $results[] = "{$firewall->name}: Phase 1 created, but could not retrieve IKE ID for Phase 2.";
+                        }
+                    }
                 }
 
                 $successCount++;
