@@ -241,3 +241,8 @@ Check if the file actually exists where the symlink points:
 ls -la storage/app/public/customization/
 ```
 If the file is missing there but you have a URL, the upload process likely failed or saved to the wrong disk.
+
+## Disclaimers
+
+> [!CAUTION]
+> This package is not affiliated or supported by Netgate or the pfSense team.
