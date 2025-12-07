@@ -41,25 +41,9 @@ class FirewallBulkController extends Controller
                     $results[] = "{$firewall->name}: Reboot command sent.";
                     $successCount++;
                 } elseif ($action === 'update') {
-                    // Run pfSense-upgrade command
-                    // Command: /usr/sbin/pfSense-upgrade -y
-                    // We need an exec capability in API.
-                    // Assuming we implemented command prompt or similiar, or use diagnostics/command_prompt if available
-                    // or /api/v2/diagnostics/command (if implemented)
-                    // Let's assume we can use the 'exec' capability if available, or try to use command prompt endpoint.
-                    // The plan said "Shell Command".
-                    // The standard API might not expose raw shell execution safely unless we added it.
-                    // But we verified "Command Prompt" feature earlier.
-                    // Let's use `execCommand` wrapper if it exists or generic post.
-                    // We verified `/api/v2/diagnostics/command_prompt` takes `command`.
-                    $response = $api->post('diagnostics/command_prompt', ['command' => '/usr/sbin/pfSense-upgrade -y']);
-                    $results[] = "{$firewall->name}: Update initiated.";
-                    $successCount++;
-                    // Update REST API Package
-                    // Command: pfsense-restapi update
-                    $cmd = "pfsense-restapi update";
-                    $api->post('/diagnostics/command_prompt', ['command' => $cmd]);
-                    $results[] = "{$firewall->name}: REST API Update command sent.";
+                    // Run pfSense-upgrade command for system update
+                    $api->post('diagnostics/command_prompt', ['command' => '/usr/sbin/pfSense-upgrade -y']);
+                    $results[] = "{$firewall->name}: System update initiated (pfSense-upgrade -y).";
                     $successCount++;
                 } else {
                     $results[] = "{$firewall->name}: Unknown action.";
@@ -123,7 +107,14 @@ class FirewallBulkController extends Controller
             try {
                 $api = new PfSenseApiService($firewall);
 
-                if ($type === 'alias') {
+                if ($type === 'update') {
+                    // System Update - Issue pfSense-upgrade command
+                    $api->commandPrompt('pfSense-upgrade -y');
+                    $results[] = "{$firewall->name}: pfSense-upgrade command issued.";
+                    $successCount++;
+                    continue;
+
+                } elseif ($type === 'alias') {
                     // Validate
                     $data = $request->validate([
                         'name' => 'required',
