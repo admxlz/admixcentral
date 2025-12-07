@@ -1,2 +1,0 @@
-API Key: adminadmin
-API Secret: pfsense

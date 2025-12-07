@@ -1,2 +1,0 @@
-Testing VLAN API endpoints for firewall: pfSense Lab (https://172.30.1.129:444)
-Testing /auth/keys... SUCCESS! Found data.
