@@ -61,8 +61,7 @@
                                     <a href="{{ route('system.user_manager.index', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">User
                                         Manager</a>
-                                    <a href="{{ route('system.customization.index') }}"
-                                        class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Customization</a>
+
                                 </div>
                             </div>
                         </div>
@@ -140,6 +139,9 @@
                             <div x-show="servicesOpen" style="display: none;"
                                 class="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                                 <div class="py-1" role="menu">
+                                    <a href="{{ route('services.acme.certificates', request()->route('firewall')) }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">ACME
+                                        Certificates</a>
                                     <a href="{{ route('services.auto-config-backup', request()->route('firewall')) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Auto
                                         Config Backup</a>

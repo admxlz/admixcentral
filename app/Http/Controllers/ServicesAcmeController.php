@@ -22,17 +22,61 @@ class ServicesAcmeController extends Controller
     public function certificates(Firewall $firewall)
     {
         $api = $this->getApi($firewall);
-        try {
-            $response = $api->get('/services/acme/certificates');
-            $certificates = $response['data'] ?? [];
+        $certificates = [];
+        $accountKeys = [];
+        $error = null;
 
-            // We also need account keys to create new certs
-            $keysResponse = $api->get('/services/acme/account_keys');
-            $accountKeys = $keysResponse['data'] ?? [];
+        try {
+            // Read ACME config from config.xml via command prompt
+            // Extract the acme section using grep and some parsing
+            $command = "cat /conf/config.xml | sed -n '/<installedpackages>/,/<\\/installedpackages>/p' | sed -n '/<acme>/,/<\\/acme>/p'";
+            $response = $api->commandPrompt($command);
+            $xmlOutput = $response['data']['output'] ?? '';
+
+            if (!empty($xmlOutput)) {
+                // Parse the XML to extract certificate info
+                // Wrap in a root element for valid XML
+                $xmlOutput = '<?xml version="1.0"?><root>' . $xmlOutput . '</root>';
+
+                libxml_use_internal_errors(true);
+                $xml = simplexml_load_string($xmlOutput);
+
+                if ($xml && isset($xml->acme)) {
+                    $acmeConfig = $xml->acme;
+
+                    // Extract certificates
+                    if (isset($acmeConfig->certificates->item)) {
+                        foreach ($acmeConfig->certificates->item as $cert) {
+                            $certificates[] = [
+                                'name' => (string) ($cert->name ?? 'Unknown'),
+                                'descr' => (string) ($cert->descr ?? ''),
+                                'status' => (string) ($cert->status ?? 'unknown'),
+                                'acme_account_key' => (string) ($cert->acme_account_key ?? ''),
+                                'keylength' => (string) ($cert->keylength ?? '2048'),
+                                'san' => $this->extractDomains($cert),
+                                'lastrenewal' => (string) ($cert->lastrenewal ?? ''),
+                                'lastrenewtime' => (string) ($cert->lastrenewtime ?? ''),
+                            ];
+                        }
+                    }
+
+                    // Extract account keys
+                    if (isset($acmeConfig->accountkeys->item)) {
+                        foreach ($acmeConfig->accountkeys->item as $key) {
+                            $accountKeys[] = [
+                                'name' => (string) ($key->name ?? 'Unknown'),
+                                'descr' => (string) ($key->descr ?? ''),
+                                'email' => (string) ($key->email ?? ''),
+                                'acmeserver' => (string) ($key->acmeserver ?? ''),
+                                'accountkey' => !empty((string) ($key->accountkey ?? '')) ? 'Registered' : 'Not Registered',
+                            ];
+                        }
+                    }
+                }
+            }
         } catch (\Exception $e) {
-            $certificates = [];
-            $accountKeys = [];
-            session()->flash('error', 'Failed to fetch ACME data: ' . $e->getMessage());
+            $error = 'Failed to fetch ACME data: ' . $e->getMessage();
+            Log::error('ACME Config Read Error', ['message' => $e->getMessage()]);
         }
 
         return view('services.acme.index', [
@@ -40,7 +84,23 @@ class ServicesAcmeController extends Controller
             'tab' => 'certificates',
             'certificates' => $certificates,
             'accountKeys' => $accountKeys,
+            'error' => $error,
+            'readOnly' => true,
         ]);
+    }
+
+    /**
+     * Extract domain names from certificate config
+     */
+    protected function extractDomains($cert)
+    {
+        $domains = [];
+        if (isset($cert->a_domainlist->item)) {
+            foreach ($cert->a_domainlist->item as $domain) {
+                $domains[] = (string) ($domain->name ?? '');
+            }
+        }
+        return implode(', ', array_filter($domains));
     }
 
     public function storeCertificate(Request $request, Firewall $firewall)
