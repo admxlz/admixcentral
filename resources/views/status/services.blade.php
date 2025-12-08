@@ -25,12 +25,17 @@
                                     <tr
                                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td class="py-4 px-6 font-medium text-gray-900 dark:text-white">
-                                            {{ $service['name'] ?? '' }}</td>
+                                            {{ $service['name'] ?? '' }}
+                                        </td>
                                         <td class="py-4 px-6">{{ $service['description'] ?? '' }}</td>
                                         <td class="py-4 px-6">
+                                            @php
+                                                $rawStatus = $service['status'] ?? '';
+                                                $isRunning = ($rawStatus == '1' || $rawStatus === 'running');
+                                            @endphp
                                             <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ ($service['status'] ?? '') === 'running' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                {{ ucfirst($service['status'] ?? 'Stopped') }}
+                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $isRunning ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                {{ $isRunning ? 'Running' : 'Stopped' }}
                                             </span>
                                         </td>
                                         <td class="py-4 px-6">
