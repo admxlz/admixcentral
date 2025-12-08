@@ -254,12 +254,12 @@
                             <p class="text-sm">{{ isset($firewallRules['data']) ? count($firewallRules['data']) : 0 }}
                             </p>
                         </a>
-                        <a href="#"
+                        <a href="{{ route('status.services', $firewall) }}"
                             class="bg-green-500 hover:bg-green-700 text-white p-4 rounded-lg text-center transition">
                             <p class="font-bold">Services</p>
-                            <p class="text-sm">Manage</p>
+                            <p class="text-sm">Status</p>
                         </a>
-                        <a href="#"
+                        <a href="{{ route('vpn.ipsec', $firewall) }}"
                             class="bg-orange-500 hover:bg-orange-700 text-white p-4 rounded-lg text-center transition">
                             <p class="font-bold">VPN</p>
                             <p class="text-sm">Configure</p>
