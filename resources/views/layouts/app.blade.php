@@ -23,6 +23,15 @@
     @if(isset($settings['favicon_path']))
         <link rel="icon" href="{{ $settings['favicon_path'] }}">
     @endif
+
+    <style>
+        .form-input-reset {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+        }
+    </style>
 </head>
 
 <body class="font-sans antialiased h-full overflow-hidden bg-gray-100 dark:bg-gray-900">

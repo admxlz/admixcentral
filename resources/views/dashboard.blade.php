@@ -16,150 +16,198 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="overflow-hidden">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-semibold mb-4">Firewalls</h3>
+                <div class="p-6 text-gray-900 dark:text-gray-100" x-data="{ search: '', statusFilter: 'all', customerFilter: 'all', offlineCount: 0, showOnlineBadge: false }" x-init="setTimeout(() => showOnlineBadge = true, 2500)" @device-offline.window="offlineCount++" @device-online.window="offlineCount = Math.max(0, offlineCount - 1)">
+                    <!-- Widgets Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <!-- Firewalls Widget -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
+                            <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-500 dark:text-blue-300 mr-4">
+                                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Managed Firewalls</p>
+                                <div class="flex items-center text-4xl font-bold text-gray-900 dark:text-gray-100">
+                                    {{ $totalFirewalls }}
+                                    <span 
+                                        x-show="offlineCount > 0 || (offlineCount === 0 && showOnlineBadge)" 
+                                        x-transition.opacity.duration.500ms
+                                        class="ml-3 flex items-center text-xs font-medium px-2 py-1 rounded-full align-middle transition-all duration-500 ease-in-out"
+                                        :class="offlineCount > 0 ? 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900' : 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900'"
+                                        style="display: none;"
+                                    >
+                                        <!-- Offline Content -->
+                                        <template x-if="offlineCount > 0">
+                                            <span class="flex items-center">
+                                                <span class="relative flex h-2 w-2 mr-2">
+                                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                                                  <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+                                                </span>
+                                                <span><span x-text="offlineCount"></span> Offline</span>
+                                            </span>
+                                        </template>
+
+                                        <!-- Online Content -->
+                                        <template x-if="offlineCount === 0">
+                                            <span>All Online</span>
+                                        </template>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Health Widget -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center" id="system-health-widget">
+                            <div id="health-icon" class="p-3 rounded-full bg-gray-100 dark:bg-gray-700 mr-4 transition-all duration-300">
+                                <svg class="h-8 w-8 text-gray-400 dark:text-gray-500 transition-colors duration-300" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Health Score</p>
+                                <!-- Skeleton Placeholder -->
+                                <div id="health-skeleton" class="animate-pulse">
+                                    <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-1"></div>
+                                </div>
+                                <!-- Actual Data (hidden initially) -->
+                                <div id="health-data" style="display: none;">
+                                    <p id="health-score" class="text-4xl font-bold text-gray-900 dark:text-gray-100">--</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Companies Widget -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
+                            <div class="p-3 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-500 dark:text-indigo-300 mr-4">
+                                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Companies</p>
+                                <p class="text-4xl font-bold text-gray-900 dark:text-gray-100">{{ $totalCompanies }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Total Users Widget -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
+                            <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-500 dark:text-purple-300 mr-4">
+                                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Users</p>
+                                <p class="text-4xl font-bold text-gray-900 dark:text-gray-100">{{ $totalUsers }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold whitespace-nowrap">Managed Firewalls</h3>
+                        
+                        <div class="flex items-center gap-2">
+                            <!-- Customer Filter -->
+                            @php
+                                $uniqueCustomers = $firewallsWithStatus->pluck('company.name')->unique()->sort()->values();
+                            @endphp
+                            <div x-data="{ 
+                                open: false, 
+                                filter: '', 
+                                customers: {{ json_encode($uniqueCustomers) }},
+                                get filteredCustomers() {
+                                    if (this.filter === '') return this.customers.slice(0, 10);
+                                    return this.customers.filter(c => c.toLowerCase().includes(this.filter.toLowerCase())).slice(0, 10);
+                                },
+                                select(name) {
+                                    customerFilter = name;
+                                    this.open = false;
+                                    this.filter = '';
+                                }
+                            }" class="relative w-56" @keydown.escape="open = false" @click.outside="open = false">
+                                
+                                <!-- Trigger Button -->
+                                <button @click="open = !open" type="button" 
+                                    class="flex items-center justify-between w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <span x-text="customerFilter === 'all' ? 'All Customers' : customerFilter" class="truncate block text-left"></span>
+                                    <svg class="h-4 w-4 ml-2 text-gray-500 transform transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </button>
+
+                                <!-- Dropdown Menu -->
+                                <div x-show="open" x-transition.opacity.duration.200ms
+                                     class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl overflow-hidden">
+                                     
+                                    <!-- Search Input -->
+                                    <div class="p-2 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                                        <input x-model="filter" x-ref="searchInput" type="text" placeholder="Search..." 
+                                            class="w-full text-sm rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 px-2 py-1 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+
+                                    <!-- List -->
+                                    <ul class="max-h-60 overflow-y-auto py-1">
+                                        <li @click="select('all')" class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-700 dark:text-gray-300 italic border-b border-gray-100 dark:border-gray-700">All Customers</li>
+                                        
+                                        <template x-for="customer in filteredCustomers" :key="customer">
+                                            <li @click="select(customer)" class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-700 dark:text-gray-300 truncate" 
+                                                :class="{'bg-blue-50 dark:bg-blue-900': customerFilter === customer}"
+                                                x-text="customer"></li>
+                                        </template>
+                                        
+                                        <li x-show="filteredCustomers.length === 0" class="px-4 py-2 text-sm text-gray-400 italic text-center">No matches</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Status Filter -->
+                            <select x-model="statusFilter" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="all">All Status</option>
+                                <option value="online">Online</option>
+                                <option value="offline">Offline</option>
+                            </select>
+
+                            <!-- Search Input -->
+                            <div class="flex items-center w-64 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
+                                <div class="pl-3 pr-2 text-gray-500">
+                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    x-model="search"
+                                    placeholder="Search firewalls..." 
+                                    class="form-input-reset flex-1 min-w-0"
+                                >
+                                <button 
+                                    x-show="search.length > 0" 
+                                    @click="search = ''" 
+                                    class="pr-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
+                                >
+                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
                     @if($firewallsWithStatus->isEmpty())
                         <p class="text-gray-500">No firewalls configured yet.</p>
                     @else
                         <div class="space-y-4">
                             @foreach($firewallsWithStatus as $firewall)
-                                <div x-data="{
-                                            loading: true,
-                                            online: false,
-                                            status: null,
-                                            error: null,
-                                            // Traffic Monitor (Rate Calculation)
-                                            bandwidthHistory: new Array(20).fill({ in: 0, out: 0 }),
-                                            currentTraffic: { in: '0 Bps', out: '0 Bps' },
-                                            lastBytes: { in: 0, out: 0, time: 0 },
-                                            
-                                            updateBandwidthFromInterfaces(interfaces) {
-                                                // Find WAN interface (case insensitive) or default to first
-                                                let wan = null;
-                                                const wanKey = Object.keys(interfaces).find(key => key.toLowerCase() === 'wan');
-                                                
-                                                if (wanKey) {
-                                                     wan = interfaces[wanKey];
-                                                } else {
-                                                     // Fallback to first
-                                                     const firstKey = Object.keys(interfaces)[0];
-                                                     if (firstKey) wan = interfaces[firstKey];
-                                                }
-
-                                                if (!wan) return;
-
-                                                const now = new Date().getTime();
-                                                const bytesIn = parseFloat(wan.inbytes || 0);
-                                                const bytesOut = parseFloat(wan.outbytes || 0);
-
-                                                let inRate = 0;
-                                                let outRate = 0;
-
-                                                // Calculate rate if we have history
-                                                if (this.lastBytes.time > 0) {
-                                                    const timeDiff = (now - this.lastBytes.time) / 1000; // seconds
-                                                    if (timeDiff > 0) {
-                                                        // Rate in bits per second: (Delta Bytes * 8) / Seconds
-                                                        // Handle potential counter wrap (if new < old, ignore or reset)
-                                                        if (bytesIn >= this.lastBytes.in) {
-                                                            inRate = ((bytesIn - this.lastBytes.in) * 8) / timeDiff;
-                                                        }
-                                                        if (bytesOut >= this.lastBytes.out) {
-                                                            outRate = ((bytesOut - this.lastBytes.out) * 8) / timeDiff;
-                                                        }
-                                                    }
-                                                }
-
-                                                // Update Last State
-                                                this.lastBytes = { in: bytesIn, out: bytesOut, time: now };
-
-                                                // Update History & Text
-                                                this.bandwidthHistory.shift();
-                                                this.bandwidthHistory.push({ in: inRate, out: outRate });
-                                                this.currentTraffic = { 
-                                                    in: this.formatBytes(inRate, true), // true = bits
-                                                    out: this.formatBytes(outRate, true) 
-                                                };
-                                            },
-                                            
-                                            formatBytes(size, isBits = false) {
-                                                if (!+size) return isBits ? '0 bps' : '0 B';
-                                                const k = 1024;
-                                                const decimals = 2;
-                                                const dm = decimals < 0 ? 0 : decimals;
-                                                const sizes = isBits 
-                                                    ? ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps'] 
-                                                    : ['B', 'KB', 'MB', 'GB', 'TB'];
-                                                const i = Math.floor(Math.log(size) / Math.log(k));
-                                                return `${parseFloat((size / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-                                            },
-                                            getGraphPoints(type) {
-                                                const max = Math.max(...this.bandwidthHistory.map(d => Math.max(d.in, d.out))) || 100;
-                                                const height = 30; // Compact height
-                                                const width = 100; 
-                                                const step = width / (this.bandwidthHistory.length - 1);
-                                                return this.bandwidthHistory.map((d, i) => {
-                                                    const val = d[type];
-                                                    const y = height - ((val / max) * height);
-                                                    return `${i * step},${y}`;
-                                                }).join(' ');
-                                            },
-
-                                            init() {
-                                                this.fetchStatus();
-                                                this.setupWebSocket();
-
-                                                // Poll every 5 seconds to trigger backend update & broadcast
-                                                setInterval(() => {
-                                                    this.fetchStatus();
-                                                }, 5000);
-                                            },
-
-                                            fetchStatus() {
-                                                // Add timestamp to prevent browser caching
-                                                fetch('{{ route('firewall.check-status', $firewall) }}?t=' + new Date().getTime())
-                                                    .then(response => response.json())
-                                                    .then(data => {
-                                                        this.loading = false;
-                                                        this.online = data.online;
-                                                        if (data.online) {
-                                                            this.status = data.status;
-                                            // Update Traffic & Interface Status
-                                            if (data.status.interfaces) {
-                                                this.updateBandwidthFromInterfaces(data.status.interfaces);
-                                            }
-                                                        } else {
-                                                            this.error = data.error;
-                                                        }
-                                                    })
-                                                    .catch(error => {
-                                                        this.loading = false;
-                                                        this.online = false;
-                                                        this.error = 'Failed to check status';
-                                                    });
-                                            },
-
-                                            setupWebSocket() {
-                                                if (window.Echo) {
-                                                    console.log('Listening for firewall.{{ $firewall->id }} updates...');
-                                                    window.Echo.private('firewall.{{ $firewall->id }}')
-                                                        .listen('.firewall.status.update', (e) => {
-                                                            console.log('Received update for firewall {{ $firewall->id }}:', e);
-                                                            this.loading = false;
-                                                            this.online = true;
-                                                            this.online = true;
-                                                            this.status = e.status;
-                                                            if (e.status.interfaces) {
-                                                                this.updateBandwidthFromInterfaces(e.status.interfaces);
-                                                            }
-                                                        });
-                                                } else {
-                                                    console.log('Echo not ready, retrying in 500ms...');
-                                                    setTimeout(() => this.setupWebSocket(), 500);
-                                                }
-                                            }
-                                        }" class="border dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800 hover:shadow-lg transition">
+                                <div 
+                                    x-show="matches(search) && matchesFilters(statusFilter, customerFilter)"
+                                    x-data="firewallCard(
+                                        {{ json_encode($firewall->cached_status) }}, 
+                                        '{{ strtolower($firewall->name . ' ' . $firewall->company->name . ' ' . $firewall->url . ' ' . $firewall->hostname) }}',
+                                        '{{ route('firewall.check-status', $firewall) }}',
+                                        {{ $firewall->id }},
+                                        '{{ $firewall->company->name }}'
+                                    )"
+                                    class="relative border dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800 hover:shadow-lg transition">
+                                    
+                                    {{-- Overlay Moved to Body --}}
                                     
                                     {{-- Header Row: Name & Actions --}}
                                     <div class="flex justify-between items-start mb-4">
@@ -184,25 +232,31 @@
 
                                         <div class="flex gap-2">
                                             <a href="{{ route('firewall.dashboard', $firewall) }}"
-                                                class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded">
+                                               class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1.5 rounded transition">
                                                 Manage
                                             </a>
                                             <a href="{{ route('firewalls.edit', $firewall) }}"
-                                                class="bg-gray-500 hover:bg-gray-700 text-white text-sm font-bold py-2 px-4 rounded">
+                                               class="bg-gray-600 hover:bg-gray-700 text-white text-sm px-3 py-1.5 rounded transition">
                                                 Edit
                                             </a>
                                         </div>
                                     </div>
+                                    
+                                    <div class="relative flex-1">
+                                        {{-- Offline Overlay (Body Only) --}}
+                                        <div x-show="!online && !loading" class="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none" style="background-color: rgba(255,255,255,.80);">
+                                            <div class="backdrop-blur-md p-6 rounded-lg shadow-xl text-center w-full max-w-sm mx-4 pointer-events-auto" style="background-color: rgba(255, 255, 255, 0.80);">
+                                                <svg class="w-10 h-10 mx-auto text-red-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Firewall is unreachable</h3>
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Connection timed out or refused</p>
+                                            </div>
+                                        </div>
 
-                                    {{-- Content Area --}}
-                                    <div class="min-h-[6rem]">
+                                    {{-- Content Grid --}}
+                                    <div>
                                         <template x-if="loading">
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
-                                                <div class="space-y-2">
-                                                    <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-                                                    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-                                                    <div class="h-4 bg-gray-200 rounded w-full"></div>
-                                                </div>
+                                            <div class="animate-pulse space-y-4">
+                                                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
                                                 <div class="space-y-2">
                                                     <div class="h-4 bg-gray-200 rounded w-full"></div>
                                                     <div class="h-4 bg-gray-200 rounded w-full"></div>
@@ -211,96 +265,105 @@
                                             </div>
                                         </template>
 
-                                        <template x-if="!loading && online && status && status.data">
+                                        <template x-if="!loading && status && status.data">
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                 {{-- Left Column: System Details Table --}}
                                                 <div>
                                                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                                                         <tbody>
-                                                            <tr class="border-b dark:border-gray-700">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">Version</th>
-                                                                <td class="py-1" x-text="status.data.version"></td>
+                                                            <tr class="border-b dark:border-gray-700 align-top">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">Version</th>
+                                                                <td class="py-1" x-text="status.data.version || 'Unknown'"></td>
                                                             </tr>
-                                                            <tr class="border-b dark:border-gray-700">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">REST API</th>
+                                                            <tr class="border-b dark:border-gray-700 align-top">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">REST API</th>
                                                                 <td class="py-1" x-text="status.api_version || 'Unknown'"></td>
                                                             </tr>
-                                                            <tr class="border-b dark:border-gray-700">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">Platform</th>
-                                                                <td class="py-1" x-text="status.data.platform"></td>
+                                                            <tr class="border-b dark:border-gray-700 align-top">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">Platform</th>
+                                                                <td class="py-1" x-text="status.data.platform || 'Unknown'"></td>
                                                             </tr>
-                                                            <tr class="border-b dark:border-gray-700">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">BIOS</th>
+                                                            <tr class="border-b dark:border-gray-700 align-top">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">BIOS</th>
                                                                 <td class="py-1">
-                                                                    <div class="flex flex-col text-xs">
-                                                                        <span x-text="status.data.bios_vendor"></span>
-                                                                        <span x-text="status.data.bios_version"></span>
-                                                                        <span x-text="status.data.bios_date"></span>
+                                                                    <template x-if="!status.data.bios_vendor && !status.data.bios_version && !status.data.bios_date">
+                                                                        <span>Unknown</span>
+                                                                    </template>
+                                                                    <template x-if="status.data.bios_vendor || status.data.bios_version || status.data.bios_date">
+                                                                        <div class="flex flex-col text-sm">
+                                                                            <span x-show="status.data.bios_vendor" x-text="status.data.bios_vendor"></span>
+                                                                            <span x-show="status.data.bios_version" x-text="status.data.bios_version"></span>
+                                                                            <span x-show="status.data.bios_date" x-text="status.data.bios_date"></span>
+                                                                        </div>
+                                                                    </template>
+                                                                </td>
+                                                            </tr>
+                                                            <tr class="border-b dark:border-gray-700 align-top">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">CPU System</th>
+                                                                <td class="py-1">
+                                                                    <div class="flex flex-col text-sm">
+                                                                        <span x-text="status.data.cpu_model || 'Unknown'"></span>
+                                                                        <span class="text-gray-500" x-show="status.data.cpu_count" x-text="(status.data.cpu_count || '1') + ' CPUs'"></span>
+                                                                        <span class="text-gray-400 mt-1" x-show="status.data.cpu_load_avg">
+                                                                            Load: <span x-text="(status.data.cpu_load_avg || []).join(', ')"></span>
+                                                                        </span>
                                                                     </div>
                                                                 </td>
                                                             </tr>
-                                                            <tr class="border-b dark:border-gray-700">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">CPU System</th>
-                                                                <td class="py-1">
-                                                                    <div class="flex flex-col text-xs">
-                                                                        <span x-text="status.data.cpu_model"></span>
-                                                                        <span class="text-gray-500" x-text="(status.data.cpu_count || '1') + ' CPUs'"></span>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="dark:border-gray-700">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300">Uptime</th>
-                                                                <td class="py-1" x-text="status.data.uptime"></td>
+                                                            <tr class="dark:border-gray-700 align-top">
+                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">Uptime</th>
+                                                                <td class="py-1" x-text="online ? status.data.uptime : 'Offline'"></td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
                                                 </div>
 
-                                                {{-- Right Column: Mini Graphs --}}
-                                                <div class="space-y-3">
-                                                    {{-- CPU --}}
-                                                    <div>
-                                                        <div class="flex justify-between mb-1 text-xs">
-                                                            <span class="font-medium text-gray-700 dark:text-gray-300">CPU Usage</span>
-                                                            <span class="text-gray-700 dark:text-gray-300" x-text="(status.data.cpu_usage || 0) + '%'"></span>
+                                                {{-- Right Column: Live Metrics (Masked if Offline) --}}
+                                                <div>
+                                                    <div class="space-y-2">
+                                                        {{-- CPU Usage --}}
+                                                        <div>
+                                                            <div class="flex justify-between mb-1">
+                                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">CPU Usage</span>
+                                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300" x-text="(status?.data?.cpu_usage || 0) + '%'"></span>
+                                                            </div>
+                                                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                                                <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" :style="'width: ' + (status?.data?.cpu_usage || 0) + '%'"></div>
+                                                            </div>
                                                         </div>
-                                                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                                                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" :style="'width: ' + (status.data.cpu_usage || 0) + '%'"></div>
-                                                        </div>
-                                                    </div>
 
-                                                    {{-- Memory --}}
-                                                    <div>
-                                                        <div class="flex justify-between mb-1 text-xs">
-                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Memory Usage</span>
-                                                            <span class="text-gray-700 dark:text-gray-300" x-text="(status.data.mem_usage || 0) + '%'"></span>
+                                                        {{-- Memory Usage --}}
+                                                        <div>
+                                                            <div class="flex justify-between mb-1">
+                                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Memory Usage</span>
+                                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300" x-text="(status?.data?.mem_usage || 0) + '%'"></span>
+                                                            </div>
+                                                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                                                <div class="bg-purple-600 h-2.5 rounded-full transition-all duration-500" :style="'width: ' + (status?.data?.mem_usage || 0) + '%'"></div>
+                                                            </div>
                                                         </div>
-                                                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                                                            <div class="bg-purple-600 h-2 rounded-full transition-all duration-500" :style="'width: ' + (status.data.mem_usage || 0) + '%'"></div>
+                                                        
+                                                        {{-- Swap Usage --}}
+                                                        <div>
+                                                            <div class="flex justify-between mb-1">
+                                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Swap Usage</span>
+                                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300" x-text="(status?.data?.swap_usage || '0') + '%'"></span>
+                                                            </div>
+                                                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                                                <div class="bg-yellow-500 h-2.5 rounded-full transition-all duration-500" :style="'width: ' + (status?.data?.swap_usage || 0) + '%'"></div>
+                                                            </div>
                                                         </div>
-                                                    </div>
 
-                                                    {{-- Swap --}}
-                                                    <div>
-                                                        <div class="flex justify-between mb-1 text-xs">
-                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Swap Usage</span>
-                                                            <span class="text-gray-700 dark:text-gray-300" x-text="(status.data.swap_usage || 0) + '%'"></span>
+                                                        {{-- Disk Usage --}}
+                                                        <div>
+                                                            <div class="flex justify-between mb-1">
+                                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Disk Usage (/)</span>
+                                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300" x-text="(status?.data?.disk_usage || 0) + '%'"></span>
+                                                            </div>
+                                                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                                                <div class="bg-yellow-600 h-2.5 rounded-full transition-all duration-500" :style="'width: ' + (status?.data?.disk_usage || 0) + '%'"></div>
+                                                            </div>
                                                         </div>
-                                                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                                                            <div class="bg-red-600 h-2 rounded-full transition-all duration-500" :style="'width: ' + (status.data.swap_usage || 0) + '%'"></div>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Disk -->
-                                                    <div>
-                                                        <div class="flex justify-between mb-1 text-xs">
-                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Disk Usage (/)</span>
-                                                            <span class="text-gray-700 dark:text-gray-300" x-text="(status.data.disk_usage || 0) + '%'"></span>
-                                                        </div>
-                                                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                                                            <div class="bg-yellow-600 h-2 rounded-full transition-all duration-500" :style="'width: ' + (status.data.disk_usage || 0) + '%'"></div>
-                                                        </div>
-                                                    </div>
 
                                                     <!-- Temperature -->
                                                     <template x-if="status?.data?.temp_c">
@@ -319,17 +382,17 @@
                                                     </template>
 
                                                     <!-- Interface Status Indicators -->
-                                                    <template x-if="status && status.interfaces">
-                                                        <div class="mt-3">
+                                                    <template x-if="(status && status.interfaces) || !online">
+                                                        <div class="mt-2">
                                                             <div class="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Interfaces</div>
                                                             <div class="flex flex-wrap gap-2">
-                                                                <template x-for="(iface, name) in status.interfaces" :key="name">
+                                                                <template x-for="(iface, name) in getInterfaces()" :key="name">
                                                                     <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-700 px-2 py-1 rounded text-xs border border-gray-100 dark:border-gray-600">
                                                                         <div class="w-2 h-2 rounded-full"
                                                                             :class="{
-                                                                                'bg-green-500': iface.status === 'up' || iface.status === 'associated',
-                                                                                'bg-red-500': iface.status === 'down' || iface.status === 'no carrier',
-                                                                                'bg-yellow-500': !['up', 'down', 'associated', 'no carrier'].includes(iface.status)
+                                                                                'bg-green-500': online && (iface.status === 'up' || iface.status === 'associated'),
+                                                                                'bg-red-500': !online || iface.status === 'down' || iface.status === 'no carrier' || iface.status === 'offline',
+                                                                                'bg-yellow-500': online && !['up', 'down', 'associated', 'no carrier'].includes(iface.status)
                                                                             }"></div>
                                                                         <span class="font-mono uppercase text-gray-600 dark:text-gray-300" x-text="iface.descr || name"></span>
                                                                     </div>
@@ -339,8 +402,8 @@
                                                     </template>
 
                                                     <!-- Compact Traffic Monitor -->
-                                                    <div class="mt-4">
-                                                        <div class="flex justify-between items-center mb-2">
+                                                    <div>
+                                                        <div class="flex justify-between items-center mb-1">
                                                             <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Traffic Monitor</span>
                                                             <div class="flex gap-4 text-xs">
                                                                 <span class="text-green-600 dark:text-green-400 font-mono">In: <span x-text="currentTraffic.in"></span></span>
@@ -361,13 +424,7 @@
                                                 </div>
                                             </div>
                                         </template>
-
-                                        <template x-if="!loading && !online">
-                                            <div class="text-center py-6">
-                                                <p class="text-red-500 font-semibold">Firewall is unreachable</p>
-                                                <p class="text-sm text-gray-500" x-text="error || 'Connection timed out or refused'"></p>
-                                            </div>
-                                        </template>
+                                    </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -377,4 +434,426 @@
             </div>
         </div>
     </div>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('firewallCard', (initialStatus, staticInfo, checkUrl, firewallId, companyName) => ({
+            loading: true,
+            online: false,
+            reportedOffline: false,
+            status: initialStatus,
+            error: null,
+            staticInfo: staticInfo,
+            checkUrl: checkUrl,
+            firewallId: firewallId,
+            companyName: companyName,
+
+            // Traffic Monitor (Rate Calculation)
+            bandwidthHistory: new Array(20).fill({ in: 0, out: 0 }),
+            currentTraffic: { in: '0 Bps', out: '0 Bps' },
+            lastBytes: { in: 0, out: 0, time: 0 },
+
+            matches(query) {
+                if (!query) return true;
+                const q = query.toLowerCase();
+                if (this.staticInfo.includes(q)) return true;
+                const statusText = this.online ? 'online' : 'offline';
+                if (statusText.includes(q)) return true;
+                if (this.status) {
+                    if (this.status.data && this.status.data.version && this.status.data.version.toLowerCase().includes(q)) return true;
+                    if (this.status.api_version && this.status.api_version.toLowerCase().includes(q)) return true;
+                }
+                return false;
+            },
+
+            matchesFilters(statusFilter, customerFilter) {
+                // Status Filter
+                if (statusFilter !== 'all') {
+                    const isOnline = !this.loading && this.online;
+                    if (statusFilter === 'online' && !isOnline) return false;
+                    if (statusFilter === 'offline' && isOnline) return false;
+                }
+
+                // Customer Filter
+                if (customerFilter !== 'all') {
+                    if (this.companyName !== customerFilter) return false;
+                }
+
+                return true;
+            },
+
+            getInterfaces() {
+                if (this.status && this.status.interfaces) {
+                    return this.status.interfaces;
+                }
+                // Placeholder for offline devices without cached interfaces
+                return {
+                    'wan': { descr: 'WAN', status: 'offline' },
+                    'lan': { descr: 'LAN', status: 'offline' }
+                };
+            },
+
+            updateBandwidthFromInterfaces(interfaces) {
+                let wan = null;
+                const wanKey = Object.keys(interfaces).find(key => key.toLowerCase() === 'wan');
+                if (wanKey) {
+                        wan = interfaces[wanKey];
+                } else {
+                        const firstKey = Object.keys(interfaces)[0];
+                        if (firstKey) wan = interfaces[firstKey];
+                }
+                if (!wan) return;
+
+                const now = new Date().getTime();
+                const bytesIn = parseFloat(wan.inbytes || 0);
+                const bytesOut = parseFloat(wan.outbytes || 0);
+                let inRate = 0;
+                let outRate = 0;
+
+                if (this.lastBytes.time > 0) {
+                    const timeDiff = (now - this.lastBytes.time) / 1000;
+                    if (timeDiff > 0) {
+                        if (bytesIn >= this.lastBytes.in) {
+                            inRate = ((bytesIn - this.lastBytes.in) * 8) / timeDiff;
+                        }
+                        if (bytesOut >= this.lastBytes.out) {
+                            outRate = ((bytesOut - this.lastBytes.out) * 8) / timeDiff;
+                        }
+                    }
+                }
+                this.lastBytes = { in: bytesIn, out: bytesOut, time: now };
+                this.bandwidthHistory.shift();
+                this.bandwidthHistory.push({ in: inRate, out: outRate });
+                this.currentTraffic = { 
+                    in: this.formatBytes(inRate, true), 
+                    out: this.formatBytes(outRate, true) 
+                };
+            },
+
+            formatBytes(size, isBits = false) {
+                if (!+size) return isBits ? '0 bps' : '0 B';
+                const k = 1024;
+                const decimals = 2;
+                const dm = decimals < 0 ? 0 : decimals;
+                const sizes = isBits ? ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps'] : ['B', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(size) / Math.log(k));
+                return `${parseFloat((size / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+            },
+
+            getGraphPoints(type) {
+                const max = Math.max(...this.bandwidthHistory.map(d => Math.max(d.in, d.out))) || 100;
+                const height = 30; 
+                const width = 100; 
+                const step = width / (this.bandwidthHistory.length - 1);
+                return this.bandwidthHistory.map((d, i) => {
+                    const val = d[type];
+                    const y = height - ((val / max) * height);
+                    return `${i * step},${y}`;
+                }).join(' ');
+            },
+
+            init() {
+                this.fetchStatus();
+                this.setupWebSocket();
+                setInterval(() => { this.fetchStatus(); }, 5000);
+            },
+
+            async fetchStatus() {
+                try {
+                    let response = await fetch(this.checkUrl + '?t=' + new Date().getTime());
+                    let data = await response.json();
+                    
+                    this.online = data.online;
+                    this.status = data.status;
+                    this.loading = false;
+
+                    if (this.online && this.reportedOffline) {
+                        this.reportedOffline = false;
+                        this.$dispatch('device-online');
+                    }
+                    if (!this.online && !this.reportedOffline) {
+                        this.reportedOffline = true;
+                        this.$dispatch('device-offline');
+                    }
+                    if (data.online && data.status.interfaces) {
+                        this.updateBandwidthFromInterfaces(data.status.interfaces);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    this.loading = false;
+                    this.online = false;
+                    if (!this.reportedOffline) {
+                        this.reportedOffline = true;
+                        this.$dispatch('device-offline');
+                    }
+                    this.error = 'Unreachable';
+                }
+            },
+
+            setupWebSocket() {
+                // Echo subscription disabled - using polling instead
+                /*
+                if (window.Echo) {
+                    console.log('Listening for firewall.' + this.firewallId + ' updates...');
+                    window.Echo.private('firewall.' + this.firewallId)
+                        .listen('.firewall.status.update', (e) => {
+                            console.log('Received update for firewall ' + this.firewallId + ':', e);
+                            this.loading = false;
+                            this.online = true;
+                            this.status = e.status;
+                            if (e.status.interfaces) {
+                                this.updateBandwidthFromInterfaces(e.status.interfaces);
+                            }
+                        });
+                } else {
+                    setTimeout(() => this.setupWebSocket(), 500);
+                }
+                */
+            }
+        }));
+
+        // System Health Widget Component
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('systemHealth', () => ({
+                loading: true,
+                healthStatus: 'No Data',
+                healthColor: 'gray',
+                avgCpu: 0,
+                avgMemory: 0,
+                firewallStats: {},
+
+                init() {
+                    console.log('System Health widget initialized');
+                    
+                    // Subscribe to WebSocket for all firewalls
+                    @foreach($firewallsWithStatus as $fw)
+                        this.subscribeToFirewall({{ $fw->id }});
+                    @endforeach
+
+                    // Set timeout to hide loading after 5 seconds even if no data
+                    setTimeout(() => {
+                        if (this.loading) {
+                            this.loading = false;
+                        }
+                    }, 5000);
+                },
+
+                subscribeToFirewall(firewallId) {
+                    if (window.Echo) {
+                        console.log('Health widget subscribing to firewall ' + firewallId);
+                        window.Echo.private('firewall.' + firewallId)
+                            .listen('.firewall.status.update', (e) => {
+                                console.log('Health widget received update for firewall ' + firewallId, e);
+                                if (e.status && e.status.data) {
+                                    this.loading = false;
+                                    this.updateFirewallStatus({
+                                        id: firewallId,
+                                        cpu: e.status.data.cpu_usage || 0,
+                                        memory: e.status.data.mem_usage || 0
+                                    });
+                                }
+                            });
+                    } else {
+                        setTimeout(() => this.subscribeToFirewall(firewallId), 500);
+                    }
+                },
+
+                updateFirewallStatus(data) {
+                    console.log('Updating firewall status:', data);
+                    this.firewallStats[data.id] = {
+                        cpu: parseFloat(data.cpu) || 0,
+                        memory: parseFloat(data.memory) || 0
+                    };
+                    this.calculateHealth();
+                },
+
+                calculateHealth() {
+                    const stats = Object.values(this.firewallStats);
+                    console.log('Calculating health from stats:', stats);
+                    
+                    if (stats.length === 0) {
+                        this.healthStatus = 'No Data';
+                        this.healthColor = 'gray';
+                        return;
+                    }
+
+                    const totalCpu = stats.reduce((sum, s) => sum + s.cpu, 0);
+                    const totalMem = stats.reduce((sum, s) => sum + s.memory, 0);
+                    
+                    this.avgCpu = (totalCpu / stats.length).toFixed(1);
+                    this.avgMemory = (totalMem / stats.length).toFixed(1);
+
+                    const maxUsage = Math.max(this.avgCpu, this.avgMemory);
+
+                    console.log('Health calc:', { avgCpu: this.avgCpu, avgMem: this.avgMemory, maxUsage });
+
+                    if (maxUsage < 50) {
+                        this.healthStatus = 'Excellent';
+                        this.healthColor = 'green';
+                    } else if (maxUsage < 70) {
+                        this.healthStatus = 'Good';
+                        this.healthColor = 'blue';
+                    } else if (maxUsage < 85) {
+                        this.healthStatus = 'Fair';
+                        this.healthColor = 'yellow';
+                    } else {
+                        this.healthStatus = 'Critical';
+                        this.healthColor = 'red';
+                    }
+
+                    console.log('Final health:', this.healthStatus, this.healthColor);
+                }
+            }));
+        });
+    });
+
+    // System Health Widget Update Logic (Polls Alpine.js firewall cards)
+    (function() {
+        function updateSystemHealth() {
+            // Find all firewall card elements
+            const cards = Array.from(document.querySelectorAll('[x-data^="firewallCard"]'));
+            
+            if (cards.length === 0) {
+                // No cards found yet, keep skeleton visible
+                return false;
+            }
+
+            // Check if any card is still loading
+            let anyLoading = false;
+            cards.forEach(el => {
+                try {
+                    if (Alpine.$data(el).loading) {
+                        anyLoading = true;
+                    }
+                } catch (e) {
+                    anyLoading = true; // Safety
+                }
+            });
+
+            if (anyLoading) {
+                // Wait for all to load
+                return false;
+            }
+
+            const stats = [];
+            cards.forEach(el => {
+                try {
+                    const data = Alpine.$data(el);
+                    // Only count devices that are actually online (and have data)
+                    if (data && data.online && data.status && data.status.data) {
+                        const cpu = parseFloat(data.status.data.cpu_usage) || 0;
+                        const memory = parseFloat(data.status.data.mem_usage) || 0;
+                        stats.push({ cpu, memory });
+                    }
+                } catch (e) {
+                    // Alpine not ready yet
+                }
+            });
+
+            if (stats.length === 0 && cards.length > 0) {
+                // If we have cards but no stats, it means all are offline (but loaded)
+                // Proceed to calculate (stats will be empty, so score will vary)
+                // Actually, if stats is empty, onlineDevices = 0.
+            }
+
+            const totalDevices = cards.length;
+            const onlineDevices = stats.length;
+            
+            const totalCpu = stats.reduce((sum, s) => sum + s.cpu, 0);
+            const totalMem = stats.reduce((sum, s) => sum + s.memory, 0);
+            
+            // Avoid division by zero if all offline
+            const avgCpu = onlineDevices > 0 ? (totalCpu / onlineDevices).toFixed(1) : 0;
+            const avgMemory = onlineDevices > 0 ? (totalMem / onlineDevices).toFixed(1) : 0;
+            const maxUsage = Math.max(avgCpu, avgMemory);
+
+            // Calculate Performance Score (based on CPU/Mem of ONLINE devices)
+            // 100 = 0% usage, 0 = 100% usage
+            const perfScore = 100 - maxUsage;
+            
+            // Calculate Availability Score (percentage of devices online)
+            const availScore = (onlineDevices / totalDevices) * 100;
+            
+            // Final Health Score: 60% Availability, 40% Performance
+            // This ensures that if devices are offline, the score drops significantly
+            const healthScore = Math.round((availScore * 0.6) + (perfScore * 0.4));
+            
+            let healthStatus, iconColor, bgColor, iconBg, heartColorStyle;
+
+            if (healthScore >= 75) {
+                healthStatus = 'Excellent';
+                iconColor = 'text-green-600 dark:text-green-300';
+                bgColor = 'bg-green-100 dark:bg-green-900';
+                iconBg = '';
+                heartColorStyle = '#16a34a'; // green-600
+            } else if (healthScore >= 55) {
+                healthStatus = 'Fair';
+                iconColor = 'text-yellow-600 dark:text-yellow-300';
+                bgColor = 'bg-yellow-100 dark:bg-yellow-900';
+                iconBg = '';
+                heartColorStyle = '#ca8a04'; // yellow-600
+            } else {
+                healthStatus = 'Critical';
+                iconColor = 'text-red-600 dark:text-red-300';
+                bgColor = 'bg-red-100 dark:bg-red-900';
+                iconBg = 'animate-pulse';
+                heartColorStyle = '#dc2626'; // red-600
+            }
+
+            // System Health Widget Logic
+
+
+            // Update DOM
+            const skeleton = document.getElementById('health-skeleton');
+            const data = document.getElementById('health-data');
+            
+            if (skeleton && data) {
+                skeleton.style.display = 'none';
+                data.style.display = 'block';
+            }
+            
+            // Update heart icon
+            const iconContainer = document.getElementById('health-icon');
+            if (iconContainer) {
+                iconContainer.className = `p-3 rounded-full ${bgColor} ${iconBg} mr-4 transition-all duration-300`;
+                
+                const heartIcon = iconContainer.querySelector('svg');
+                if (heartIcon) {
+                    // Use inline style to force color
+                    heartIcon.style.color = heartColorStyle;
+                    heartIcon.className = 'h-8 w-8 transition-colors duration-300';
+                }
+            }
+            
+            // Update score, status, and systems count
+            const scoreEl = document.getElementById('health-score');
+            const systemsEl = document.getElementById('health-systems');
+            // const statusEl = document.getElementById('health-status'); // Removed in favor of systems count or cleaner look
+            
+            if (scoreEl) scoreEl.textContent = healthScore + '%';
+            // if (systemsEl) systemsEl.textContent = `${onlineDevices}/${totalDevices} Systems Online`;
+            
+            return true;
+        }
+
+        // Poll every 2 seconds until we get data
+        const pollInterval = setInterval(() => {
+            if (updateSystemHealth()) {
+                // Successfully updated, switch to slower polling
+                clearInterval(pollInterval);
+                // Keep updating every 5 seconds
+                setInterval(updateSystemHealth, 5000);
+            }
+        }, 2000);
+
+        // Timeout to show "No Data" after 10 seconds if still no data
+        setTimeout(() => {
+            const skeleton = document.getElementById('health-skeleton');
+            if (skeleton && skeleton.style.display !== 'none') {
+                skeleton.style.display = 'none';
+                document.getElementById('health-data').style.display = 'block';
+                document.getElementById('health-status').textContent = 'No Data';
+            }
+        }, 10000);
+    })();
+</script>
 </x-app-layout>

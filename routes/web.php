@@ -6,6 +6,10 @@ use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\VpnIpsecController;
 use App\Http\Controllers\VpnOpenVpnController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
+
+// Register broadcasting authentication routes
+Broadcast::routes(['middleware' => ['web', 'auth']]);
 
 Route::get('/', function () {
     return redirect()->route('login');
