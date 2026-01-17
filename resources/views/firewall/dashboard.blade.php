@@ -1,14 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ $firewall->name }} - Dashboard
-            </h2>
-            <a href="{{ route('firewalls.edit', $firewall) }}"
-                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                Edit Settings
-            </a>
-        </div>
+        <x-firewall-header :title="$firewall->name . ' - ' . __('Dashboard')" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12" x-data="firewallDashboard()">
@@ -34,6 +26,37 @@
                                 <span
                                     class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Offline</span>
                             </template>
+
+                            <x-dropdown align="right" width="48">
+                                <x-slot name="trigger">
+                                    <button
+                                        class="inline-flex items-center p-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                                        </svg>
+                                    </button>
+                                </x-slot>
+
+                                <x-slot name="content">
+                                    <x-dropdown-link :href="route('firewalls.edit', $firewall)">
+                                        {{ __('Edit Settings') }}
+                                    </x-dropdown-link>
+
+                                    <!-- Authentication -->
+                                    <form method="POST" action="{{ route('firewalls.destroy', $firewall) }}" id="delete-firewall-form">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <x-dropdown-link href="#"
+                                            @click.prevent="$dispatch('open-modal', 'delete-firewall-modal')"
+                                            class="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                            {{ __('Delete Firewall') }}
+                                        </x-dropdown-link>
+                                    </form>
+                                </x-slot>
+                            </x-dropdown>
                         </div>
                     </div>
 
@@ -109,6 +132,10 @@
                                             <td class="py-1 text-sm" x-text="systemStatus?.data?.uptime"></td>
                                         </tr>
                                         <tr class="border-b dark:border-gray-700">
+                                            <th class="py-1 font-medium text-gray-900 dark:text-gray-300 text-sm">Packages</th>
+                                            <td class="py-1 text-sm" x-text="(systemStatus?.data?.installed_packages_count !== undefined) ? systemStatus.data.installed_packages_count : 'Unknown'"></td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
                                             <th class="py-1 font-medium text-gray-900 dark:text-gray-300 text-sm">DNS
                                                 Servers
                                             </th>
@@ -143,6 +170,46 @@
 
                             <!-- Right Column: Mini Graphs & Status -->
                             <div class="space-y-3">
+                                <!-- Gateways Status -->
+                                <template x-if="gateways && gateways.length > 0">
+                                    <div class="mb-3">
+                                        <div class="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Gateways</div>
+                                        <div class="flex flex-col gap-1.5">
+                                            <template x-for="gateway in gateways" :key="gateway.name">
+                                                <div class="flex items-center justify-between gap-2 text-xs px-2 py-1 rounded" 
+                                                    :class="{
+                                                        'bg-green-100 dark:bg-green-900 border border-green-200 dark:border-green-800': gateway.status === 'online' || gateway.status === 'none',
+                                                        'bg-red-100 dark:bg-red-900 border border-red-200 dark:border-red-800': gateway.status === 'offline' || gateway.status === 'down',
+                                                        'bg-yellow-100 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-800': gateway.status && gateway.status !== 'online' && gateway.status !== 'none' && gateway.status !== 'offline' && gateway.status !== 'down'
+                                                    }"
+                                                    :title="gateway.monitorip || gateway.srcip">
+                                                    <span class="font-mono font-semibold" 
+                                                        :class="{
+                                                            'text-green-800 dark:text-green-200': gateway.status === 'online' || gateway.status === 'none',
+                                                            'text-red-800 dark:text-red-200': gateway.status === 'offline' || gateway.status === 'down',
+                                                            'text-yellow-800 dark:text-yellow-200': gateway.status && gateway.status !== 'online' && gateway.status !== 'none' && gateway.status !== 'offline' && gateway.status !== 'down'
+                                                        }"
+                                                        x-text="gateway.descr || gateway.name || 'Unknown'"></span>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <div class="w-2 h-2 rounded-full" :class="{
+                                                            'bg-green-500': gateway.status === 'online' || gateway.status === 'none',
+                                                            'bg-red-500': gateway.status === 'offline' || gateway.status === 'down',
+                                                            'bg-yellow-500': gateway.status && gateway.status !== 'online' && gateway.status !== 'none' && gateway.status !== 'offline' && gateway.status !== 'down'
+                                                        }"></div>
+                                                        <span class="capitalize"
+                                                            :class="{
+                                                                'text-green-700 dark:text-green-300': gateway.status === 'online' || gateway.status === 'none',
+                                                                'text-red-700 dark:text-red-300': gateway.status === 'offline' || gateway.status === 'down',
+                                                                'text-yellow-700 dark:text-yellow-300': gateway.status && gateway.status !== 'online' && gateway.status !== 'none' && gateway.status !== 'offline' && gateway.status !== 'down'
+                                                            }"
+                                                            x-text="gateway.status"></span>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+
                                 <!-- CPU -->
                                 <div>
                                     <div class="flex justify-between mb-1 text-sm">
@@ -196,21 +263,19 @@
                                 </div>
 
                                 <!-- Temperature -->
-                                <template x-if="systemStatus?.data?.temp_c">
-                                    <div>
-                                        <div class="flex justify-between mb-1 text-sm">
-                                            <span
-                                                class="font-medium text-gray-700 dark:text-gray-300">Temperature</span>
-                                            <span class="text-gray-700 dark:text-gray-300"
-                                                x-text="systemStatus.data.temp_c + '°C'"></span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                                            <div class="bg-orange-500 h-2 rounded-full transition-all duration-500"
-                                                :style="'width: ' + Math.min(systemStatus.data.temp_c, 100) + '%'">
-                                            </div>
+                                <div>
+                                    <div class="flex justify-between mb-1 text-sm">
+                                        <span
+                                            class="font-medium text-gray-700 dark:text-gray-300">Temperature</span>
+                                        <span class="text-gray-700 dark:text-gray-300"
+                                            x-text="(systemStatus?.data?.temp_c && systemStatus.data.temp_c > 1) ? systemStatus.data.temp_c + '°C' : 'N/A'"></span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                                        <div class="bg-orange-500 h-2 rounded-full transition-all duration-500"
+                                            :style="'width: ' + ((systemStatus?.data?.temp_c && systemStatus.data.temp_c > 1) ? Math.min(systemStatus.data.temp_c, 100) : 0) + '%'">
                                         </div>
                                     </div>
-                                </template>
+                                </div>
 
                                 <!-- Interface Status Indicators -->
                                 <template x-if="systemStatus && systemStatus.interfaces">
@@ -455,6 +520,82 @@
                 {{-- Right Column: Summaries --}}
                 <div id="db-col-summary" class="w-full space-y-6">
 
+                    {{-- Location Map --}}
+                    @if($firewall->latitude && $firewall->longitude)
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6 text-gray-900 dark:text-gray-100">
+                                <h3 class="text-xl font-semibold mb-4">Location</h3>
+                                <div class="text-sm text-gray-500 dark:text-gray-400 mb-4 flex items-start">
+                                    <svg class="w-4 h-4 mr-1 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($firewall->address) }}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline transition-colors">
+                                        {{ $firewall->address }}
+                                    </a>
+                                </div>
+                                <div id="firewall-map" class="w-full h-48 rounded-lg border border-gray-200 dark:border-gray-600 z-0"></div>
+                                
+                                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+                                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        var map = L.map('firewall-map').setView([{{ $firewall->latitude }}, {{ $firewall->longitude }}], 13);
+                                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        }).addTo(map);
+                                        L.marker([{{ $firewall->latitude }}, {{ $firewall->longitude }}]).addTo(map)
+                                            .bindPopup("<b>{{ $firewall->name }}</b><br>{{ Str::limit($firewall->address, 30) }}").openPopup();
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Gateways Summary --}}
+                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6 text-gray-900 dark:text-gray-100">
+                            <h3 class="text-xl font-semibold mb-4">Gateways</h3>
+
+                            <template x-if="gatewaysLoading">
+                                <div class="space-y-4 animate-pulse">
+                                    <div class="h-8 bg-gray-200 rounded w-full"></div>
+                                </div>
+                            </template>
+
+                            <div class="overflow-x-auto" x-show="!gatewaysLoading && gateways?.length > 0">
+                                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <thead
+                                        class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                        <tr>
+                                            <th scope="col" class="px-3 py-2 text-sm font-medium">Description</th>
+                                            <th scope="col" class="px-3 py-2 text-sm font-medium">Gateway</th>
+                                            <th scope="col" class="px-3 py-2 text-sm font-medium">Loss</th>
+                                            <th scope="col" class="px-3 py-2 text-sm font-medium text-center">Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="gateway in gateways" :key="gateway.id || gateway.name">
+                                            <tr
+                                                class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                                <td class="px-3 py-2 font-medium text-gray-900 dark:text-white"
+                                                    x-text="gateway.descr || gateway.name || 'N/A'"></td>
+                                                <td class="px-3 py-2 font-mono text-xs"
+                                                    x-text="gateway.monitorip || gateway.srcip || 'N/A'"></td>
+                                                <td class="px-3 py-2 text-xs" x-text="(gateway.loss || '0') + '%'"></td>
+                                                <td class="px-3 py-2 text-center">
+                                                    <div class="h-2.5 w-2.5 rounded-full mx-auto" :class="{
+                                                        'bg-green-500': gateway.status === 'online' || gateway.status === 'none',
+                                                        'bg-red-500': gateway.status === 'offline' || gateway.status === 'down',
+                                                        'bg-yellow-500': gateway.status && gateway.status !== 'online' && gateway.status !== 'none' && gateway.status !== 'offline' && gateway.status !== 'down'
+                                                    }" :title="gateway.status"></div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Interfaces Summary --}}
                     <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900 dark:text-gray-100">
@@ -508,48 +649,52 @@
                         </div>
                     </div>
 
-                    {{-- Gateways Summary --}}
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    {{-- Packages Summary --}}
+                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
                         <div class="p-6 text-gray-900 dark:text-gray-100">
-                            <h3 class="text-xl font-semibold mb-4">Gateways</h3>
-
-                            <template x-if="gatewaysLoading">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-semibold">Packages</h3>
+                            </div>
+                            
+                            <template x-if="packagesLoading">
                                 <div class="space-y-4 animate-pulse">
+                                    <div class="h-8 bg-gray-200 rounded w-full"></div>
                                     <div class="h-8 bg-gray-200 rounded w-full"></div>
                                 </div>
                             </template>
 
-                            <div class="overflow-x-auto" x-show="!gatewaysLoading && gateways?.length > 0">
-                                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                    <thead
-                                        class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <div class="overflow-x-auto" x-show="!packagesLoading">
+                                 <template x-if="packages.length === 0">
+                                    <div class="text-gray-500 text-sm italic">No packages installed.</div>
+                                </template>
+                                
+                                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400" x-show="packages.length > 0">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                         <tr>
                                             <th scope="col" class="px-3 py-2 text-sm font-medium">Name</th>
-                                            <th scope="col" class="px-3 py-2 text-sm font-medium">Gateway</th>
-                                            <th scope="col" class="px-3 py-2 text-sm font-medium">Loss</th>
-                                            <th scope="col" class="px-3 py-2 text-sm font-medium text-center">Status
-                                            </th>
-                                            <th scope="col" class="px-3 py-2 text-sm font-medium">Description</th>
+                                            <th scope="col" class="px-3 py-2 text-sm font-medium min-w-[200px]">Description</th>
+                                            <th scope="col" class="px-3 py-2 text-sm font-medium">Installed</th>
+                                            <th scope="col" class="px-3 py-2 text-sm font-medium">Latest</th>
+                                            <th scope="col" class="px-3 py-2 text-sm font-medium text-center">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <template x-for="gateway in gateways" :key="gateway.id || gateway.name">
-                                            <tr
-                                                class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                                <td class="px-3 py-2 font-medium text-gray-900 dark:text-white"
-                                                    x-text="gateway.name || 'N/A'"></td>
-                                                <td class="px-3 py-2 font-mono text-xs"
-                                                    x-text="gateway.monitorip || gateway.srcip || 'N/A'"></td>
-                                                <td class="px-3 py-2 text-xs" x-text="(gateway.loss || '0') + '%'"></td>
+                                        <template x-for="pkg in packages" :key="pkg.name">
+                                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                                <td class="px-3 py-2 font-medium text-gray-900 dark:text-white" x-text="pkg.shortname || '-'"></td>
+                                                <td class="px-3 py-2 text-xs whitespace-normal break-words" x-text="pkg.descr || '-'"></td>
+                                                <td class="px-3 py-2 font-mono text-xs" 
+                                                    :class="{'text-red-600 font-bold': pkg.update_available, 'text-gray-900 dark:text-gray-300': !pkg.update_available}" 
+                                                    x-text="pkg.installed_version"></td>
+                                                <td class="px-3 py-2 font-mono text-xs" x-text="pkg.latest_version || '-'"></td>
                                                 <td class="px-3 py-2 text-center">
-                                                    <div class="h-2.5 w-2.5 rounded-full mx-auto" :class="{
-                                                        'bg-green-500': gateway.status === 'online' || gateway.status === 'none',
-                                                        'bg-red-500': gateway.status === 'offline' || gateway.status === 'down',
-                                                        'bg-yellow-500': gateway.status && gateway.status !== 'online' && gateway.status !== 'none' && gateway.status !== 'offline' && gateway.status !== 'down'
-                                                    }" :title="gateway.status"></div>
+                                                    <template x-if="pkg.update_available">
+                                                        <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Update</span>
+                                                    </template>
+                                                    <template x-if="!pkg.update_available">
+                                                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-300">OK</span>
+                                                    </template>
                                                 </td>
-                                                <td class="px-3 py-2 text-xs text-gray-500 dark:text-gray-400"
-                                                    x-text="gateway.descr || '-'"></td>
                                             </tr>
                                         </template>
                                     </tbody>
@@ -557,6 +702,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
 
 
@@ -582,23 +728,26 @@
                     rulesLoading: true,
                     lastUpdated: null,
 
-                    // Traffic Monitor & Rate Calculation
+                    packages: [],
+                    packagesLoading: true,
+                    
+                    // Traffic Monitor
                     bandwidthHistory: new Array(20).fill({ in: 0, out: 0 }),
                     currentTraffic: { in: '0 Bps', out: '0 Bps' },
-                    // Traffic Monitor & Rate Calculation
-                    bandwidthHistory: new Array(20).fill({ in: 0, out: 0 }), // WAN/Primary
-                    currentTraffic: { in: '0 Bps', out: '0 Bps' },
                     lastBytes: { in: 0, out: 0, time: 0 },
-
-                    // Multi-interface tracking
-                    interfaceHistory: {}, // { 'wan': [...], 'lan': [...] }
-                    lastInterfaceBytes: {}, // { 'wan': { in: 0, out: 0, time: 0 } }
-                    interfaceRates: {}, // { 'wan': { in: '0 bps', out: '0 bps' } }
+                    
+                    // Interface Monitor (Multi-Interface)
+                    interfaceHistory: {},  // Map of interface name -> Array of history
+                    lastInterfaceBytes: {}, // Map of interface name -> {in, out, time}
+                    interfaceRates: {},     // Map of interface name -> {in, out}
+                    
+                    // Load Monitor
+                    loadHistory: new Array(20).fill(0),
 
                     updateBandwidthFromInterfaces(interfaces) {
                         const now = new Date().getTime();
 
-                        // 1. Process WAN for the main "System Info" card (Legacy compatibility)
+                        // 1. Process WAN for the Main "Current Traffic" card (Legacy/Summary)
                         let wan = null;
                         const wanKey = Object.keys(interfaces).find(key => key.toLowerCase() === 'wan');
                         if (wanKey) wan = interfaces[wanKey];
@@ -702,6 +851,17 @@
                         }).join(' ');
                     },
 
+                    getLoadGraphPoints() {
+                        const max = Math.max(...this.loadHistory, 1); 
+                        const height = 20; 
+                        const width = 100; 
+                        const step = width / (this.loadHistory.length - 1);
+                        return this.loadHistory.map((val, i) => {
+                            const y = height - ((val / max) * height);
+                            return `${i * step},${y}`;
+                        }).join(' ');
+                    },
+
 
                     init() {
                         console.log('Initializing Firewall Dashboard...');
@@ -709,6 +869,7 @@
                         this.fetchInterfaces();
                         this.fetchGateways();
                         this.fetchRules();
+                        this.fetchPackages();
                         this.setupWebSocket();
 
                         // Poll System Status every 5 seconds (TESTING)
@@ -731,6 +892,13 @@
                                     this.systemStatus = data.status;
                                     if (data.status.interfaces) {
                                         this.updateBandwidthFromInterfaces(data.status.interfaces);
+                                    }
+
+                                    // Update Load History
+                                    if (data.status.data && data.status.data.cpu_load_avg && data.status.data.cpu_load_avg.length > 0) {
+                                         const oneMinLoad = parseFloat(data.status.data.cpu_load_avg[0]) || 0;
+                                         this.loadHistory.shift();
+                                         this.loadHistory.push(oneMinLoad);
                                     }
                                     this.lastUpdated = new Date().toLocaleTimeString();
                                     this.systemError = null;
@@ -781,6 +949,21 @@
                             });
                     },
 
+                    fetchPackages() {
+                        fetch('{{ route('status.packages', $firewall) }}', {
+                            headers: { 'Accept': 'application/json' }
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                this.packages = Array.isArray(data) ? data : []; 
+                                this.packagesLoading = false;
+                            })
+                            .catch(err => {
+                                console.error('Failed to load packages:', err);
+                                this.packagesLoading = false;
+                            });
+                    },
+
                     fetchRules() {
                         fetch('{{ route('firewall.rules.index', $firewall) }}', {
                             headers: { 'Accept': 'application/json' }
@@ -816,4 +999,48 @@
                 }));
             });
         </script>
+
+        <!-- Delete Confirmation Modal -->
+        <!-- Delete Confirmation Modal -->
+        <x-modal name="delete-firewall-modal" :show="false" focusable>
+            <div class="p-6" x-data="{ confirmEmail: '' }" x-on:open-modal.window="if ($event.detail === 'delete-firewall-modal') confirmEmail = ''">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                    {{ __('Delete Firewall') }}
+                </h2>
+
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    {{ __('Are you sure you want to delete this firewall? This action cannot be undone.') }}
+                </p>
+                <p class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                    {{ __('Please type your email address to confirm:') }} <span class="font-mono font-bold">{{ auth()->user()->email }}</span>
+                </p>
+
+                <div class="mt-6">
+                    <x-input-label for="confirm_email" value="{{ __('Email Address') }}" class="sr-only" />
+
+                    <x-text-input
+                        id="confirm_email"
+                        name="confirm_email"
+                        type="email"
+                        class="mt-1 block w-3/4"
+                        placeholder="{{ __('Email Address') }}"
+                        x-model="confirmEmail"
+                        @keyup.enter="if(confirmEmail === '{{ auth()->user()->email }}') document.getElementById('delete-firewall-form').submit()"
+                    />
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <x-secondary-button @click="$dispatch('close')">
+                        {{ __('Cancel') }}
+                    </x-secondary-button>
+
+                    <x-danger-button class="ml-3"
+                        x-bind:disabled="confirmEmail !== '{{ auth()->user()->email }}'"
+                        x-bind:class="{ 'opacity-50 cursor-not-allowed': confirmEmail !== '{{ auth()->user()->email }}' }"
+                        @click="document.getElementById('delete-firewall-form').submit()">
+                        {{ __('Delete Firewall') }}
+                    </x-danger-button>
+                </div>
+            </div>
+        </x-modal>
 </x-app-layout>

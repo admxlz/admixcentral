@@ -242,4 +242,27 @@ class StatusController extends Controller
     {
         return view('status.upnp', compact('firewall'));
     }
+
+    public function packages(Firewall $firewall)
+    {
+        $api = new \App\Services\PfSenseApiService($firewall);
+        $packages = [];
+        try {
+            $response = $api->getSystemPackages();
+            // Handle different API response structures
+            if (isset($response['data']['package']) && is_array($response['data']['package'])) {
+                $packages = $response['data']['package'];
+            } elseif (isset($response['data']) && is_array($response['data'])) {
+                $packages = $response['data'];
+            }
+        } catch (\Exception $e) {
+            // Log error
+        }
+
+        if (request()->wantsJson()) {
+            return response()->json($packages);
+        }
+
+        return view('status.packages', compact('firewall', 'packages'));
+    }
 }

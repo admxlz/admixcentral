@@ -171,4 +171,19 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
+    public function checkEmail(Request $request)
+    {
+        $email = $request->input('email');
+        $excludeId = $request->input('exclude_id');
+
+        $query = User::where('email', $email);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
 }

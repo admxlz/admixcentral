@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ isset($frontend) ? __('Edit Frontend') : __('Add Frontend') }}
-        </h2>
+        <x-firewall-header title="{{ __('Edit HAProxy Frontend') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">

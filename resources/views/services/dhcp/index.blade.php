@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('DHCP Server') }} - {{ $firewall->name }}
-        </h2>
+        <x-firewall-header title="{{ __('DHCP Server') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">
@@ -233,7 +231,7 @@
                         </div>
 
                         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <button type="submit" class="pf-btn pf-btn-primary">
+                            <button type="submit" class="btn-primary">
                                 Save
                             </button>
                         </div>

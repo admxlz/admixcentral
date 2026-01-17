@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ isset($user) ? __('Edit User') : __('Add User') }}
-        </h2>
+        <x-firewall-header title="{{ isset($user) ? __('Edit FreeRADIUS User') : __('Add FreeRADIUS User') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">

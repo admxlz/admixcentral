@@ -16,10 +16,22 @@ class FirewallController extends Controller
         $user = $request->user();
 
         if ($user->isGlobalAdmin()) {
-            $firewalls = Firewall::with('company')->get();
+            $firewalls = Firewall::with('company')->orderBy('name')->get();
         } else {
-            $firewalls = Firewall::where('company_id', $user->company_id)->get();
+            $firewalls = Firewall::where('company_id', $user->company_id)->orderBy('name')->get();
         }
+
+        // Collect status for each firewall
+        $firewalls->each(function ($firewall) {
+            $cached = \Illuminate\Support\Facades\Cache::get('firewall_status_' . $firewall->id);
+            if ($cached && isset($cached['data'])) {
+                $firewall->cached_status = $cached['data'];
+                $firewall->is_online = true; // Simplified for index overview
+            } else {
+                $firewall->cached_status = null;
+                $firewall->is_online = false;
+            }
+        });
 
         return view('firewalls.index', compact('firewalls'));
     }
@@ -136,6 +148,9 @@ class FirewallController extends Controller
             'api_secret' => 'nullable|string',
             'api_token' => 'required_if:auth_method,token|nullable|string',
             'description' => 'nullable|string',
+            'address' => 'nullable|string|max:255',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         if ($user->isCompanyAdmin()) {

@@ -6,7 +6,7 @@
             </h2>
             @if(auth()->user()->role === 'admin')
                 <a href="{{ route('firewalls.create') }}"
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
                     Add Firewall
                 </a>
             @endif
@@ -16,9 +16,9 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="overflow-hidden">
-                <div class="p-6 text-gray-900 dark:text-gray-100" x-data="{ search: '', statusFilter: 'all', customerFilter: 'all', offlineCount: 0, showOnlineBadge: false }" x-init="setTimeout(() => showOnlineBadge = true, 2500)" @device-offline.window="offlineCount++" @device-online.window="offlineCount = Math.max(0, offlineCount - 1)">
+                <div class="p-6 text-gray-900 dark:text-gray-100" x-data="{ search: '', statusFilter: 'all', customerFilter: new URLSearchParams(window.location.search).get('customer') || 'all', offlineCount: 0, showOnlineBadge: false }" x-init="setTimeout(() => showOnlineBadge = true, 2500)" @device-offline.window="offlineCount++" @device-online.window="offlineCount = Math.max(0, offlineCount - 1)">
                     <!-- Widgets Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         <!-- Firewalls Widget -->
                         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                             <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-500 dark:text-blue-300 mr-4">
@@ -99,14 +99,21 @@
                             </div>
                             <div>
                                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Users</p>
-                                <p class="text-4xl font-bold text-gray-900 dark:text-gray-100">{{ $totalUsers }}</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="text-4xl font-bold text-gray-900 dark:text-gray-100">{{ $totalUsers }}</p>
+                                    @if($totalAdmins > 0)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300">
+                                            {{ $totalAdmins }} Admin{{ $totalAdmins > 1 ? 's' : '' }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                         <h3 class="text-lg font-semibold whitespace-nowrap">Managed Firewalls</h3>
                         
-                        <div class="flex items-center gap-2">
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
                             <!-- Customer Filter -->
                             @php
                                 $uniqueCustomers = $firewallsWithStatus->pluck('company.name')->unique()->sort()->values();
@@ -124,7 +131,7 @@
                                     this.open = false;
                                     this.filter = '';
                                 }
-                            }" class="relative w-56" @keydown.escape="open = false" @click.outside="open = false">
+                            }" class="relative w-full sm:w-56" @keydown.escape="open = false" @click.outside="open = false">
                                 
                                 <!-- Trigger Button -->
                                 <button @click="open = !open" type="button" 
@@ -159,14 +166,14 @@
                             </div>
 
                             <!-- Status Filter -->
-                            <select x-model="statusFilter" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
+                            <select x-model="statusFilter" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto">
                                 <option value="all">All Status</option>
                                 <option value="online">Online</option>
                                 <option value="offline">Offline</option>
                             </select>
 
                             <!-- Search Input -->
-                            <div class="flex items-center w-64 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
+                            <div class="flex items-center w-full sm:w-64 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
                                 <div class="pl-3 pr-2 text-gray-500">
                                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -175,7 +182,7 @@
                                 <input 
                                     type="text" 
                                     x-model="search"
-                                    placeholder="Search firewalls..." 
+                                    placeholder="Search..." 
                                     class="form-input-reset flex-1 min-w-0"
                                 >
                                 <button 
@@ -210,9 +217,9 @@
                                     {{-- Overlay Moved to Body --}}
                                     
                                     {{-- Header Row: Name & Actions --}}
-                                    <div class="flex justify-between items-start mb-4">
-                                        <div class="flex items-center gap-3">
-                                            <h4 class="font-bold text-xl">{{ $firewall->name }}</h4>
+                                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-4">
+                                        <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                                            <h4 class="font-bold text-xl whitespace-nowrap">{{ $firewall->name }}</h4>
                                             
                                             <template x-if="loading">
                                                 <span class="bg-gray-200 text-gray-800 text-xs px-2.5 py-0.5 rounded animate-pulse">Loading...</span>
@@ -225,12 +232,12 @@
                                             </template>
 
                                              @if(auth()->user()->role === 'admin')
-                                                <span class="text-xs text-gray-500 border-l pl-3 dark:border-gray-600">{{ $firewall->company->name }}</span>
+                                                <span class="text-xs text-gray-500 border-l pl-3 dark:border-gray-600 whitespace-nowrap hidden sm:inline">{{ $firewall->company->name }}</span>
                                             @endif
-                                            <span class="text-xs text-gray-400 border-l pl-3 dark:border-gray-600 font-mono">{{ $firewall->url }}</span>
+                                            <span class="text-xs text-gray-400 border-l pl-3 dark:border-gray-600 font-mono truncate min-w-0 max-w-[200px] sm:max-w-xs">{{ $firewall->url }}</span>
                                         </div>
 
-                                        <div class="flex gap-2">
+                                        <div class="flex gap-2 w-full sm:w-auto shrink-0 justify-end sm:justify-start">
                                             <a href="{{ route('firewall.dashboard', $firewall) }}"
                                                class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1.5 rounded transition">
                                                 Manage
@@ -268,29 +275,29 @@
                                         <template x-if="!loading && status && status.data">
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                 {{-- Left Column: System Details Table --}}
-                                                <div>
-                                                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                                <div class="mt-5">
+                                                    <table class="w-full text-[13px] text-left text-gray-500 dark:text-gray-400">
                                                         <tbody>
                                                             <tr class="border-b dark:border-gray-700 align-top">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">Version</th>
-                                                                <td class="py-1" x-text="status.data.version || 'Unknown'"></td>
+                                                                <th class="py-2 font-medium text-gray-900 dark:text-gray-300 w-1/4">Version</th>
+                                                                <td class="py-2" x-text="status.data.version || 'Unknown'"></td>
                                                             </tr>
                                                             <tr class="border-b dark:border-gray-700 align-top">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">REST API</th>
-                                                                <td class="py-1" x-text="status.api_version || 'Unknown'"></td>
+                                                                <th class="py-2 font-medium text-gray-900 dark:text-gray-300 w-1/4">REST API</th>
+                                                                <td class="py-2" x-text="status.api_version || 'Unknown'"></td>
                                                             </tr>
                                                             <tr class="border-b dark:border-gray-700 align-top">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">Platform</th>
-                                                                <td class="py-1" x-text="status.data.platform || 'Unknown'"></td>
+                                                                <th class="py-2 font-medium text-gray-900 dark:text-gray-300 w-1/4">Platform</th>
+                                                                <td class="py-2" x-text="status.data.platform || 'Unknown'"></td>
                                                             </tr>
                                                             <tr class="border-b dark:border-gray-700 align-top">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">BIOS</th>
-                                                                <td class="py-1">
+                                                                <th class="py-2 font-medium text-gray-900 dark:text-gray-300 w-1/4">BIOS</th>
+                                                                <td class="py-2">
                                                                     <template x-if="!status.data.bios_vendor && !status.data.bios_version && !status.data.bios_date">
                                                                         <span>Unknown</span>
                                                                     </template>
                                                                     <template x-if="status.data.bios_vendor || status.data.bios_version || status.data.bios_date">
-                                                                        <div class="flex flex-col text-sm">
+                                                                        <div class="flex flex-col text-[13px]">
                                                                             <span x-show="status.data.bios_vendor" x-text="status.data.bios_vendor"></span>
                                                                             <span x-show="status.data.bios_version" x-text="status.data.bios_version"></span>
                                                                             <span x-show="status.data.bios_date" x-text="status.data.bios_date"></span>
@@ -299,9 +306,9 @@
                                                                 </td>
                                                             </tr>
                                                             <tr class="border-b dark:border-gray-700 align-top">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">CPU System</th>
-                                                                <td class="py-1">
-                                                                    <div class="flex flex-col text-sm">
+                                                                <th class="py-2 font-medium text-gray-900 dark:text-gray-300 w-1/4">CPU System</th>
+                                                                <td class="py-2">
+                                                                    <div class="flex flex-col text-[13px]">
                                                                         <span x-text="status.data.cpu_model || 'Unknown'"></span>
                                                                         <span class="text-gray-500" x-show="status.data.cpu_count" x-text="(status.data.cpu_count || '1') + ' CPUs'"></span>
                                                                         <span class="text-gray-400 mt-1" x-show="status.data.cpu_load_avg">
@@ -310,9 +317,13 @@
                                                                     </div>
                                                                 </td>
                                                             </tr>
+                                                            <tr class="border-b dark:border-gray-700 align-top">
+                                                                <th class="py-2 font-medium text-gray-900 dark:text-gray-300 w-1/4">Uptime</th>
+                                                                <td class="py-2" x-text="online ? status.data.uptime : 'Offline'"></td>
+                                                            </tr>
                                                             <tr class="dark:border-gray-700 align-top">
-                                                                <th class="py-1 font-medium text-gray-900 dark:text-gray-300 w-1/4">Uptime</th>
-                                                                <td class="py-1" x-text="online ? status.data.uptime : 'Offline'"></td>
+                                                                <th class="py-2 font-medium text-gray-900 dark:text-gray-300 w-1/4">Packages</th>
+                                                                <td class="py-2" x-text="(status && status.data && status.data.installed_packages_count !== undefined) ? status.data.installed_packages_count : 'Unknown'"></td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
@@ -320,7 +331,47 @@
 
                                                 {{-- Right Column: Live Metrics (Masked if Offline) --}}
                                                 <div>
-                                                    <div class="space-y-2">
+                                                    <div class="space-y-4">
+                                                        {{-- Gateways Status --}}
+                                                        <template x-if="status && status.gateways && status.gateways.length > 0">
+                                                            <div>
+                                                                <div class="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Gateways</div>
+                                                                <div class="grid gap-1">
+                                                                    <template x-for="gateway in status.gateways" :key="gateway.name">
+                                                                        <div class="flex items-center justify-between gap-2 text-xs px-2 py-1 rounded" 
+                                                                            :class="{
+                                                                                'bg-green-100 dark:bg-green-900 border border-green-200 dark:border-green-800': gateway.status === 'online' || gateway.status === 'none',
+                                                                                'bg-red-100 dark:bg-red-900 border border-red-200 dark:border-red-800': gateway.status === 'offline' || gateway.status === 'down',
+                                                                                'bg-yellow-100 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-800': gateway.status && gateway.status !== 'online' && gateway.status !== 'none' && gateway.status !== 'offline' && gateway.status !== 'down'
+                                                                            }"
+                                                                            :title="gateway.monitorip || gateway.srcip">
+                                                                            <span class="font-mono font-semibold" 
+                                                                                :class="{
+                                                                                    'text-green-800 dark:text-green-200': gateway.status === 'online' || gateway.status === 'none',
+                                                                                    'text-red-800 dark:text-red-200': gateway.status === 'offline' || gateway.status === 'down',
+                                                                                    'text-yellow-800 dark:text-yellow-200': gateway.status && gateway.status !== 'online' && gateway.status !== 'none' && gateway.status !== 'offline' && gateway.status !== 'down'
+                                                                                }"
+                                                                                x-text="gateway.descr || gateway.name || 'Unknown'"></span>
+                                                                            <div class="flex items-center gap-1.5">
+                                                                                <div class="w-1.5 h-1.5 rounded-full" :class="{
+                                                                                    'bg-green-500': gateway.status === 'online' || gateway.status === 'none',
+                                                                                    'bg-red-500': gateway.status === 'offline' || gateway.status === 'down',
+                                                                                    'bg-yellow-500': gateway.status && gateway.status !== 'online' && gateway.status !== 'none' && gateway.status !== 'offline' && gateway.status !== 'down'
+                                                                                }"></div>
+                                                                                <span class="capitalize text-[10px]"
+                                                                                    :class="{
+                                                                                        'text-green-700 dark:text-green-300': gateway.status === 'online' || gateway.status === 'none',
+                                                                                        'text-red-700 dark:text-red-300': gateway.status === 'offline' || gateway.status === 'down',
+                                                                                        'text-yellow-700 dark:text-yellow-300': gateway.status && gateway.status !== 'online' && gateway.status !== 'none' && gateway.status !== 'offline' && gateway.status !== 'down'
+                                                                                    }"
+                                                                                    x-text="gateway.status"></span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </template>
+                                                                </div>
+                                                            </div>
+                                                        </template>
+
                                                         {{-- CPU Usage --}}
                                                         <div>
                                                             <div class="flex justify-between mb-1">
@@ -366,20 +417,18 @@
                                                         </div>
 
                                                     <!-- Temperature -->
-                                                    <template x-if="status?.data?.temp_c">
-                                                        <div>
-                                                            <div class="flex justify-between mb-1 text-xs">
-                                                                <span class="font-medium text-gray-700 dark:text-gray-300">Temperature</span>
-                                                                <span class="text-gray-700 dark:text-gray-300"
-                                                                    x-text="status.data.temp_c + '°C'"></span>
-                                                            </div>
-                                                            <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                                                                <div class="bg-orange-500 h-2 rounded-full transition-all duration-500"
-                                                                    :style="'width: ' + Math.min(status.data.temp_c, 100) + '%'">
-                                                                </div>
+                                                    <div>
+                                                        <div class="flex justify-between mb-1 text-xs">
+                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Temperature</span>
+                                                            <span class="text-gray-700 dark:text-gray-300"
+                                                                x-text="(status?.data?.temp_c && status.data.temp_c > 1) ? status.data.temp_c + '°C' : 'N/A'"></span>
+                                                        </div>
+                                                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                                                            <div class="bg-orange-500 h-2 rounded-full transition-all duration-500"
+                                                                :style="'width: ' + ((status?.data?.temp_c && status.data.temp_c > 1) ? Math.min(status.data.temp_c, 100) : 0) + '%'">
                                                             </div>
                                                         </div>
-                                                    </template>
+                                                    </div>
 
                                                     <!-- Interface Status Indicators -->
                                                     <template x-if="(status && status.interfaces) || !online">
@@ -401,6 +450,9 @@
                                                         </div>
                                                     </template>
 
+
+
+
                                                     <!-- Compact Traffic Monitor -->
                                                     <div>
                                                         <div class="flex justify-between items-center mb-1">
@@ -411,7 +463,6 @@
                                                             </div>
                                                         </div>
                                                         <div class="h-8 w-full bg-gray-50 dark:bg-gray-900 rounded overflow-hidden relative border border-gray-100 dark:border-gray-700 flex">
-                                                            <!-- Combined or Split Graph? Let's do overlay -->
                                                             <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 30">
                                                                 <!-- Inbound -->
                                                                 <polyline :points="getGraphPoints('in')" fill="none" stroke="#22c55e" stroke-width="1.5" vector-effect="non-scaling-stroke" />
@@ -420,9 +471,10 @@
                                                             </svg>
                                                         </div>
                                                     </div>
-
                                                 </div>
                                             </div>
+
+
                                         </template>
                                     </div>
                                     </div>
@@ -451,6 +503,9 @@
             bandwidthHistory: new Array(20).fill({ in: 0, out: 0 }),
             currentTraffic: { in: '0 Bps', out: '0 Bps' },
             lastBytes: { in: 0, out: 0, time: 0 },
+            
+            // Load Monitor
+            loadHistory: new Array(20).fill(0),
 
             matches(query) {
                 if (!query) return true;
@@ -551,6 +606,17 @@
                 }).join(' ');
             },
 
+            getLoadGraphPoints() {
+                const max = Math.max(...this.loadHistory, 1); // Min scale 1.0
+                const height = 20; 
+                const width = 100; 
+                const step = width / (this.loadHistory.length - 1);
+                return this.loadHistory.map((val, i) => {
+                    const y = height - ((val / max) * height);
+                    return `${i * step},${y}`;
+                }).join(' ');
+            },
+
             init() {
                 this.fetchStatus();
                 this.setupWebSocket();
@@ -566,6 +632,13 @@
                     this.status = data.status;
                     this.loading = false;
 
+                    // Update Load History
+                    if (this.status && this.status.data && this.status.data.cpu_load_avg && this.status.data.cpu_load_avg.length > 0) {
+                         const oneMinLoad = parseFloat(this.status.data.cpu_load_avg[0]) || 0;
+                         this.loadHistory.shift();
+                         this.loadHistory.push(oneMinLoad);
+                    }
+
                     if (this.online && this.reportedOffline) {
                         this.reportedOffline = false;
                         this.$dispatch('device-online');
@@ -577,6 +650,8 @@
                     if (data.online && data.status.interfaces) {
                         this.updateBandwidthFromInterfaces(data.status.interfaces);
                     }
+                    // Notify listeners that this device has new data (for widgets)
+                    this.$dispatch('device-updated');
                 } catch (e) {
                     console.error(e);
                     this.loading = false;
@@ -584,6 +659,7 @@
                     if (!this.reportedOffline) {
                         this.reportedOffline = true;
                         this.$dispatch('device-offline');
+                        this.$dispatch('device-updated'); // Update widgets even if offline
                     }
                     this.error = 'Unreachable';
                 }
@@ -742,40 +818,55 @@
                     if (data && data.online && data.status && data.status.data) {
                         const cpu = parseFloat(data.status.data.cpu_usage) || 0;
                         const memory = parseFloat(data.status.data.mem_usage) || 0;
-                        stats.push({ cpu, memory });
+                        const disk = parseFloat(data.status.data.disk_usage) || 0;
+                        let temp = null;
+                        
+                        if (data.status.data.temp_c && parseFloat(data.status.data.temp_c) > 1.0) {
+                            temp = parseFloat(data.status.data.temp_c);
+                        }
+
+                        stats.push({ cpu, memory, disk, temp });
                     }
                 } catch (e) {
                     // Alpine not ready yet
                 }
             });
 
-            if (stats.length === 0 && cards.length > 0) {
-                // If we have cards but no stats, it means all are offline (but loaded)
-                // Proceed to calculate (stats will be empty, so score will vary)
-                // Actually, if stats is empty, onlineDevices = 0.
-            }
-
             const totalDevices = cards.length;
             const onlineDevices = stats.length;
             
-            const totalCpu = stats.reduce((sum, s) => sum + s.cpu, 0);
-            const totalMem = stats.reduce((sum, s) => sum + s.memory, 0);
-            
-            // Avoid division by zero if all offline
-            const avgCpu = onlineDevices > 0 ? (totalCpu / onlineDevices).toFixed(1) : 0;
-            const avgMemory = onlineDevices > 0 ? (totalMem / onlineDevices).toFixed(1) : 0;
-            const maxUsage = Math.max(avgCpu, avgMemory);
+            let networkPerfScore = 0;
 
-            // Calculate Performance Score (based on CPU/Mem of ONLINE devices)
-            // 100 = 0% usage, 0 = 100% usage
-            const perfScore = 100 - maxUsage;
-            
+            if (onlineDevices > 0) {
+                // Calculate performance score for each online device
+                const deviceScores = stats.map(s => {
+                    let sum = s.cpu + s.memory + s.disk;
+                    let count = 3;
+                    
+                    if (s.temp !== null) {
+                        sum += s.temp; // Assuming 0-100C maps roughly to 0-100% "usage" for scoring
+                        count++;
+                    }
+                    
+                    const avgUsage = sum / count;
+                    return Math.max(0, 100 - avgUsage); // Score is 100 - usage
+                });
+
+                // Average the device scores
+                const totalDeviceScore = deviceScores.reduce((a, b) => a + b, 0);
+                networkPerfScore = totalDeviceScore / onlineDevices;
+            } else {
+                // If NO devices are online, performance is effectively 0 (or undefined), 
+                // but since Availability will be 0, the final weighted sum effectively handles it.
+                networkPerfScore = 0;
+            }
+
             // Calculate Availability Score (percentage of devices online)
-            const availScore = (onlineDevices / totalDevices) * 100;
+            const availScore = totalDevices > 0 ? (onlineDevices / totalDevices) * 100 : 0;
             
-            // Final Health Score: 60% Availability, 40% Performance
-            // This ensures that if devices are offline, the score drops significantly
-            const healthScore = Math.round((availScore * 0.6) + (perfScore * 0.4));
+            // Final Health Score: 80% Availability, 20% Performance
+            // If all devices offline: avail=0, perf=0 -> Score = 0
+            const healthScore = Math.round((availScore * 0.8) + (networkPerfScore * 0.2));
             
             let healthStatus, iconColor, bgColor, iconBg, heartColorStyle;
 
@@ -844,6 +935,19 @@
                 setInterval(updateSystemHealth, 5000);
             }
         }, 2000);
+
+        // Event-based updates (Syncs widgets with firewall cards)
+        let debounceTimer;
+        const debouncedUpdate = () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                updateSystemHealth();
+            }, 100); // 100ms debounce
+        };
+
+        window.addEventListener('device-updated', debouncedUpdate);
+        window.addEventListener('device-online', debouncedUpdate);
+        window.addEventListener('device-offline', debouncedUpdate);
 
         // Timeout to show "No Data" after 10 seconds if still no data
         setTimeout(() => {

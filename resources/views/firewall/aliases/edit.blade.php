@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ isset($alias['id']) ? 'Edit' : 'Add' }} Firewall Alias - {{ $firewall->name }}
-        </h2>
+        <x-firewall-header title="{{ isset($alias['id']) ? __('Edit Firewall Alias') : __('Add Firewall Alias') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">

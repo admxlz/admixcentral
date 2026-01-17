@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Add OpenVPN Server') }}
-        </h2>
+        <x-firewall-header title="{{ isset($id) ? __('Edit OpenVPN Server') : __('Add OpenVPN Server') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">

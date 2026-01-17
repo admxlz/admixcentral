@@ -1,0 +1,33 @@
+Comprehensive review and update of "Add" buttons within the Firewall, Interfaces, System, and Services modules.
+
+**Verified and Updated Modules:**
+1.  **System/Routing**:
+    -   Standardized "Add Gateway" button.
+    -   Standardized "Add Static Route" button.
+    -   Standardized "Add Gateway Group" button.
+    -   All buttons now use `.btn-primary` and exist within a consistent card header structure.
+
+2.  **System/Certificate Manager**:
+    -   Standardized "Add CA" button.
+    -   Standardized "Add/Sign Certificate" button.
+    -   Standardized "Create CRL" button in the Revocation tab, adding a section title "Revocation Lists" for consistency.
+
+3.  **System/Advanced**:
+    -   Standardized "Add Tunable" button in the Tunables tab.
+
+4.  **Interfaces**:
+    -   Updated `interfaces/bridges/index.blade.php`: Added card header with title "Bridges" and standardized "Add Bridge" button.
+    -   Updated `interfaces/gre/index.blade.php`: Added card header with title "GRE Tunnels" and standardized "Add GRE" button.
+    -   Updated `interfaces/groups/index.blade.php`: Added card header with title "Interface Groups" and standardized "Add Group" button.
+    -   Updated `interfaces/laggs/index.blade.php`: Added card header with title "LAGG Interfaces" and standardized "Add LAGG" button.
+    -   Updated `interfaces/wireless/index.blade.php`: Added card header with title "Wireless Interfaces" and standardized "Add Wireless" button.
+
+5.  **Services/DHCP**:
+    -   Updated the "Save" button to use `.btn-primary` standard, replacing legacy `pf-btn` classes.
+
+**Route Verification:**
+-   Audited `routes/web.php` for `firewall/{firewall}/...` routes.
+-   Confirmed that major sections (Firewall, VPN, Services, System, Interfaces) have been addressed.
+-   Specific sub-pages like VLANs, NAT, IPsec, etc. were addressed in previous steps.
+
+This ensures a widespread and consistent application of the new button styling and placement guidelines across the application's firewall management features.

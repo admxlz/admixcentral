@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('System: User Manager: Users: Add') }}
-        </h2>
+        <x-firewall-header title="{{ __('System: User Manager: Users: Add') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">

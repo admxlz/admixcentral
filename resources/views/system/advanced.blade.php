@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('System: Advanced') }}
-        </h2>
+        <x-firewall-header title="{{ __('System: Advanced') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">
@@ -13,9 +11,9 @@
                     editing: false,
                     form: { id: '', tunable: '', value: '', descr: '' },
                     deleteTunable(id) {
-                        if (confirm('Are you sure you want to delete this tunable?')) {
                             let form = document.getElementById('delete-tunable-form');
-                            form.action = " {{ route('system.advanced.tunables.destroy', ['firewall' => $firewall, 'id' => 'PLACEHOLDER']) }}".replace('PLACEHOLDER', id); form.submit(); } } }">
+                            form.action = " {{ route('system.advanced.tunables.destroy', ['firewall' => $firewall, 'id' => 'PLACEHOLDER']) }}".replace('PLACEHOLDER', id); form.submit(); } } }"
+                @open-tunable-modal.window="showModal = true; editing = false; form = { id: '', tunable: '', value: '', descr: '' }">
 
                     <!-- Tabs -->
                     <div class="mb-6 border-b border-gray-200">
@@ -160,11 +158,9 @@
                             <div>
                                 <div class="flex justify-between items-center mb-4">
                                     <h3 class="text-lg font-medium text-gray-900">System Tunables</h3>
-                                    <button type="button"
-                                        @click="showModal = true; editing = false; form = { id: '', tunable: '', value: '', descr: '' }"
-                                        class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                    <x-button-add @click="showModal = true; editing = false; form = { id: '', tunable: '', value: '', descr: '' }">
                                         {{ __('Add Tunable') }}
-                                    </button>
+                                    </x-button-add>
                                 </div>
 
                                 <div class="overflow-x-auto">

@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('IPsec') }} - {{ $firewall->name }}
-        </h2>
+        <x-firewall-header title="{{ __('IPsec') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12" x-data="{
@@ -23,16 +21,16 @@
             peerid_type: 'peeraddress',
             lifetime: 28800
         }
-    }">
+    }" @open-create-phase1.window="showModal = true">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <!-- Phase 1 -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-medium">Phase 1</h3>
-                        <button @click="showModal = true" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        <x-button-add @click="showModal = true">
                             Add Phase 1
-                        </button>
+                        </x-button-add>
                     </div>
                     
                     @if(empty($phase1s))

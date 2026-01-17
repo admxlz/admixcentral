@@ -1,8 +1,12 @@
 <x-app-layout :firewall="$firewall">
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Firewall NAT: 1:1') }} - {{ $firewall->name }}
-        </h2>
+        <x-firewall-header title="{{ __('Firewall NAT: 1:1') }}" :firewall="$firewall">
+            <x-slot name="actions">
+                <x-button-add @click="$dispatch('open-create-modal')">
+                    Add Mapping
+                </x-button-add>
+            </x-slot>
+        </x-firewall-header>
     </x-slot>
 
     <div class="py-12">
@@ -11,13 +15,9 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     @include('firewall.nat.tabs', ['active' => 'one-to-one'])
 
-                    <div x-data="natOneToOneHandler()" class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+                    <div x-data="natOneToOneHandler()" @open-create-modal.window="openModal()" class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-medium text-gray-900 dark:text-white">1:1 Mappings</h3>
-                            <button @click="openModal()"
-                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                Add Mapping
-                            </button>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -25,28 +25,28 @@
                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                     <tr>
                                         <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Interface</th>
                                         <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             External IP</th>
                                         <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Internal IP</th>
                                         <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Destination IP</th>
                                         <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Description</th>
                                         <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     @forelse($rules as $index => $rule)
-                                        <tr>
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                 {{ $rule['interface'] ?? '' }}
                                             </td>
@@ -64,7 +64,7 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <button @click="editRule({{ $index }}, {{ json_encode($rule) }})"
-                                                    class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                                                    class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
                                                 <form
                                                     action="{{ route('firewall.nat.one-to-one.destroy', ['firewall' => $firewall->id, 'id' => $index]) }}"
                                                     method="POST" class="inline-block"
@@ -112,7 +112,7 @@
                                                     <label for="interface"
                                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">Interface</label>
                                                     <select name="interface" x-model="form.interface"
-                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                                                         @foreach($interfaces as $iface)
                                                             <option value="{{ $iface['if'] }}">
                                                                 {{ $iface['descr'] ?? $iface['if'] }}
@@ -126,7 +126,7 @@
                                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">External
                                                         IP</label>
                                                     <input type="text" name="external" x-model="form.external"
-                                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                                         placeholder="IP Address">
                                                 </div>
 
@@ -136,7 +136,7 @@
                                                         IP
                                                         (Source)</label>
                                                     <input type="text" name="src" x-model="form.src"
-                                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                                         placeholder="IP Address">
                                                 </div>
 
@@ -145,7 +145,7 @@
                                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">Destination
                                                         IP</label>
                                                     <input type="text" name="dst" x-model="form.dst"
-                                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                                         placeholder="any or IP/CIDR">
                                                 </div>
 
@@ -153,7 +153,7 @@
                                                     <label for="descr"
                                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
                                                     <input type="text" name="descr" x-model="form.descr"
-                                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                                 </div>
 
                                                 <div class="col-span-6 sm:col-span-3">
@@ -161,7 +161,7 @@
                                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">NAT
                                                         Reflection</label>
                                                     <select name="natreflection" x-model="form.natreflection"
-                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                                                         <option value="">System Default</option>
                                                         <option value="enable">Enable</option>
                                                         <option value="disable">Disable</option>
@@ -186,11 +186,11 @@
                                         <div
                                             class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                                             <button type="submit"
-                                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
                                                 Save
                                             </button>
                                             <button type="button" @click="showModal = false"
-                                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                                                 Cancel
                                             </button>
                                         </div>

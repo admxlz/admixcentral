@@ -1,14 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ $firewall->name }} - Interface: {{ $interfaceId }}
-            </h2>
-            <a href="{{ route('firewall.interfaces.index', $firewall) }}"
-                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                Back to Interfaces
-            </a>
-        </div>
+        <x-firewall-header title="Interface: {{ $interfaceId }}" :firewall="$firewall">
+            <x-slot name="actions">
+                <a href="{{ route('firewall.interfaces.index', $firewall) }}"
+                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    Back to Interfaces
+                </a>
+            </x-slot>
+        </x-firewall-header>
     </x-slot>
 
     <div class="py-12">

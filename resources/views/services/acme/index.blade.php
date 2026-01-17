@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('ACME Certificates') }}
-        </h2>
+    <x-slot name="header">
+        <x-firewall-header title="{{ __('ACME Certificates') }}" :firewall="$firewall" />
+    </x-slot>
     </x-slot>
 
     <div class="py-12">
@@ -56,14 +56,15 @@
                 {{-- Account Keys Tab --}}
                 @if($tab === 'account_keys')
                     <div class="mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Account Keys</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Account Keys</h3>
+                            <x-button-add @click="open = !open">
+                                Add/Toggle Key Form
+                            </x-button-add>
+                        </div>
                         
                         {{-- Create Form --}}
-                        <div x-data="{ open: false }" class="mb-6">
-                            <button @click="open = !open" type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
-                                <span x-show="!open">Add Account Key</span>
-                                <span x-show="open">Cancel</span>
-                            </button>
+                        <div x-data="{ open: false }" @toggle-create-key.window="open = !open" class="mb-6">
 
                             <div x-show="open" class="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                                 <form action="{{ route('services.acme.account-keys.store', $firewall) }}" method="POST">

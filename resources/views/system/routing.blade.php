@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('System: Routing') }}
-        </h2>
+        <x-firewall-header title="{{ __('System: Routing') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">
@@ -25,8 +23,7 @@
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200" x-data="{
+            <x-card x-data="{
                     showModal: false,
                     editing: false,
                     activeTab: '{{ $tab }}',
@@ -56,7 +53,10 @@
                         this.gatewayGroupForm = group ? { ...group } : { id: '', name: '', item: [], trigger: '', descr: '' };
                         this.showModal = true;
                     }
-                }">
+                }"
+                @open-gateway-modal.window="openGatewayModal()"
+                @open-static-route-modal.window="openStaticRouteModal()"
+                @open-gateway-group-modal.window="openGatewayGroupModal()">
 
                     <!-- Tabs -->
                     <div class="mb-6 border-b border-gray-200">
@@ -78,13 +78,11 @@
 
                     <!-- Gateways Tab -->
                     @if($tab === 'gateways')
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-900">Gateways</h3>
-                            <button @click="openGatewayModal()"
-                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <x-card-header title="Gateways">
+                            <x-button-add @click="openGatewayModal()">
                                 Add Gateway
-                            </button>
-                        </div>
+                            </x-button-add>
+                        </x-card-header>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -135,13 +133,11 @@
 
                     <!-- Static Routes Tab -->
                     @if($tab === 'static_routes')
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-900">Static Routes</h3>
-                            <button @click="openStaticRouteModal()"
-                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <x-card-header title="Static Routes">
+                            <x-button-add @click="openStaticRouteModal()">
                                 Add Static Route
-                            </button>
-                        </div>
+                            </x-button-add>
+                        </x-card-header>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -188,13 +184,11 @@
 
                     <!-- Gateway Groups Tab -->
                     @if($tab === 'gateway_groups')
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-900">Gateway Groups</h3>
-                            <button @click="openGatewayGroupModal()"
-                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <x-card-header title="Gateway Groups">
+                            <x-button-add @click="openGatewayGroupModal()">
                                 Add Gateway Group
-                            </button>
-                        </div>
+                            </x-button-add>
+                        </x-card-header>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -407,8 +401,7 @@
                         @method('DELETE')
                     </form>
 
-                </div>
-            </div>
+            </x-card>
         </div>
     </div>
 </x-app-layout>

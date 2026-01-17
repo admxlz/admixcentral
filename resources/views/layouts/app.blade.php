@@ -34,8 +34,24 @@
     </style>
 </head>
 
-<body class="font-sans antialiased h-full overflow-hidden bg-gray-100 dark:bg-gray-900">
-    <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
+<body class="font-sans antialiased h-full overflow-hidden bg-gray-100 dark:bg-gray-900" x-data="{ sidebarOpen: false, collapsed: false }">
+    <!-- Mobile Header -->
+    <div class="md:hidden flex items-center justify-between h-16 bg-gray-900 border-b border-gray-700 px-4 z-40 relative">
+        <a href="{{ route('dashboard') }}">
+             @if(isset($settings['logo_path']))
+                <img src="{{ $settings['logo_path'] }}" class="block h-8 w-auto" alt="Logo">
+            @else
+                <img src="{{ asset('images/logo.png') }}" class="block h-8 w-auto" alt="Logo">
+            @endif
+        </a>
+        <button @click="sidebarOpen = !sidebarOpen" class="text-gray-400 hover:text-white focus:outline-none">
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="flex h-screen bg-gray-100 dark:bg-gray-900 md:h-screen h-[calc(100vh-4rem)]">
         @include('layouts.sidebar')
 
         <div class="flex-1 flex flex-col overflow-hidden">

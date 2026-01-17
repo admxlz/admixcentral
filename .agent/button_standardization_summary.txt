@@ -1,0 +1,10 @@
+Standardized "Add" button placement and styling across Firewall, VPN, Services, and System modules.
+- **Firewall**: Verified and updated Rules, Aliases, NAT (Port Forward, 1:1), Schedules, Limiters, Virtual IPs, VLANs. Buttons are right-aligned in card headers using `.btn-primary`.
+- **VPN**: Updated IPsec Phase 1 button to use `.btn-primary`.
+- **Services**: Logged and updated ACME, FreeRADIUS, HAProxy, and DNS Host Overrides to use `.btn-primary`.
+- **System**: Refactored User Manager to use card headers for Users and Groups sections and applied `.btn-primary`.
+
+All specified pages now adhere to the design guidelines:
+1. "Add" buttons in Card Headers (or Section Headers for Tabs).
+2. Right-aligned.
+3. Consistent `.btn-primary` styling (Indigo).

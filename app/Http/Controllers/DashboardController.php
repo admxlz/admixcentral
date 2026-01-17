@@ -17,9 +17,9 @@ class DashboardController extends Controller
         // Get firewalls based on user role
         // Get firewalls based on user role
         if ($user->isGlobalAdmin()) {
-            $firewalls = Firewall::with('company')->get();
+            $firewalls = Firewall::with('company')->orderBy('name')->get();
         } else {
-            $firewalls = Firewall::where('company_id', $user->company_id)->get();
+            $firewalls = Firewall::where('company_id', $user->company_id)->orderBy('name')->get();
         }
 
         // Collect status for each firewall
@@ -53,6 +53,7 @@ class DashboardController extends Controller
 
         // Total registered users
         $totalUsers = User::count();
+        $totalAdmins = User::where('role', 'admin')->count();
 
         // Calculate System Health Score based on average CPU/Memory from cached status
         $healthStatus = 'No Data';
@@ -60,6 +61,9 @@ class DashboardController extends Controller
         $avgCpu = 0;
         $avgMemory = 0;
 
+        // ... (existing code for avgCpu/avgMemory calculation if needed to stay same) ...
+        // Wait, I need to make sure I don't break the flow. The previous view logic is unchanged.
+        
         // Filter firewalls with cached status
         $firewallsWithData = $firewalls->filter(function ($firewall) {
             return $firewall->cached_status !== null &&
@@ -117,6 +121,7 @@ class DashboardController extends Controller
             'totalCompanies' => $totalCompanies,
             'offlineFirewalls' => $offlineFirewalls,
             'totalUsers' => $totalUsers,
+            'totalAdmins' => $totalAdmins,
             'avgCpu' => $avgCpu,
             'avgMemory' => $avgMemory,
             'healthStatus' => $healthStatus,
@@ -219,6 +224,66 @@ class DashboardController extends Controller
                 }
             } catch (\Exception $e) {
                 // Ignore
+            }
+
+            // Fetch Installed Packages Count
+            try {
+                $packages = $api->getSystemPackages();
+                // Expecting structure: ['data' => ['package' => [...]]] or just array of packages
+                // pfSense API usually returns ['data' => ['package' => [ ... list of packages ... ]]]
+                
+                $pkgCount = 0;
+                if (isset($packages['data']['package']) && is_array($packages['data']['package'])) {
+                    $pkgCount = count($packages['data']['package']);
+                } elseif (isset($packages['data']) && is_array($packages['data'])) {
+                    // Fallback for some versions/endpoints
+                    $pkgCount = count($packages['data']);
+                }
+                
+                $dynamicStatus['data']['installed_packages_count'] = $pkgCount;
+
+            } catch (\Exception $e) {
+                $dynamicStatus['data']['installed_packages_count'] = 'N/A';
+            }
+
+            // Fetch Gateways Status (for Dashboard Cards)
+            try {
+                // We need gateway status (online/offline/latency) AND description (from config)
+                // This logic mirrors StatusController::gateways()
+                
+                // 1. Fetch Status (runtime info like 'status', 'monitorip', 'delay')
+                $statusData = [];
+                $rawStatus = $api->getGateways(); // This maps to /status/gateways
+                if (isset($rawStatus['data']['gateway']) && is_array($rawStatus['data']['gateway'])) {
+                    $statusData = $rawStatus['data']['gateway'];
+                } elseif (isset($rawStatus['data']) && is_array($rawStatus['data'])) {
+                    $statusData = $rawStatus['data'];
+                }
+
+                // 2. Fetch Config (static info like 'descr')
+                $configData = [];
+                $rawConfig = $api->getRoutingGateways(); // This maps to /routing/gateways
+                if (isset($rawConfig['data']['gateway']) && is_array($rawConfig['data']['gateway'])) {
+                    $configData = $rawConfig['data']['gateway'];
+                } elseif (isset($rawConfig['data']) && is_array($rawConfig['data'])) {
+                    $configData = $rawConfig['data'];
+                }
+
+                // 3. Merge Description from Config into Status
+                // If status is empty (e.g. API fail), we might want to fallback to config-only, but status is critical for the badge.
+                // Prioritize Status data.
+                foreach ($statusData as &$gateway) {
+                    $config = collect($configData)->firstWhere('name', $gateway['name']);
+                    if ($config) {
+                        $gateway['descr'] = $config['descr'] ?? '';
+                    }
+                }
+                unset($gateway); // break reference
+
+                $dynamicStatus['gateways'] = $statusData;
+
+            } catch (\Exception $e) {
+                $dynamicStatus['gateways'] = [];
             }
 
             // Merge Static Info into Dynamic Status

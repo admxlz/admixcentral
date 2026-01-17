@@ -1,49 +1,44 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Certificate Manager') }}
-        </h2>
+        <x-firewall-header title="{{ __('Certificate Manager') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+            <x-card>
+                <!-- Tabs -->
+                <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+                    <nav class="-mb-px flex space-x-8">
+                        <a href="{{ route('system.certificate_manager.index', ['firewall' => $firewall, 'tab' => 'cas']) }}"
+                            class="{{ $tab === 'cas' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                            CAs
+                        </a>
+                        <a href="{{ route('system.certificate_manager.index', ['firewall' => $firewall, 'tab' => 'certificates']) }}"
+                            class="{{ $tab === 'certificates' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                            Certificates
+                        </a>
+                        </a>
+                        <a href="{{ route('system.certificate_manager.index', ['firewall' => $firewall, 'tab' => 'crls']) }}"
+                            class="{{ $tab === 'crls' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                            Revocation
+                        </a>
+                    </nav>
+                </div>
 
-                    <!-- Tabs -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
-                        <nav class="-mb-px flex space-x-8">
-                            <a href="{{ route('system.certificate_manager.index', ['firewall' => $firewall, 'tab' => 'cas']) }}"
-                                class="{{ $tab === 'cas' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                                CAs
-                            </a>
-                            <a href="{{ route('system.certificate_manager.index', ['firewall' => $firewall, 'tab' => 'certificates']) }}"
-                                class="{{ $tab === 'certificates' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                                Certificates
-                            </a>
-                            </a>
-                            <a href="{{ route('system.certificate_manager.index', ['firewall' => $firewall, 'tab' => 'crls']) }}"
-                                class="{{ $tab === 'crls' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                                Revocation
-                            </a>
-                        </nav>
+                @if(isset($error))
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+                        role="alert">
+                        <strong class="font-bold">Error!</strong>
+                        <span class="block sm:inline">{{ $error }}</span>
                     </div>
+                @endif
 
-                    @if(isset($error))
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-                            role="alert">
-                            <strong class="font-bold">Error!</strong>
-                            <span class="block sm:inline">{{ $error }}</span>
-                        </div>
-                    @endif
-
-                    @if($tab === 'cas')
-                        <div class="flex justify-end mb-4">
-                            <a href="{{ route('system.certificate_manager.cas.create', $firewall) }}"
-                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Add CA
-                            </a>
-                        </div>
+                @if($tab === 'cas')
+                    <x-card-header title="Certificate Authorities">
+                        <x-link-button-add href="{{ route('system.certificate_manager.cas.create', $firewall) }}">
+                            Add CA
+                        </x-link-button-add>
+                    </x-card-header>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
@@ -94,12 +89,11 @@
                             </table>
                         </div>
                     @elseif($tab === 'certificates')
-                        <div class="flex justify-end mb-4">
-                            <a href="{{ route('system.certificate_manager.certificates.create', $firewall) }}"
-                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        <x-card-header title="Certificates">
+                            <x-link-button-add href="{{ route('system.certificate_manager.certificates.create', $firewall) }}">
                                 Add/Sign Certificate
-                            </a>
-                        </div>
+                            </x-link-button-add>
+                        </x-card-header>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
@@ -150,8 +144,7 @@
                         @include('system.certificate_manager.crls.index')
                     @endif
 
-                </div>
-            </div>
+            </x-card>
         </div>
     </div>
 </x-app-layout>

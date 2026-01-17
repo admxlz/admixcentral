@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('DNS Resolver: Host Overrides') }} - {{ $firewall->name }}
-        </h2>
+        <x-firewall-header title="{{ __('Edit Host Override') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">
@@ -61,7 +59,7 @@
                                 </div>
                             </div>
                             <div class="mt-4">
-                                <button type="submit" class="pf-btn pf-btn-primary">Add</button>
+                                <button type="submit" class="btn-primary">Add</button>
                             </div>
                         </form>
                     </div>

@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Firewall Rules') }}
-        </h2>
+        <x-firewall-header title="{{ __('Firewall Rules') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">
@@ -98,17 +96,14 @@
                         @csrf
                         <input type="hidden" name="interface" value="{{ $selectedInterface }}">
 
-                        {{-- Actions Toolbar --}}
                         <div class="flex justify-between mb-4">
                             <div class="flex space-x-2">
-
-
                                 {{-- Bulk Actions --}}
                                 <div class="flex space-x-2">
                                     <button type="button" @click="submitAction('enable')"
                                         :disabled="selected.length === 0"
                                         :class="selected.length === 0 ? 'opacity-50 cursor-not-allowed' : ''"
-                                        class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500">
+                                        class="btn-primary">
                                         Enable
                                     </button>
                                     <button type="button" @click="submitAction('disable')"
@@ -125,15 +120,10 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="flex space-x-2">
-                                <a href="{{ route('firewall.rules.create', $firewall) }}?interface={{ $selectedInterface }}"
-                                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 focus:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4v16m8-8H4" />
-                                    </svg>
+                            <div>
+                                <x-link-button-add href="{{ route('firewall.rules.create', $firewall) }}?interface={{ $selectedInterface ?? 'wan' }}">
                                     Add Rule
-                                </a>
+                                </x-link-button-add>
                             </div>
                         </div>
 
@@ -143,52 +133,52 @@
                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                     <tr>
                                         <th scope="col"
-                                            class="px-2 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                                            class="px-2 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                                             style="width: 40px;">
                                             <input type="checkbox" @click="toggleAll()" x-model="allSelected"
-                                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                                class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                         </th>
                                         <th scope="col"
-                                            class="px-2 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                                            class="px-2 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                                             style="width: 60px;">
                                         </th>
                                         <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Action</th>
                                         <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Proto</th>
                                         <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Source</th>
                                         <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Port</th>
                                         <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Destination</th>
                                         <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Port</th>
                                         <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Gateway</th>
 
                                         <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             Description</th>
                                         <th scope="col"
-                                            class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                                            class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                                             style="width: 120px;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     @forelse($filteredRules as $index => $rule)
-                                        <tr class="{{ !empty($rule['disabled']) ? 'opacity-50' : '' }}">
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition {{ !empty($rule['disabled']) ? 'opacity-50' : '' }}">
                                             {{-- Bulk Checkbox --}}
                                             <td class="px-2 py-2 whitespace-nowrap text-center">
                                                 <input type="checkbox" value="{{ $rule['tracker'] }}" x-model="selected"
-                                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                             </td>
 
                                             {{-- Order Arrows --}}
@@ -296,7 +286,7 @@
                                                 <div class="flex justify-center space-x-2">
                                                     {{-- Edit Button --}}
                                                     <a href="{{ route('firewall.rules.edit', ['firewall' => $firewall, 'tracker' => $rule['tracker']]) }}"
-                                                        class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                        class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                                                         title="Edit">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                             viewBox="0 0 24 24">

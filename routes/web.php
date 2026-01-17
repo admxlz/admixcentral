@@ -38,6 +38,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Geocoding Proxy (to avoid CORS)
+    Route::get('/geocode/suggest', [App\Http\Controllers\GeocodeController::class, 'suggest'])->name('geocode.suggest');
+    Route::get('/geocode/retrieve', [App\Http\Controllers\GeocodeController::class, 'retrieve'])->name('geocode.retrieve');
+
     // System: Routing
     Route::get('/firewall/{firewall}/system/routing', [RoutingController::class, 'index'])->name('firewall.system.routing');
 
@@ -156,100 +160,56 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware(App\Http\Middleware\EnsureTenantScope::class)
         ->name('firewall.interfaces.show');
 
-    // Firewall rules management
-    Route::get('/firewall/{firewall}/rules', [App\Http\Controllers\FirewallRuleController::class, 'index'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.rules.index');
-    Route::get('/firewall/{firewall}/rules/create', [App\Http\Controllers\FirewallRuleController::class, 'create'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.rules.create');
-    Route::post('/firewall/{firewall}/rules', [App\Http\Controllers\FirewallRuleController::class, 'store'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.rules.store');
-    Route::get('/firewall/{firewall}/rules/{tracker}/edit', [App\Http\Controllers\FirewallRuleController::class, 'edit'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.rules.edit');
-    Route::put('/firewall/{firewall}/rules/{tracker}', [App\Http\Controllers\FirewallRuleController::class, 'update'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.rules.update');
-    Route::delete('/firewall/{firewall}/rules/{tracker}', [App\Http\Controllers\FirewallRuleController::class, 'destroy'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.rules.destroy');
-    Route::post('/firewall/{firewall}/rules/bulk-action', [App\Http\Controllers\FirewallRuleController::class, 'bulkAction'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.rules.bulk-action');
-    Route::post('/firewall/{firewall}/rules/{tracker}/move', [App\Http\Controllers\FirewallRuleController::class, 'move'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.rules.move');
-    Route::post('/firewall/{firewall}/apply', [App\Http\Controllers\FirewallApplyController::class, 'apply'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.apply');
 
-    // Firewall Aliases
-    Route::get('/firewall/{firewall}/aliases', [App\Http\Controllers\FirewallAliasController::class, 'index'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.aliases.index');
-    Route::get('/firewall/{firewall}/aliases/create', [App\Http\Controllers\FirewallAliasController::class, 'create'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.aliases.create');
-    Route::post('/firewall/{firewall}/aliases', [App\Http\Controllers\FirewallAliasController::class, 'store'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.aliases.store');
-    Route::get('/firewall/{firewall}/aliases/{id}/edit', [App\Http\Controllers\FirewallAliasController::class, 'edit'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.aliases.edit');
-    Route::put('/firewall/{firewall}/aliases/{id}', [App\Http\Controllers\FirewallAliasController::class, 'update'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.aliases.update');
-    Route::delete('/firewall/{firewall}/aliases/{id}', [App\Http\Controllers\FirewallAliasController::class, 'destroy'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.aliases.destroy');
-
-    // Firewall NAT
-    Route::get('/firewall/{firewall}/nat/port-forward', [App\Http\Controllers\FirewallNatController::class, 'portForward'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.port-forward');
-    Route::get('/firewall/{firewall}/nat/port-forward/create', [App\Http\Controllers\FirewallNatController::class, 'createPortForward'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.port-forward.create');
-    Route::post('/firewall/{firewall}/nat/port-forward', [App\Http\Controllers\FirewallNatController::class, 'storePortForward'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.port-forward.store');
-    Route::put('/firewall/{firewall}/nat/port-forward/{id}', [App\Http\Controllers\FirewallNatController::class, 'updatePortForward'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.port-forward.update');
-    Route::delete('/firewall/{firewall}/nat/port-forward/{id}', [App\Http\Controllers\FirewallNatController::class, 'destroyPortForward'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.port-forward.destroy');
-    Route::get('/firewall/{firewall}/nat/outbound', [App\Http\Controllers\FirewallNatController::class, 'outbound'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.outbound');
-    Route::patch('/firewall/{firewall}/nat/outbound/mode', [App\Http\Controllers\FirewallNatController::class, 'updateOutboundMode'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.outbound.mode');
-    Route::get('/firewall/{firewall}/nat/one-to-one', [App\Http\Controllers\FirewallNatController::class, 'oneToOne'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.one-to-one');
-    Route::post('/firewall/{firewall}/nat/one-to-one', [App\Http\Controllers\FirewallNatController::class, 'storeOneToOne'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.one-to-one.store');
-    Route::put('/firewall/{firewall}/nat/one-to-one/{id}', [App\Http\Controllers\FirewallNatController::class, 'updateOneToOne'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.one-to-one.update');
-    Route::delete('/firewall/{firewall}/nat/one-to-one/{id}', [App\Http\Controllers\FirewallNatController::class, 'destroyOneToOne'])
-        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
-        ->name('firewall.nat.one-to-one.destroy');
 
     // Firewall Resources Group
-    Route::prefix('firewall/{firewall}')->name('firewall.')->group(function () {
-        // Schedules
-        Route::resource('schedules', App\Http\Controllers\FirewallScheduleController::class);
+    Route::prefix('firewall/{firewall}')->name('firewall.')
+        ->middleware(App\Http\Middleware\EnsureTenantScope::class)
+        ->group(function () {
+            
+        // Nested Firewall Configuration (Matches menu structure)
+        Route::prefix('firewall')->group(function () {
+            // Rules
+            Route::get('/rules', [App\Http\Controllers\FirewallRuleController::class, 'index'])->name('rules.index');
+            Route::get('/rules/create', [App\Http\Controllers\FirewallRuleController::class, 'create'])->name('rules.create');
+            Route::post('/rules', [App\Http\Controllers\FirewallRuleController::class, 'store'])->name('rules.store');
+            Route::get('/rules/{tracker}/edit', [App\Http\Controllers\FirewallRuleController::class, 'edit'])->name('rules.edit');
+            Route::put('/rules/{tracker}', [App\Http\Controllers\FirewallRuleController::class, 'update'])->name('rules.update');
+            Route::delete('/rules/{tracker}', [App\Http\Controllers\FirewallRuleController::class, 'destroy'])->name('rules.destroy');
+            Route::post('/rules/bulk-action', [App\Http\Controllers\FirewallRuleController::class, 'bulkAction'])->name('rules.bulk-action');
+            Route::post('/rules/{tracker}/move', [App\Http\Controllers\FirewallRuleController::class, 'move'])->name('rules.move');
+            Route::post('/apply', [App\Http\Controllers\FirewallApplyController::class, 'apply'])->name('apply');
 
-        // Traffic Shaper Limiters
-        Route::resource('limiters', App\Http\Controllers\FirewallLimiterController::class);
+            // Aliases
+            Route::get('/aliases', [App\Http\Controllers\FirewallAliasController::class, 'index'])->name('aliases.index');
+            Route::get('/aliases/create', [App\Http\Controllers\FirewallAliasController::class, 'create'])->name('aliases.create');
+            Route::post('/aliases', [App\Http\Controllers\FirewallAliasController::class, 'store'])->name('aliases.store');
+            Route::get('/aliases/{id}/edit', [App\Http\Controllers\FirewallAliasController::class, 'edit'])->name('aliases.edit');
+            Route::put('/aliases/{id}', [App\Http\Controllers\FirewallAliasController::class, 'update'])->name('aliases.update');
+            Route::delete('/aliases/{id}', [App\Http\Controllers\FirewallAliasController::class, 'destroy'])->name('aliases.destroy');
 
-        // Virtual IPs
-        Route::resource('virtual_ips', App\Http\Controllers\FirewallVirtualIpController::class);
+            // NAT
+            Route::get('/nat/port-forward', [App\Http\Controllers\FirewallNatController::class, 'portForward'])->name('nat.port-forward');
+            Route::get('/nat/port-forward/create', [App\Http\Controllers\FirewallNatController::class, 'createPortForward'])->name('nat.port-forward.create');
+            Route::post('/nat/port-forward', [App\Http\Controllers\FirewallNatController::class, 'storePortForward'])->name('nat.port-forward.store');
+            Route::put('/nat/port-forward/{id}', [App\Http\Controllers\FirewallNatController::class, 'updatePortForward'])->name('nat.port-forward.update');
+            Route::delete('/nat/port-forward/{id}', [App\Http\Controllers\FirewallNatController::class, 'destroyPortForward'])->name('nat.port-forward.destroy');
+            Route::get('/nat/outbound', [App\Http\Controllers\FirewallNatController::class, 'outbound'])->name('nat.outbound');
+            Route::patch('/nat/outbound/mode', [App\Http\Controllers\FirewallNatController::class, 'updateOutboundMode'])->name('nat.outbound.mode');
+            Route::get('/nat/one-to-one', [App\Http\Controllers\FirewallNatController::class, 'oneToOne'])->name('nat.one-to-one');
+            Route::post('/nat/one-to-one', [App\Http\Controllers\FirewallNatController::class, 'storeOneToOne'])->name('nat.one-to-one.store');
+            Route::put('/nat/one-to-one/{id}', [App\Http\Controllers\FirewallNatController::class, 'updateOneToOne'])->name('nat.one-to-one.update');
+            Route::delete('/nat/one-to-one/{id}', [App\Http\Controllers\FirewallNatController::class, 'destroyOneToOne'])->name('nat.one-to-one.destroy');
+
+            // Schedules
+            Route::resource('schedules', App\Http\Controllers\FirewallScheduleController::class);
+
+            // Traffic Shaper Limiters
+            Route::resource('limiters', App\Http\Controllers\FirewallLimiterController::class);
+
+            // Virtual IPs
+            Route::resource('virtual_ips', App\Http\Controllers\FirewallVirtualIpController::class);
+        });
 
         // Status
         Route::get('/status/interfaces', [App\Http\Controllers\StatusInterfaceController::class, 'index'])->name('status.interfaces.index');
@@ -266,6 +226,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // User Management
+    Route::post('/users/check-email', [App\Http\Controllers\UserController::class, 'checkEmail'])->name('users.check-email');
     Route::resource('users', App\Http\Controllers\UserController::class)
         ->middleware([App\Http\Middleware\CheckRole::class . ':admin']);
 
@@ -514,6 +475,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/upnp', [App\Http\Controllers\StatusController::class, 'upnp'])->name('upnp');
         Route::get('/dhcp', [App\Http\Controllers\StatusController::class, 'dhcp'])->name('dhcp');
         Route::get('/system', [App\Http\Controllers\StatusController::class, 'system'])->name('system');
+        Route::get('/packages', [App\Http\Controllers\StatusController::class, 'packages'])->name('packages');
     });
 
     // Diagnostics

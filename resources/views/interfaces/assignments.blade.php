@@ -1,25 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Interface Assignments') }}
-        </h2>
+        <x-firewall-header title="{{ __('Interface Assignments') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-
+            <x-card>
+                <div class="p-6">
                     @if(isset($error))
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-                            role="alert">
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                             <strong class="font-bold">Error!</strong>
                             <span class="block sm:inline">{{ $error }}</span>
                         </div>
                     @endif
 
                     <div class="mb-6">
-                        <h3 class="text-lg font-medium mb-2">Current Assignments</h3>
+                        <x-card-header title="Current Assignments" />
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
@@ -96,7 +92,7 @@
                     </div>
 
                 </div>
-            </div>
+            </x-card>
         </div>
     </div>
 </x-app-layout>

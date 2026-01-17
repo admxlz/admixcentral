@@ -17,6 +17,9 @@ class Firewall extends Model
         'description',
         'is_dirty',
         'netgate_id',
+        'address',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [

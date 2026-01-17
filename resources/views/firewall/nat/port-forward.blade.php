@@ -1,18 +1,6 @@
 <x-app-layout :firewall="$firewall">
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Firewall NAT: Port Forward') }} - {{ $firewall->name }}
-            </h2>
-            <div x-data>
-                <button @click="$dispatch('open-create-modal')" class="pf-btn pf-btn-primary">
-                    <svg class="w-4 h-4 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    Add Rule
-                </button>
-            </div>
-        </div>
+        <x-firewall-header title="{{ __('Firewall NAT: Port Forward') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12" x-data="{ 
@@ -99,45 +87,52 @@
                     {{-- Tabs --}}
                     @include('firewall.nat.tabs', ['active' => 'port-forward'])
 
+                    <div class="flex justify-between items-center mb-4 mt-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Port Forward Rules</h3>
+                        <x-button-add @click="$dispatch('open-create-modal')">
+                            Add Rule
+                        </x-button-add>
+                    </div>
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
                                     <th scope="col"
-                                        class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Interface</th>
                                     <th scope="col"
-                                        class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Protocol</th>
                                     <th scope="col"
-                                        class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Source Address</th>
                                     <th scope="col"
-                                        class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Source Ports</th>
                                     <th scope="col"
-                                        class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Dest. Address</th>
                                     <th scope="col"
-                                        class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Dest. Ports</th>
                                     <th scope="col"
-                                        class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         NAT IP</th>
                                     <th scope="col"
-                                        class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         NAT Ports</th>
                                     <th scope="col"
-                                        class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Description</th>
                                     <th scope="col"
-                                        class="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        class="px-3 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @forelse($rules as $index => $rule)
-                                    <tr class="{{ isset($rule['disabled']) ? 'opacity-50' : '' }}">
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition {{ isset($rule['disabled']) ? 'opacity-50' : '' }}">
                                         <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                             {{ strtoupper($rule['interface'] ?? '') }}
                                         </td>
@@ -168,7 +163,7 @@
                                         <td class="px-3 py-2 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
                                                 <button @click="editRule({{ json_encode($rule) }}, {{ $index }})"
-                                                    class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                                                     title="Edit">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
@@ -235,7 +230,7 @@
                                     <div class="flex items-start">
                                         <div class="flex items-center h-5">
                                             <input id="disabled" name="disabled" type="checkbox" x-model="form.disabled"
-                                                class="pf-checkbox">
+                                                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
                                         </div>
                                         <div class="ml-3 text-sm">
                                             <label for="disabled"
@@ -250,7 +245,7 @@
                                     <label for="interface"
                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">Interface</label>
                                     <select id="interface" name="interface" x-model="form.interface"
-                                        class="pf-input mt-1 block w-full">
+                                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 sm:text-sm">
                                         @foreach($interfaces as $iface)
                                             <option value="{{ $iface['if'] ?? $iface['descr'] }}">
                                                 {{ $iface['descr'] ?? strtoupper($iface['if']) }}
@@ -264,7 +259,7 @@
                                     <label for="protocol"
                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">Protocol</label>
                                     <select id="protocol" name="protocol" x-model="form.protocol"
-                                        class="pf-input mt-1 block w-full">
+                                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 sm:text-sm">
                                         <option value="tcp">TCP</option>
                                         <option value="udp">UDP</option>
                                         <option value="tcp/udp">TCP/UDP</option>
@@ -287,7 +282,7 @@
                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dest. Port
                                         Range</label>
                                     <input type="text" name="dstport" id="dstport" x-model="form.dstport"
-                                        class="pf-input mt-1 block w-full" placeholder="80 or 80-90">
+                                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 sm:text-sm" placeholder="80 or 80-90">
                                 </div>
 
                                 {{-- Target IP --}}
@@ -296,7 +291,7 @@
                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">Redirect
                                         Target IP</label>
                                     <input type="text" name="target" id="target" x-model="form.target"
-                                        class="pf-input mt-1 block w-full" placeholder="192.168.1.x">
+                                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 sm:text-sm" placeholder="192.168.1.x">
                                 </div>
 
                                 {{-- Target Port --}}
@@ -305,7 +300,7 @@
                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">Redirect
                                         Target Port</label>
                                     <input type="text" name="local_port" id="local_port" x-model="form.local_port"
-                                        class="pf-input mt-1 block w-full" placeholder="80">
+                                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 sm:text-sm" placeholder="80">
                                 </div>
 
                                 {{-- Description --}}
@@ -313,7 +308,7 @@
                                     <label for="descr"
                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
                                     <input type="text" name="descr" id="descr" x-model="form.descr"
-                                        class="pf-input mt-1 block w-full">
+                                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 sm:text-sm">
                                 </div>
                             </div>
 
@@ -322,8 +317,8 @@
                                 <label for="associated_rule_id"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Filter rule
                                     association</label>
-                                <select id="associated_rule_id" name="associated_rule_id"
-                                    x-model="form.associated_rule_id" class="pf-input mt-1 block w-full">
+                                    <select id="associated_rule_id" name="associated_rule_id"
+                                        x-model="form.associated_rule_id" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 sm:text-sm">
                                     <option value="pass">Add associated filter rule</option>
                                     <option value="block">Block</option>
                                     <option value="reject">Reject</option>
@@ -333,11 +328,11 @@
                         </div>
 
                         <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="submit" class="pf-btn pf-btn-primary w-full sm:w-auto sm:ml-3">
+                            <button type="submit" class="w-full sm:w-auto sm:ml-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
                                 Save
                             </button>
                             <button type="button" @click="showModal = false"
-                                class="mt-3 w-full sm:mt-0 sm:ml-3 pf-btn pf-btn-secondary sm:w-auto">
+                                class="mt-3 w-full sm:mt-0 sm:ml-3 sm:w-auto bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition">
                                 Cancel
                             </button>
                         </div>

@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Ping') }} - {{ $firewall->name }}
-        </h2>
+        <x-firewall-header title="{{ __('Ping') }}" :firewall="$firewall" />
     </x-slot>
 
     <div class="py-12">
@@ -37,7 +35,7 @@
 
                             <div class="flex items-end">
                                 <button type="submit"
-                                    class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                                    class="w-full inline-flex justify-center btn-primary">
                                     Ping
                                 </button>
                             </div>

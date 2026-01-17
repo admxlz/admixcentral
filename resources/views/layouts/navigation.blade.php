@@ -25,7 +25,11 @@
                         <!-- System Dropdown -->
                         <div class="relative" @click.away="systemOpen = false">
                             <button @click="systemOpen = !systemOpen"
-                                class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700 transition duration-150 ease-in-out">
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out"
+                                :class="{
+                                    'border-gray-300 dark:border-gray-500 text-gray-500 dark:text-gray-400': systemActive,
+                                    'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': !systemActive
+                                }">
                                 System
                                 <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -70,7 +74,11 @@
                         <div class="relative" x-data="{ interfacesOpen: false }" @click.away="interfacesOpen = false">
                             <button @click="interfacesOpen = !interfacesOpen"
                                 class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out"
-                                :class="{'border-indigo-400 dark:border-indigo-600 text-gray-900 dark:text-gray-100': '{{ request()->routeIs('firewall.interfaces.*') || request()->routeIs('firewall.vlans.*') ? 'true' : 'false' }}' === 'true', 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': '{{ request()->routeIs('firewall.interfaces.*') || request()->routeIs('firewall.vlans.*') ? 'true' : 'false' }}' !== 'true'}">
+                                :class="{
+                                    'border-indigo-400 dark:border-indigo-600 text-gray-500 dark:text-gray-400': {{ request()->routeIs('firewall.interfaces.index') ? 'true' : 'false' }},
+                                    'border-gray-300 dark:border-gray-500 text-gray-500 dark:text-gray-400': {{ request()->routeIs('firewall.interfaces.*') || request()->routeIs('firewall.vlans.*') && !request()->routeIs('firewall.interfaces.index') ? 'true' : 'false' }},
+                                    'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': !({{ request()->routeIs('firewall.interfaces.*') || request()->routeIs('firewall.vlans.*') ? 'true' : 'false' }})
+                                }">
                                 Interfaces
                                 <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -106,7 +114,11 @@
                         <div class="relative" @click.away="firewallOpen = false">
                             <button @click="firewallOpen = !firewallOpen"
                                 class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out"
-                                :class="{'border-indigo-400 dark:border-indigo-600 text-gray-900 dark:text-gray-100': firewallOpen || firewallActive, 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': !firewallOpen && !firewallActive}">
+                                :class="{
+                                    'border-indigo-400 dark:border-indigo-600 text-gray-500 dark:text-gray-400': {{ request()->routeIs('firewall.rules.index') ? 'true' : 'false' }},
+                                    'border-gray-300 dark:border-gray-500 text-gray-500 dark:text-gray-400': (firewallOpen || firewallActive) && !{{ request()->routeIs('firewall.rules.index') ? 'true' : 'false' }},
+                                    'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': (!firewallOpen && !firewallActive)
+                                }">
                                 Firewall
                                 <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -139,7 +151,11 @@
                         <!-- Services Dropdown -->
                         <div class="relative" @click.away="servicesOpen = false">
                             <button @click="servicesOpen = !servicesOpen"
-                                class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700 transition duration-150 ease-in-out">
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out"
+                                :class="{
+                                    'border-gray-300 dark:border-gray-500 text-gray-500 dark:text-gray-400': servicesActive,
+                                    'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': !servicesActive
+                                }">
                                 Services
                                 <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -208,7 +224,11 @@
                         <!-- VPN Dropdown -->
                         <div class="relative" @click.away="vpnOpen = false">
                             <button @click="vpnOpen = !vpnOpen"
-                                class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700 transition duration-150 ease-in-out">
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out"
+                                :class="{
+                                    'border-gray-300 dark:border-gray-500 text-gray-500 dark:text-gray-400': vpnActive,
+                                    'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': !vpnActive
+                                }">
                                 VPN
                                 <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -235,7 +255,12 @@
                         <!-- Status Dropdown -->
                         <div class="relative" @click.away="statusOpen = false">
                             <button @click="statusOpen = !statusOpen"
-                                class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700 transition duration-150 ease-in-out">
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out"
+                                :class="{
+                                    'border-indigo-400 dark:border-indigo-600 text-gray-500 dark:text-gray-400': {{ request()->routeIs('status.dashboard') ? 'true' : 'false' }},
+                                    'border-gray-300 dark:border-gray-500 text-gray-500 dark:text-gray-400': statusActive && !{{ request()->routeIs('status.dashboard') ? 'true' : 'false' }},
+                                    'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': !statusActive
+                                }">
                                 Status
                                 <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -296,7 +321,11 @@
                         <!-- Diagnostics Dropdown -->
                         <div class="relative" @click.away="diagnosticsOpen = false">
                             <button @click="diagnosticsOpen = !diagnosticsOpen"
-                                class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700 transition duration-150 ease-in-out">
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out"
+                                :class="{
+                                    'border-gray-300 dark:border-gray-500 text-gray-500 dark:text-gray-400': diagnosticsActive,
+                                    'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700': !diagnosticsActive
+                                }">
                                 Diagnostics
                                 <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
