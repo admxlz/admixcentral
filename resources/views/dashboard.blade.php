@@ -103,7 +103,7 @@
                                     <p class="text-4xl font-bold text-gray-900 dark:text-gray-100">{{ $totalUsers }}</p>
                                     @if($totalAdmins > 0)
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300">
-                                            {{ $totalAdmins }} Admin{{ $totalAdmins > 1 ? 's' : '' }}
+                                            {{ $totalAdmins }} Global Admin{{ $totalAdmins > 1 ? 's' : '' }}
                                         </span>
                                     @endif
                                 </div>

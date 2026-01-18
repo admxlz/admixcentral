@@ -53,7 +53,7 @@ class DashboardController extends Controller
 
         // Total registered users
         $totalUsers = User::count();
-        $totalAdmins = User::where('role', 'admin')->count();
+        $totalAdmins = User::where('role', 'admin')->whereNull('company_id')->count();
 
         // Calculate System Health Score based on average CPU/Memory from cached status
         $healthStatus = 'No Data';

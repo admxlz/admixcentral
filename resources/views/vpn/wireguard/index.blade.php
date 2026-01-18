@@ -66,11 +66,30 @@
                                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ $tunnel['name'] ?? 'N/A' }}</td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $tunnel['descr'] ?? '' }}</td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $tunnel['address'] ?? '' }}</td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $tunnel['port'] ?? '' }}</td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                        <div class="flex items-center group cursor-help" title="{{ $tunnel['public_key'] ?? '' }}">
-                                                            <span class="truncate max-w-[150px]">{{ $tunnel['public_key'] ?? '' }}</span>
+                                                        @php
+                                                            $tunnelAddresses = $tunnel['addresses']['row'] ?? $tunnel['addresses'] ?? $tunnel['address'] ?? null;
+                                                        @endphp
+                                                        @if(!empty($tunnelAddresses) && is_array($tunnelAddresses))
+                                                            @foreach($tunnelAddresses as $addr)
+                                                                @if(is_array($addr))
+                                                                     <span class="inline-block bg-gray-100 dark:bg-gray-700 px-1 rounded mr-1 mb-1">
+                                                                        {{ $addr['address'] ?? json_encode($addr) }}{{ isset($addr['mask']) ? '/'.$addr['mask'] : '' }}
+                                                                     </span>
+                                                                @else
+                                                                    <span class="inline-block bg-gray-100 dark:bg-gray-700 px-1 rounded mr-1 mb-1">{{ $addr }}</span>
+                                                                @endif
+                                                            @endforeach
+                                                        @elseif(!empty($tunnelAddresses) && is_string($tunnelAddresses))
+                                                            {{ $tunnelAddresses }}
+                                                        @else
+                                                            <span class="text-gray-400">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $tunnel['listenport'] ?? $tunnel['port'] ?? '' }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                        <div class="flex items-center group cursor-help" title="{{ $tunnel['public_key'] ?? $tunnel['publickey'] ?? '' }}">
+                                                            <span class="truncate max-w-[150px]">{{ $tunnel['public_key'] ?? $tunnel['publickey'] ?? '' }}</span>
                                                             <svg class="w-4 h-4 ml-1 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                             </svg>
@@ -108,11 +127,29 @@
                                             @foreach($peers as $peer)
                                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ $peer['descr'] ?? 'N/A' }}</td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $peer['endpoint'] ?? '' }}:{{ $peer['port'] ?? '' }}</td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $peer['allowed_ips'] ?? '' }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $peer['endpoint'] ?? '' }}:{{ $peer['port'] ?? $peer['endpointport'] ?? '' }}</td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                        <div class="flex items-center group cursor-help" title="{{ $peer['public_key'] ?? '' }}">
-                                                            <span class="truncate max-w-[150px]">{{ $peer['public_key'] ?? '' }}</span>
+                                                        @php
+                                                            $allowedIps = $peer['allowedips']['row'] ?? $peer['allowedips'] ?? $peer['allowed_ips'] ?? '';
+                                                        @endphp
+                                                        @if(is_array($allowedIps))
+                                                            @foreach($allowedIps as $ip)
+                                                                @if(is_array($ip))
+                                                                    {{-- Handle nested array (e.g. ['address' => '1.2.3.4', 'mask' => '32']) --}}
+                                                                    <span class="inline-block bg-gray-100 dark:bg-gray-700 px-1 rounded mr-1 mb-1">
+                                                                        {{ $ip['address'] ?? json_encode($ip) }}{{ isset($ip['mask']) ? '/'.$ip['mask'] : '' }}
+                                                                    </span>
+                                                                @else
+                                                                    <span class="inline-block bg-gray-100 dark:bg-gray-700 px-1 rounded mr-1 mb-1">{{ $ip }}</span>
+                                                                @endif
+                                                            @endforeach
+                                                        @else
+                                                            {{ $allowedIps }}
+                                                        @endif
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                        <div class="flex items-center group cursor-help" title="{{ $peer['public_key'] ?? $peer['publickey'] ?? '' }}">
+                                                            <span class="truncate max-w-[150px]">{{ $peer['public_key'] ?? $peer['publickey'] ?? '' }}</span>
                                                             <svg class="w-4 h-4 ml-1 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                             </svg>
