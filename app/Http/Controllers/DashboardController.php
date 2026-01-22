@@ -38,8 +38,9 @@ class DashboardController extends Controller
         // This avoids N+1 API calls on the dashboard load.
         $firewalls->each(function ($firewall) {
             $cached = Cache::get('firewall_status_' . $firewall->id);
-            if ($cached && isset($cached['data'])) {
-                $firewall->cached_status = $cached['data'];
+            if ($cached) {
+                // Store the full wrapper
+                $firewall->cached_status = $cached;
             } else {
                 $firewall->cached_status = null;
             }
@@ -83,7 +84,8 @@ class DashboardController extends Controller
         $firewallsWithData = $firewalls->filter(function ($firewall) {
             return $firewall->cached_status !== null &&
                 is_array($firewall->cached_status) &&
-                (isset($firewall->cached_status['cpu_usage']) || isset($firewall->cached_status['mem_usage']));
+                isset($firewall->cached_status['data']) &&
+                (isset($firewall->cached_status['data']['cpu_usage']) || isset($firewall->cached_status['data']['mem_usage']));
         });
 
         if ($firewallsWithData->count() > 0) {
@@ -94,15 +96,15 @@ class DashboardController extends Controller
 
             // Iterate through firewalls to sum up CPU and Memory usage.
             foreach ($firewallsWithData as $firewall) {
-                $status = $firewall->cached_status;
+                $statusData = $firewall->cached_status['data'] ?? [];
 
-                if (isset($status['cpu_usage'])) {
-                    $totalCpu += floatval($status['cpu_usage']);
+                if (isset($statusData['cpu_usage'])) {
+                    $totalCpu += floatval($statusData['cpu_usage']);
                     $cpuCount++;
                 }
 
-                if (isset($status['mem_usage'])) {
-                    $totalMemory += floatval($status['mem_usage']);
+                if (isset($statusData['mem_usage'])) {
+                    $totalMemory += floatval($statusData['mem_usage']);
                     $memCount++;
                 }
             }
@@ -179,26 +181,30 @@ class DashboardController extends Controller
 
             return response()->json([
                 'online' => true,
-                'status' => $dynamicStatus,
+                'status' => $statusEventData, // Return consistent wrapper
                 'source' => 'live_sync'
             ]);
 
         } catch (\Exception $e) {
-            $staticCacheKey = 'firewall_static_info_' . $firewall->id;
-            $staticInfo = Cache::get($staticCacheKey, []);
-
-            // Broadcast offline event
-            event(new \App\Events\DeviceStatusUpdateEvent($firewall, [
-                'online' => false, 
+            $cached = Cache::get('firewall_status_' . $firewall->id);
+            
+            // Prepare offline status while preserving last known data if possible
+            $offlineStatus = [
+                'online' => false,
                 'error' => $e->getMessage(),
                 'updated_at' => now()->toIso8601String(),
-                'data' => null // Consistent with Job
-            ]));
+                'data' => $cached['data'] ?? null, // Use last known data
+                'api_version' => $cached['api_version'] ?? null,
+                'gateways' => $cached['gateways'] ?? []
+            ];
+
+            // Broadcast offline event with preserved data
+            event(new \App\Events\DeviceStatusUpdateEvent($firewall, $offlineStatus));
 
             return response()->json([
                 'online' => false,
                 'error' => $e->getMessage(),
-                'status' => ['data' => $staticInfo] 
+                'status' => $offlineStatus
             ]);
         }
     }

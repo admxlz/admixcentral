@@ -1621,10 +1621,13 @@ class PfSenseApiService
             $dynamicStatus['gateways'] = [];
         }
 
-        if (isset($dynamicStatus['data'])) {
-            $dynamicStatus['data'] = array_merge($dynamicStatus['data'], $staticInfo);
-            if (isset($staticInfo['api_version'])) {
-                $dynamicStatus['api_version'] = $staticInfo['api_version'];
+        if (isset($dynamicStatus['data']) && is_array($dynamicStatus['data'])) {
+            $flatData = array_merge($dynamicStatus['data'], $staticInfo);
+            unset($dynamicStatus['data']);
+            $dynamicStatus = array_merge($dynamicStatus, $flatData);
+            
+            if (isset($flatData['api_version'])) {
+                $dynamicStatus['api_version'] = $flatData['api_version'];
             }
         } else {
             $dynamicStatus = array_merge($dynamicStatus ?? [], $staticInfo);

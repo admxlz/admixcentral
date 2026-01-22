@@ -23,6 +23,9 @@
                     "companyName" => $f->company->name
                 ])->values()->toJson() }})'>
                     <!-- Widgets Grid -->
+                    <!-- Invisible Coordinator: Manages batch status updates -->
+                    <div x-data="dashboardCoordinator({{ $firewallsWithStatus->pluck('id')->toJson() }})" style="display: none;"></div>
+
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         <!-- Firewalls Widget -->
                         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
@@ -277,7 +280,7 @@
                                             </div>
                                         </template>
 
-                                        <template x-if="!loading && status && status.data">
+                                        <template x-if="!loading">
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                 {{-- Left Column: System Details Table --}}
                                                 <div class="mt-5">
@@ -285,27 +288,27 @@
                                                         <tbody>
                                                             <tr class="border-b dark:border-gray-700 align-top">
                                                                 <th class="py-3 font-medium text-gray-900 dark:text-gray-300 w-1/4">Version</th>
-                                                                <td class="py-3" x-text="status.data.version || 'Unknown'"></td>
+                                                                <td class="py-3" x-text="status?.data?.product_version || status?.data?.version || 'Unknown'"></td>
                                                             </tr>
                                                             <tr class="border-b dark:border-gray-700 align-top">
                                                                 <th class="py-3 font-medium text-gray-900 dark:text-gray-300 w-1/4">REST API</th>
-                                                                <td class="py-3" x-text="status.api_version || 'Unknown'"></td>
+                                                                <td class="py-3" x-text="status?.api_version || status?.data?.api_version || 'Unknown'"></td>
                                                             </tr>
                                                             <tr class="border-b dark:border-gray-700 align-top">
                                                                 <th class="py-3 font-medium text-gray-900 dark:text-gray-300 w-1/4">Platform</th>
-                                                                <td class="py-3" x-text="status.data.platform || 'Unknown'"></td>
+                                                                <td class="py-3" x-text="status?.data?.platform || 'Unknown'"></td>
                                                             </tr>
                                                             <tr class="border-b dark:border-gray-700 align-top">
                                                                 <th class="py-3 font-medium text-gray-900 dark:text-gray-300 w-1/4">BIOS</th>
                                                                 <td class="py-3">
-                                                                    <template x-if="!status.data.bios_vendor && !status.data.bios_version && !status.data.bios_date">
+                                                                    <template x-if="!status?.data?.bios_vendor && !status?.data?.bios_version && !status?.data?.bios_date">
                                                                         <span>Unknown</span>
                                                                     </template>
-                                                                    <template x-if="status.data.bios_vendor || status.data.bios_version || status.data.bios_date">
+                                                                    <template x-if="status?.data?.bios_vendor || status?.data?.bios_version || status?.data?.bios_date">
                                                                         <div class="flex flex-col text-sm">
-                                                                            <span x-show="status.data.bios_vendor" x-text="status.data.bios_vendor"></span>
-                                                                            <span x-show="status.data.bios_version" x-text="status.data.bios_version"></span>
-                                                                            <span x-show="status.data.bios_date" x-text="status.data.bios_date"></span>
+                                                                            <span x-show="status?.data?.bios_vendor" x-text="status?.data?.bios_vendor"></span>
+                                                                            <span x-show="status?.data?.bios_version" x-text="status?.data?.bios_version"></span>
+                                                                            <span x-show="status?.data?.bios_date" x-text="status?.data?.bios_date"></span>
                                                                         </div>
                                                                     </template>
                                                                 </td>
@@ -314,17 +317,17 @@
                                                                 <th class="py-3 font-medium text-gray-900 dark:text-gray-300 w-1/4">CPU System</th>
                                                                 <td class="py-3">
                                                                     <div class="flex flex-col text-sm">
-                                                                        <span x-text="status.data.cpu_model || 'Unknown'"></span>
-                                                                        <span class="text-gray-500" x-show="status.data.cpu_count" x-text="(status.data.cpu_count || '1') + ' CPUs'"></span>
-                                                                        <span class="text-gray-400 mt-1" x-show="status.data.cpu_load_avg">
-                                                                            Load: <span x-text="(status.data.cpu_load_avg || []).join(', ')"></span>
+                                                                        <span x-text="status?.data?.cpu_model || status?.data?.cpu_type || 'Unknown'"></span>
+                                                                        <span class="text-gray-500" x-show="status?.data?.cpu_count" x-text="(status?.data?.cpu_count || '1') + ' CPUs'"></span>
+                                                                        <span class="text-gray-400 mt-1" x-show="status?.data?.cpu_load_avg">
+                                                                            Load: <span x-text="(status?.data?.cpu_load_avg || []).join(', ')"></span>
                                                                         </span>
                                                                     </div>
                                                                 </td>
                                                             </tr>
                                                             <tr class="align-top">
                                                                 <th class="py-3 font-medium text-gray-900 dark:text-gray-300 w-1/4">Uptime</th>
-                                                                <td class="py-3" x-text="online ? status.data.uptime : 'Offline'"></td>
+                                                                <td class="py-3" x-text="online ? (status?.data?.uptime || 'Updating...') : 'Offline'"></td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
@@ -338,11 +341,11 @@
                                                 <div>
                                                     <div class="space-y-4">
                                                         {{-- Gateways --}}
-                                                        <template x-if="status && status.gateways && status.gateways.length > 0">
+                                                        <template x-if="status?.data?.gateways && status.data.gateways.length > 0">
                                                             <div class="mb-3">
                                                                 <div class="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Gateways</div>
                                                                 <div class="grid gap-1">
-                                                                    <template x-for="gateway in status.gateways" :key="gateway.name">
+                                                                    <template x-for="gateway in status.data.gateways" :key="gateway.name">
                                                                         <div class="flex items-center justify-between gap-2 text-xs px-2.5 py-1.5 rounded-r bg-gray-50 dark:bg-slate-800/50 mb-1" 
                                                                             :class="{
                                                                                 'border-l-2 border-green-500': gateway.status === 'online' || gateway.status === 'none',
@@ -367,7 +370,7 @@
                                                             </div>
                                                         </template>
 
-                                                        <template x-if="!status || !status.gateways || status.gateways.length === 0">
+                                                        <template x-if="!status?.data?.gateways || status.data.gateways.length === 0">
                                                             <div class="mb-3">
                                                                 <div class="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Gateways</div>
                                                                 <div class="grid gap-1">
@@ -484,6 +487,90 @@
     </div>
 <script>
     document.addEventListener('alpine:init', () => {
+        // Centralized coordinator for batch firewall updates (eliminates waterfall)
+        Alpine.data('dashboardCoordinator', (firewallIds) => ({
+            firewallIds: firewallIds,
+            loading: true,
+            
+            init() {
+                // Smart WebSocket connection check (same pattern as /firewalls page)
+                const checkAndTrigger = () => {
+                    if (window.Echo && window.Echo.connector && window.Echo.connector.pusher) {
+                        const state = window.Echo.connector.pusher.connection.state;
+                        
+                        // If connected, trigger batch update
+                        if (state === 'connected') {
+                            this.triggerBatchUpdate();
+                            return;
+                        }
+                        
+                        // If connecting, wait for connection
+                        if (state === 'connecting' || state === 'initialized') {
+                            const onConnect = () => {
+                                this.triggerBatchUpdate();
+                                window.Echo.connector.pusher.connection.unbind('connected', onConnect);
+                            };
+                            window.Echo.connector.pusher.connection.bind('connected', onConnect);
+                            // Fallback timeout
+                            setTimeout(() => { 
+                                if (this.loading) this.triggerBatchUpdate();
+                            }, 3000);
+                            return;
+                        }
+                    }
+                    
+                    // If disconnected or no Echo, use sync fallback
+                    this.triggerBatchUpdate();
+                };
+                
+                checkAndTrigger();
+                
+                // Real-time polling interval (configurable, default 30s)
+                const intervalMs = {{ ($settings['status_check_interval'] ?? 30) * 1000 }};
+                setInterval(() => { this.triggerBatchUpdate(); }, intervalMs);
+            },
+            
+            async triggerBatchUpdate() {
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                let url = '{{ route("firewalls.refresh-all") }}';
+                let isWsConnected = false;
+                
+                if (window.Echo && window.Echo.connector && window.Echo.connector.pusher && window.Echo.connector.pusher.connection) {
+                    isWsConnected = (window.Echo.connector.pusher.connection.state === 'connected');
+                }
+                
+                if (!isWsConnected) {
+                    url += '?sync=true';  // Force sync response if WS down (failover)
+                }
+                
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': token
+                        },
+                        body: JSON.stringify({ ids: this.firewallIds })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    // If we got results (Sync fallback), dispatch them immediately
+                    if (data.results) {
+                        Object.entries(data.results).forEach(([id, status]) => {
+                            window.dispatchEvent(new CustomEvent('firewall-updated-' + id, {
+                                detail: { status: status }
+                            }));
+                        });
+                    }
+                    
+                    this.loading = false;
+                } catch (err) {
+                    console.error('Dashboard batch update failed:', err);
+                }
+            }
+        }));
+        
         Alpine.data('dashboard', (initialFirewalls) => ({
             // Spread in the filterable mixin
             ...window.filterableMixin(initialFirewalls, 'device-updated'),
@@ -503,8 +590,8 @@
             }
         }));
         Alpine.data('firewallCard', (initialStatus, staticInfo, checkUrl, firewallId, companyName) => ({
-            loading: true,
-            online: false,
+            loading: !initialStatus,
+            online: initialStatus ? initialStatus.online : false,
             reportedOffline: false,
             status: initialStatus,
             error: null,
@@ -632,9 +719,57 @@
             },
 
             init() {
-                this.fetchStatus();
+                // Standardize initial status
+                if (this.status) {
+                    this.updateFromStatus(this.status);
+                }
+                
+                // Listen for updates from coordinator (Sync fallback)
+                window.addEventListener('firewall-updated-' + this.firewallId, (e) => {
+                    this.updateFromStatus(e.detail.status);
+                });
+
+                // WebSocket handle real-time updates
                 this.setupWebSocket();
-                setInterval(() => { this.fetchStatus(); }, 5000);
+            },
+            
+            updateFromStatus(status) {
+                if (!status) return;
+                
+                // Standardize Structure: If there's a nested data key (v2 API) and we're not flattened yet, merge it up
+                if (status.data && status.data.data && typeof status.data.data === 'object') {
+                    Object.assign(status.data, status.data.data);
+                }
+                
+                this.status = status;
+                this.online = status.online;
+                this.loading = false;
+                this.error = status.error || null;
+
+                // Update local state for health score and reports
+                if (this.online && this.reportedOffline) {
+                    this.reportedOffline = false;
+                    this.$dispatch('device-online', { id: this.firewallId });
+                }
+                if (!this.online && !this.reportedOffline) {
+                    this.reportedOffline = true;
+                    this.$dispatch('device-offline', { id: this.firewallId });
+                }
+
+                // Update bandwidth if interface data is present
+                if (this.online && this.status.data && this.status.data.interfaces) {
+                    this.updateBandwidthFromInterfaces(this.status.data.interfaces);
+                }
+
+                // Update Load History
+                if (this.status && this.status.data && this.status.data.cpu_load_avg && this.status.data.cpu_load_avg.length > 0) {
+                     const oneMinLoad = parseFloat(this.status.data.cpu_load_avg[0]) || 0;
+                     this.loadHistory.shift();
+                     this.loadHistory.push(oneMinLoad);
+                }
+
+                // Notify global listeners (like Health Score widget)
+                this.$dispatch('device-updated', { id: this.firewallId, online: this.online });
             },
 
             async fetchStatus() {
@@ -642,30 +777,8 @@
                     let response = await fetch(this.checkUrl + '?t=' + new Date().getTime());
                     let data = await response.json();
                     
-                    this.online = data.online;
-                    this.status = data.status;
-                    this.loading = false;
-
-                    // Update Load History
-                    if (this.status && this.status.data && this.status.data.cpu_load_avg && this.status.data.cpu_load_avg.length > 0) {
-                         const oneMinLoad = parseFloat(this.status.data.cpu_load_avg[0]) || 0;
-                         this.loadHistory.shift();
-                         this.loadHistory.push(oneMinLoad);
-                    }
-
-                    if (this.online && this.reportedOffline) {
-                        this.reportedOffline = false;
-                        this.$dispatch('device-online', { id: this.firewallId });
-                    }
-                    if (!this.online && !this.reportedOffline) {
-                        this.reportedOffline = true;
-                        this.$dispatch('device-offline', { id: this.firewallId });
-                    }
-                    if (data.online && data.status.interfaces) {
-                        this.updateBandwidthFromInterfaces(data.status.interfaces);
-                    }
-                    // Notify listeners that this device has new data (for widgets)
-                    this.$dispatch('device-updated', { id: this.firewallId, online: this.online });
+                    // Use standardized update logic
+                    this.updateFromStatus(data.status);
                 } catch (e) {
                     console.error(e);
                     this.loading = false;
@@ -680,24 +793,18 @@
             },
 
             setupWebSocket() {
-                // Echo subscription disabled - using polling instead
-                /*
                 if (window.Echo) {
-                    console.log('Listening for firewall.' + this.firewallId + ' updates...');
                     window.Echo.private('firewall.' + this.firewallId)
                         .listen('.firewall.status.update', (e) => {
-                            console.log('Received update for firewall ' + this.firewallId + ':', e);
-                            this.loading = false;
-                            this.online = true;
-                            this.status = e.status;
-                            if (e.status.interfaces) {
-                                this.updateBandwidthFromInterfaces(e.status.interfaces);
+                            console.log('Real-time update received via WebSocket for device ' + this.firewallId, e);
+                            if (e && e.status) {
+                                this.updateFromStatus(e.status);
                             }
                         });
                 } else {
-                    setTimeout(() => this.setupWebSocket(), 500);
+                    // Safety retry if Echo isn't initialized yet
+                    setTimeout(() => this.setupWebSocket(), 1000);
                 }
-                */
             }
         }));
 
@@ -735,10 +842,14 @@
                                 console.log('Health widget received update for firewall ' + firewallId, e);
                                 if (e.status && e.status.data) {
                                     this.loading = false;
+                                    
+                                    // Handle both flat and nested structure
+                                    const metrics = (e.status.data.data && typeof e.status.data.data === 'object') ? e.status.data.data : e.status.data;
+                                    
                                     this.updateFirewallStatus({
                                         id: firewallId,
-                                        cpu: e.status.data.cpu_usage || 0,
-                                        memory: e.status.data.mem_usage || 0
+                                        cpu: metrics.cpu_usage || 0,
+                                        memory: metrics.mem_usage || 0
                                     });
                                 }
                             });

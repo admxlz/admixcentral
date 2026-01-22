@@ -55,15 +55,19 @@ class CheckFirewallStatusJob implements ShouldQueue
             event(new \App\Events\DeviceStatusUpdateEvent($firewall, $status));
 
         } catch (\Exception $e) {
-            // Offline
+            $cached = Cache::get('firewall_status_' . $firewall->id);
+
+            // Offline status while preserving last known data if possible
             $offlineStatus = [
                 'online' => false, 
-                'data' => null, 
                 'error' => $e->getMessage(),
                 'updated_at' => now()->toIso8601String(),
+                'data' => $cached['data'] ?? null,
+                'api_version' => $cached['api_version'] ?? null,
+                'gateways' => $cached['gateways'] ?? []
             ];
             
-            // Cache Offline Status
+            // Cache Offline Status (keeps old data but marks as offline)
             Cache::put('firewall_status_' . $firewall->id, $offlineStatus, now()->addDay());
 
             // Broadcast

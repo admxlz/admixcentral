@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-01-22
+
+### Added
+- **Centralized Dashboard Coordinator**: Implemented `dashboardCoordinator` to manage simultaneous firewall updates, eliminating the "waterfall" effect.
+- **Failover Batch Sync**: Added automatic single-request batch fetching for when WebSockets are disconnected.
+- **Data Resilience**: Cached metrics are now preserved for offline devices, ensuring dashboard cards stay populated with last-known data behind the blur overlay.
+
+### Changed
+- **Performance Optimization**: Removed per-card `fetchStatus()` on initialization, reducing page load overhead significantly.
+- **API Schema Flattening**: Flattened the `PfSenseApiService` response structure to simplify metric binding on the frontend.
+- **Unified Update Pipeline**: Standardized the data format shared between WebSockets, Ajax, and background jobs.
+
+### Fixed
+- **Metric Mapping Issues**: Fixed "Unknown" values for CPU, Memory, and Version by unifying nested and flat data paths in Alpine components.
+- **Dashboard Data Freezing**: Resolved issues where real-time updates were ignored due to property structure mismatches.
+- **Offline UI Breakage**: Fixed cards disappearing or being cleared when a firewall becomes unreachable.
+
 ## [0.2.0] - 2026-01-22
 
 ### Added
@@ -47,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom logo and favicon support
 - Dark/light theme support
 
-[Unreleased]: https://github.com/geekasso/admixcentral/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/geekasso/admixcentral/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/geekasso/admixcentral/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/geekasso/admixcentral/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/geekasso/admixcentral/releases/tag/v0.1.0
