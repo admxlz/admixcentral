@@ -288,7 +288,7 @@
                                                         <tbody>
                                                             <tr class="border-b dark:border-gray-700 align-top">
                                                                 <th class="py-3 font-medium text-gray-900 dark:text-gray-300 w-1/4">Version</th>
-                                                                <td class="py-3" x-text="status?.data?.product_version || status?.data?.version || 'Unknown'"></td>
+                                                                <td class="py-3" x-text="status?.data?.product_version || status?.data?.version || status?.data?.firmware_version || 'Unknown'"></td>
                                                             </tr>
                                                             <tr class="border-b dark:border-gray-700 align-top">
                                                                 <th class="py-3 font-medium text-gray-900 dark:text-gray-300 w-1/4">REST API</th>
@@ -317,7 +317,7 @@
                                                                 <th class="py-3 font-medium text-gray-900 dark:text-gray-300 w-1/4">CPU System</th>
                                                                 <td class="py-3">
                                                                     <div class="flex flex-col text-sm">
-                                                                        <span x-text="status?.data?.cpu_model || status?.data?.cpu_type || 'Unknown'"></span>
+                                                                        <span x-text="status?.data?.cpu_model || status?.data?.cpu_type || status?.data?.cpu || 'Unknown'"></span>
                                                                         <span class="text-gray-500" x-show="status?.data?.cpu_count" x-text="(status?.data?.cpu_count || '1') + ' CPUs'"></span>
                                                                         <span class="text-gray-400 mt-1" x-show="status?.data?.cpu_load_avg">
                                                                             Load: <span x-text="(status?.data?.cpu_load_avg || []).join(', ')"></span>
@@ -327,7 +327,7 @@
                                                             </tr>
                                                             <tr class="align-top">
                                                                 <th class="py-3 font-medium text-gray-900 dark:text-gray-300 w-1/4">Uptime</th>
-                                                                <td class="py-3" x-text="online ? (status?.data?.uptime || 'Updating...') : 'Offline'"></td>
+                                                                <td class="py-3" x-text="online ? (status?.data?.uptime || status?.data?.uptime_text || status?.data?.uptime_string || 'Updating...') : 'Offline'"></td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
@@ -414,7 +414,7 @@
                                                         <div>
                                                             <div class="flex justify-between mb-1">
                                                                 <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Swap Usage</span>
-                                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300" x-text="(status?.data?.swap_usage || '0') + '%'"></span>
+                                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300" x-text="(status?.data?.swap_usage != null) ? (status.data.swap_usage + '%') : 'N/A'"></span>
                                                             </div>
                                                             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                                                                 <div class="bg-yellow-500 h-2.5 rounded-full transition-all duration-500" :style="'width: ' + (status?.data?.swap_usage || 0) + '%'"></div>
@@ -437,7 +437,7 @@
                                                         <div class="flex justify-between mb-1 text-xs">
                                                             <span class="font-medium text-gray-700 dark:text-gray-300">Temperature</span>
                                                             <span class="text-gray-700 dark:text-gray-300"
-                                                                x-text="(status?.data?.temp_c && status.data.temp_c > 1) ? status.data.temp_c + '°C' : 'N/A'"></span>
+                                                                x-text="(status?.data?.temp_c && status.data.temp_c > 1) ? status.data.temp_c + '°C' : (status?.data?.temperature || 'N/A')"></span>
                                                         </div>
                                                         <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
                                                             <div class="bg-orange-500 h-2 rounded-full transition-all duration-500"

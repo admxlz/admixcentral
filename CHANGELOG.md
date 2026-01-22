@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-01-22
+
+### Fixed
+- **Swap Usage Detection**: Enhanced `PfSenseApiService` to support deep-nested metrics and multiple naming variations for Swap, Memory, and CPU.
+- **Metric Formatting**: Added automatic parsing for percentage strings (e.g., "5.2%") into numeric values for UI bars.
+- **Uptime/System Fallbacks**: Added multiple fallback keys for Uptime and Temperature to support different pfSense API implementations.
+
 ## [0.3.0] - 2026-01-22
 
 ### Added
@@ -64,7 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom logo and favicon support
 - Dark/light theme support
 
-[Unreleased]: https://github.com/geekasso/admixcentral/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/geekasso/admixcentral/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/geekasso/admixcentral/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/geekasso/admixcentral/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/geekasso/admixcentral/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/geekasso/admixcentral/releases/tag/v0.1.0

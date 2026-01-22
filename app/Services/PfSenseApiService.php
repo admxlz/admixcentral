@@ -1625,12 +1625,62 @@ class PfSenseApiService
             $flatData = array_merge($dynamicStatus['data'], $staticInfo);
             unset($dynamicStatus['data']);
             $dynamicStatus = array_merge($dynamicStatus, $flatData);
-            
-            if (isset($flatData['api_version'])) {
-                $dynamicStatus['api_version'] = $flatData['api_version'];
-            }
         } else {
             $dynamicStatus = array_merge($dynamicStatus ?? [], $staticInfo);
+        }
+
+        // Deep flatten: Look for nested 'stats' or 'system' objects which are common in some API versions
+        foreach (['stats', 'system', 'status', 'usage', 'metrics'] as $key) {
+            if (isset($dynamicStatus[$key]) && is_array($dynamicStatus[$key]) && !empty($dynamicStatus[$key])) {
+                // Only merge keys that don't exist yet to avoid overwriting top-level successes
+                foreach ($dynamicStatus[$key] as $k => $v) {
+                    if (!isset($dynamicStatus[$k])) {
+                        $dynamicStatus[$k] = $v;
+                    }
+                }
+            }
+        }
+
+        // Standardize common metrics if they exist under different names or nested forms
+        $mappings = [
+            'cpu_usage'  => ['cpu', 'cpu_load', 'load', 'cpu_used_percent'],
+            'mem_usage'  => ['memory', 'mem_used_percent', 'memory_usage', 'mem_usage_percent'],
+            'swap_usage' => ['swap', 'swap_used_percent', 'swap_percentage', 'memory_swap_percentage', 'swap_percent', 'swap_p', 'swapused_percent'],
+            'disk_usage' => ['disk', 'disk_used_percent', 'disk_usage_percent', 'disk_used']
+        ];
+        
+        foreach ($mappings as $target => $sources) {
+            if (!isset($dynamicStatus[$target]) || $dynamicStatus[$target] === null || $dynamicStatus[$target] === 0 || $dynamicStatus[$target] === '0') {
+                foreach ($sources as $source) {
+                    if (isset($dynamicStatus[$source]) && $dynamicStatus[$source] !== null && $dynamicStatus[$source] !== '') {
+                        $dynamicStatus[$target] = $dynamicStatus[$source];
+                        if ($dynamicStatus[$target] != 0) break; // If we found a non-zero value, move to next target
+                    }
+                }
+            }
+        }
+
+        // Handle string-based percentages (e.g., "5.2%")
+        foreach (['cpu_usage', 'mem_usage', 'swap_usage', 'disk_usage'] as $key) {
+            if (isset($dynamicStatus[$key]) && is_string($dynamicStatus[$key])) {
+                $dynamicStatus[$key] = floatval(preg_replace('/[^0-9.]/', '', $dynamicStatus[$key]));
+            }
+        }
+
+        // Handle swap objects if present (common in some API forks)
+        if (!isset($dynamicStatus['swap_usage']) || $dynamicStatus['swap_usage'] == 0) {
+            if (isset($dynamicStatus['swap']) && is_array($dynamicStatus['swap'])) {
+                $swap = $dynamicStatus['swap'];
+                if (isset($swap['used']) && isset($swap['total']) && $swap['total'] > 0) {
+                    $dynamicStatus['swap_usage'] = round(($swap['used'] / $swap['total']) * 100, 1);
+                }
+            }
+        }
+
+        if (isset($dynamicStatus['api_version'])) {
+             // Already set from staticInfo or flattened data
+        } elseif (isset($staticInfo['api_version'])) {
+            $dynamicStatus['api_version'] = $staticInfo['api_version'];
         }
 
         return $dynamicStatus;

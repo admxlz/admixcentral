@@ -129,11 +129,11 @@
                                         <tr class="border-b dark:border-gray-700">
                                             <th class="py-2 font-medium text-gray-900 dark:text-gray-300 text-sm">Uptime
                                             </th>
-                                            <td class="py-2 text-sm" x-text="systemStatus?.data?.uptime"></td>
+                                            <td class="py-2 text-sm" x-text="systemStatus?.data?.uptime || systemStatus?.data?.uptime_text || systemStatus?.data?.uptime_string || 'Updating...'"></td>
                                         </tr>
                                         <tr class="border-b dark:border-gray-700">
                                             <th class="py-2 font-medium text-gray-900 dark:text-gray-300 text-sm">Packages</th>
-                                            <td class="py-2 text-sm" x-text="(systemStatus?.data?.installed_packages_count !== undefined) ? systemStatus.data.installed_packages_count : 'Unknown'"></td>
+                                            <td class="py-2 text-sm" x-text="(systemStatus?.data?.installed_packages_count !== undefined) ? systemStatus.data.installed_packages_count : 'N/A'"></td>
                                         </tr>
                                         <tr class="border-b dark:border-gray-700">
                                             <th class="py-2 font-medium text-gray-900 dark:text-gray-300 text-sm">DNS
@@ -246,7 +246,7 @@
                                     <div class="flex justify-between mb-1 text-sm">
                                         <span class="font-medium text-gray-700 dark:text-gray-300">Swap Usage</span>
                                         <span class="text-gray-700 dark:text-gray-300"
-                                            x-text="(systemStatus?.data?.swap_usage || 0) + '%'"></span>
+                                            x-text="(systemStatus?.data?.swap_usage != null) ? (systemStatus.data.swap_usage + '%') : 'N/A'"></span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
                                         <div class="bg-red-500 h-2 rounded-full transition-all duration-500"
