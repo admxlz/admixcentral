@@ -66,34 +66,28 @@ This release marks a major architectural shift from the initial prototype. The f
 
 Use these instructions for setting up a local development environment.
 
-### Prerequisites
-
-- PHP >= 8.2
-- Composer
-- Node.js & NPM
-- MySQL 8.0+
-
 ### Steps
 
-1. **Clone the Repository**
+1. **Install System Dependencies**
+   Ensure your system has the following installed:
+   - PHP >= 8.2
+   - Composer
+   - Node.js & NPM
+   - MySQL 8.0+
+
+2. **Clone the Repository**
    ```bash
    git clone https://github.com/admxlz/admixcentral.git
    cd admixcentral
    ```
 
-2. **Install Dependencies**
-   ```bash
-   composer install
-   npm install
-   ```
-
 3. **Configure Environment**
+   Copy the example environment file and set up your database connection.
    ```bash
    cp .env.example .env
-   php artisan key:generate
    ```
-   *Note: Ensure your `.env` is configured for MySQL credentials:*
-   ```bash
+   Open `.env` and configure your MySQL credentials:
+   ```env
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
    DB_PORT=3306
@@ -102,28 +96,44 @@ Use these instructions for setting up a local development environment.
    DB_PASSWORD=
    ```
 
-4. **Run Migrations**
-   This sets up the database schema.
+4. **Create Database**
+   Create the database in your MySQL server (or create a SQLite file if using SQLite).
+   ```sql
+   CREATE DATABASE admixcentral;
+   ```
+
+5. **Clear Caches**
+   Clear bootstrap caches to avoid package discovery failures.
+   ```bash
+   rm -f bootstrap/cache/*.php
+   ```
+
+6. **Install Backend Dependencies**
+   ```bash
+   composer install
+   ```
+
+7. **Generate Application Key**
+   ```bash
+   php artisan key:generate
+   ```
+
+8. **Run Migrations**
    ```bash
    php artisan migrate
    ```
 
-5. **Build Frontend Assets**
-   This step is critical for CSS and JS to load correctly.
+9. **Build Frontend Assets**
    ```bash
-   npm run build
+   npm install && npm run build
    ```
 
-6. **Serve the Application (Development Mode)**
-   ```bash
-   php artisan serve --host=0.0.0.0 --port=8000
-   ```
-   or preferably using composer to start backend and frontend (Vite) concurrently:
-   ```bash
-   composer run dev
-   ```
-   The application will be available at `http://127.0.0.1:8000`.
-   **Note:** On first access, you will be redirected to the Setup Wizard to create your admin account.
+10. **Web Server Configuration**
+    You can serve the application locally:
+    ```bash
+    php artisan serve
+    ```
+    For production, see the [Production Deployment](#production-deployment-nginx--php-fpm--ssl) section below.
 
 ---
 
