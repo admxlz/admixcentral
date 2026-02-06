@@ -81,59 +81,29 @@ Use these instructions for setting up a local development environment.
    cd admixcentral
    ```
 
-3. **Configure Environment**
-   Copy the example environment file and set up your database connection.
-   ```bash
-   cp .env.example .env
-   ```
-   Open `.env` and configure your MySQL credentials:
-   ```env
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=admixcentral
-   DB_USERNAME=your_username
-   DB_PASSWORD=your_password
-   ```
-
-4. **Create Database**
-   Create the database in your MySQL server (or create a SQLite file if using SQLite).
-   ```sql
-   CREATE DATABASE admixcentral;
-   ```
-
-5. **Clear Caches**
-   Clear bootstrap caches to avoid package discovery failures.
-   ```bash
-   rm -f bootstrap/cache/*.php
-   ```
-
-6. **Install Backend Dependencies**
+3. **Install Dependencies**
    ```bash
    composer install
    ```
 
-7. **Generate Application Key**
+4. **Run Installation Wizard**
+   AdmixCentral includes a guided installer to configure your environment, database, and encryption keys automatically.
    ```bash
-   php artisan key:generate
+   php artisan install
    ```
+   *Follow the on-screen prompts to enter your database credentials.*
 
-8. **Run Migrations**
-   ```bash
-   php artisan migrate
-   ```
-
-9. **Build Frontend Assets**
+5. **Build Frontend Assets**
    ```bash
    npm install && npm run build
    ```
 
-10. **Web Server Configuration**
-    You can serve the application locally:
-    ```bash
-    php artisan serve
-    ```
-    For production, see the [Production Deployment](#production-deployment-nginx--php-fpm--ssl) section below.
+6. **Web Server Configuration**
+   You can serve the application locally:
+   ```bash
+   php artisan serve
+   ```
+   For production, see the [Production Deployment](#production-deployment-nginx--php-fpm--ssl) section below.
 
 ---
 
