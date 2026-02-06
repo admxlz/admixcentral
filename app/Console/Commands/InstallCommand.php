@@ -80,10 +80,25 @@ class InstallCommand extends Command
             $this->comment('Storage link already exists.');
         }
 
-        // 7. Clear Caches
+        // 7. Clear Caches & Finalize
         $this->newLine();
-        $this->info('Step 6: Clearing Caches');
-        $this->call('optimize:clear');
+        $this->info('Step 6: Finalizing Installation');
+        $this->comment('Running package discovery and clearing caches...');
+
+        // We use system call for 'composer run' to ensure it runs in the right environment, 
+        // or we can call the artisan commands directly if we want to avoid composer dependency in production (though composer is usually there).
+        // Since we defined 'admix:finalize' in composer.json, let's try to run that, or fallback to manual artisan calls.
+
+        $this->call('config:clear');
+        $this->call('view:clear');
+        $this->call('route:clear');
+
+        // Package discovery is tricky from within artisan if it was skipped. 
+        // But since we are running 'php artisan install', we effectively booted the app.
+        // However, we skipped package auto-discovery in composer install.
+        // So we should run it now.
+        $this->info('Runing package discovery...');
+        passthru('php artisan package:discover --ansi');
 
         $this->newLine();
         $this->info('----------------------------------------------------');

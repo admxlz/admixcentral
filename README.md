@@ -81,6 +81,21 @@ Use these instructions for setting up a local development environment.
    cd admixcentral
    ```
 
+### Steps
+
+1. **Install System Dependencies**
+   Ensure your system has the following installed:
+   - PHP >= 8.2
+   - Composer
+   - Node.js & NPM
+   - MySQL 8.0+
+
+2. **Clone the Repository**
+   ```bash
+   git clone https://github.com/admxlz/admixcentral.git
+   cd admixcentral
+   ```
+
 3. **Install Dependencies**
    ```bash
    composer install
@@ -104,6 +119,12 @@ Use these instructions for setting up a local development environment.
    php artisan serve
    ```
    For production, see the [Production Deployment](#production-deployment-nginx--php-fpm--ssl) section below.
+
+### Troubleshooting
+
+- **"Duplicate column name" error**: This is fixed in the latest version. The installer handles existing columns gracefully.
+- **"Connection refused"**: Ensure your MySQL server is running and accessible. The installer will let you retry credentials.
+- **Setup Wizard skipped**: If `.env` already exists, the installer might skip some steps. You can run `php artisan install` again or edit `.env` manually if needed.
 
 ---
 
