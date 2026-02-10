@@ -3,10 +3,9 @@ set -Eeuo pipefail
 
 LOG_FILE="/root/admixcentral_install_part1.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
-trap 'echo; echo "[X] FAILED at line $LINENO. See $LOG_FILE"; exit 1' ERR
+trap 'echo; echo "[X] FAILED at line $LINENO. See '"$LOG_FILE"'"; exit 1' ERR
 
 log(){ echo -e "\n[+] $*\n"; }
-warn(){ echo -e "\n[!] $*\n"; }
 die(){ echo -e "\n[X] $*\n"; exit 1; }
 
 [[ "${EUID}" -eq 0 ]] || die "Run as root: sudo bash $0"
@@ -16,7 +15,7 @@ PHP_VER="${PHP_VER:-8.3}"
 NODE_MAJOR="${NODE_MAJOR:-20}"
 
 DB_NAME="${DB_NAME:-admixcentral}"
-DB_USER_HINT="${DB_USER_HINT:-admixcentral}"  # only printed as an example
+DB_USER_HINT="${DB_USER_HINT:-admixcentral}"   # only printed as example
 # -----------------------------------------------------------
 
 wait_for_apt_locks() {
@@ -68,7 +67,6 @@ wait_for_mysql() {
   until mysqladmin ping --silent >/dev/null 2>&1; do
     i=$((i+1))
     if [[ $i -gt 120 ]]; then
-      warn "MySQL did not become ready. Status:"
       systemctl status mysql --no-pager || true
       journalctl -u mysql -n 200 --no-pager || true
       die "MySQL startup failed"
@@ -98,8 +96,7 @@ main() {
   apt_install \
     php${PHP_VER}-cli php${PHP_VER}-fpm \
     php${PHP_VER}-mysql php${PHP_VER}-mbstring php${PHP_VER}-xml php${PHP_VER}-curl \
-    php${PHP_VER}-zip php${PHP_VER}-gd php${PHP_VER}-bcmath php${PHP_VER}-intl \
-    php${PHP_VER}-sqlite3
+    php${PHP_VER}-zip php${PHP_VER}-gd php${PHP_VER}-bcmath php${PHP_VER}-intl
 
   install_composer
   install_node

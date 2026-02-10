@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 LOG_FILE="/root/admixcentral_install_part2.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
-trap 'echo; echo "[X] FAILED at line $LINENO. See $LOG_FILE"; exit 1' ERR
+trap 'echo; echo "[X] FAILED at line $LINENO. See '"$LOG_FILE"'"; exit 1' ERR
 
 log(){ echo -e "\n[+] $*\n"; }
 die(){ echo -e "\n[X] $*\n"; exit 1; }
@@ -99,42 +99,26 @@ main() {
     chown "${WEB_USER}:${WEB_GROUP}" .env
   fi
 
-  log "Ensuring sqlite placeholder exists (prevents sqlite boot crash)"
-  mkdir -p database
-  touch database/database.sqlite
-  chown -R "${WEB_USER}:${WEB_GROUP}" database
-
-  log "Writing DB settings into .env"
-  set_env_kv .env "DB_CONNECTION" "mysql"
+  log "Writing DB settings into .env (repo defaults to MySQL; we set real creds)"
   set_env_kv .env "DB_HOST" "$DB_HOST"
   set_env_kv .env "DB_PORT" "$DB_PORT"
   set_env_kv .env "DB_DATABASE" "$DB_NAME"
   set_env_kv .env "DB_USERNAME" "$DB_USER"
   set_env_kv .env "DB_PASSWORD" "$DB_PASS"
 
-  log "Clearing bootstrap cache files (if any)"
-  rm -f bootstrap/cache/config.php \
-        bootstrap/cache/services.php \
-        bootstrap/cache/packages.php \
-        bootstrap/cache/events.php || true
-  chown -R "${WEB_USER}:${WEB_GROUP}" bootstrap/cache || true
+  log "Ensuring correct ownership"
+  chown -R "${WEB_USER}:${WEB_GROUP}" "$INSTALL_DIR"
 
-  log "Composer install WITHOUT scripts (prevents early artisan boot hooks)"
+  log "Composer install (normal; repo is now install-safe)"
   sudo -u "${WEB_USER}" -H bash -lc '
     cd "'"$INSTALL_DIR"'"
-    COMPOSER_NO_INTERACTION=1 composer install --no-dev --prefer-dist --no-progress --no-scripts
+    COMPOSER_NO_INTERACTION=1 composer install --no-dev --prefer-dist --no-progress
   '
 
   log "Running AdmixCentral install wizard (interactive): php artisan install"
   sudo -u "${WEB_USER}" -H bash -lc '
     cd "'"$INSTALL_DIR"'"
     php artisan install
-  '
-
-  log "Running composer post-autoload-dump AFTER wizard (package discovery)"
-  sudo -u "${WEB_USER}" -H bash -lc '
-    cd "'"$INSTALL_DIR"'"
-    COMPOSER_NO_INTERACTION=1 composer run-script post-autoload-dump
   '
 
   log "Fixing npm cache ownership + ensuring clean frontend install"
@@ -150,7 +134,13 @@ main() {
     npm config set cache "$HOME/.npm" --global >/dev/null 2>&1 || true
     npm cache clean --force || true
     npm cache verify || true
-    npm install
+
+    if [[ -f package-lock.json ]]; then
+      npm ci
+    else
+      npm install
+    fi
+
     npm run build
   '
 
