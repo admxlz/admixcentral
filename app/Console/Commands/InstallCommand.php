@@ -142,6 +142,7 @@ class InstallCommand extends Command
                     'DB_DATABASE' => $database,
                     'DB_USERNAME' => $username,
                     'DB_PASSWORD' => $password,
+                    'APP_INSTALLED' => 'true',
                 ]);
 
             } catch (\Exception $e) {

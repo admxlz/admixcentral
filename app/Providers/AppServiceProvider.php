@@ -19,13 +19,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        try {
-            // Share system settings globally
-            $settings = \App\Models\SystemSetting::pluck('value', 'key')->toArray();
-            \Illuminate\Support\Facades\View::share('settings', $settings);
-        } catch (\Exception $e) {
-            // Failsafe during migrations or if table doesn't exist
+        // Prevent DB access during installation/pre-setup
+        if (!env('APP_INSTALLED', false)) {
             \Illuminate\Support\Facades\View::share('settings', []);
+        } else {
+            try {
+                // Share system settings globally
+                $settings = \App\Models\SystemSetting::pluck('value', 'key')->toArray();
+                \Illuminate\Support\Facades\View::share('settings', $settings);
+            } catch (\Exception $e) {
+                // Failsafe during migrations or if table doesn't exist
+                \Illuminate\Support\Facades\View::share('settings', []);
+            }
         }
 
         \Illuminate\Support\Facades\Gate::define('admin', function ($user) {

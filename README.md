@@ -110,7 +110,7 @@ Use these instructions for setting up a local development environment.
 
 5. **Build Frontend Assets**
    ```bash
-   npm install && npm run build
+   npm ci && npm run build
    ```
 
 6. **Web Server Configuration**
@@ -139,20 +139,26 @@ Ensure your server has the following installed:
 - MySQL 8.0+ or MariaDB 10.5+
 - Certbot (for SSL)
 
-### 2. File Ownership & Permissions
-Set the correct permissions for the web server user (usually `www-data`):
+### 2. File Ownership & Permissions (Critical)
+**NEVER** run Composer or NPM as root. This causes permission issues with the web server.
+
+Run commands as the web server user (usually `www-data`) or your deployment user:
 
 ```bash
 cd /var/www/admixcentral
 
-# Create storage link
-php artisan storage:link
+# 1. Set ownership to your web user (e.g., www-data)
+sudo chown -R www-data:www-data .
 
-# Set ownership
-chown -R www-data:www-data .
+# 2. Run commands as that user
+sudo -u www-data composer install --no-dev
+sudo -u www-data npm ci && sudo -u www-data npm run build
 
-# Set permissions for storage directory
-chmod -R 775 storage bootstrap/cache
+# 3. Create storage link
+sudo -u www-data php artisan storage:link
+
+# 4. Set permissions for writeable directories
+sudo chmod -R 775 storage bootstrap/cache
 ```
 
 ### 3. Nginx Configuration
@@ -160,32 +166,29 @@ Create a new configuration file at `/etc/nginx/sites-available/admixcentral`:
 
 ```nginx
 server {
-    listen 80;
-    server_name dashboard.yourdomain.com;
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
     return 301 https://$host$request_uri;
 }
 
 server {
-    listen 443 ssl http2;
-    server_name dashboard.yourdomain.com;
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+    server_name _;
     root /var/www/admixcentral/public;
 
-    # IMPORTANT: Ensure the storage link exists and points to the correct location
-    # Run: php artisan storage:link
+    # SSL Configuration (Let's Encrypt placeholders)
+    # ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    # include /etc/letsencrypt/options-ssl-nginx.conf;
+    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-XSS-Protection "1; mode=block";
-    add_header X-Content-Type-Options "nosniff";
+    # ... (rest of config)
 
     index index.html index.htm index.php;
 
     charset utf-8;
-
-    # SSL Configuration (Let's Encrypt placeholders)
-    # ssl_certificate /etc/letsencrypt/live/dashboard.yourdomain.com/fullchain.pem;
-    # ssl_certificate_key /etc/letsencrypt/live/dashboard.yourdomain.com/privkey.pem;
-    # include /etc/letsencrypt/options-ssl-nginx.conf;
-    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
@@ -207,6 +210,9 @@ server {
         deny all;
     }
 }
+
+# IMPORTANT: Remove the default Nginx site to avoid conflicts
+# sudo rm /etc/nginx/sites-enabled/default
 ```
 
 Enable the site:
