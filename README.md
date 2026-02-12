@@ -66,64 +66,65 @@ This release marks a major architectural shift from the initial prototype. The f
 
 Use these instructions for setting up a local development environment.
 
-### Prerequisites
-
-- PHP >= 8.2
-- Composer
-- Node.js & NPM
-- MySQL 8.0+
-
 ### Steps
 
-1. **Clone the Repository**
+1. **Install System Dependencies**
+   Ensure your system has the following installed:
+   - PHP >= 8.2
+   - Composer
+   - Node.js & NPM
+   - MySQL 8.0+
+
+2. **Clone the Repository**
    ```bash
    git clone https://github.com/admxlz/admixcentral.git
    cd admixcentral
    ```
 
-2. **Install Dependencies**
+### Steps
+
+1. **Install System Dependencies**
+   Ensure your system has the following installed:
+   - PHP >= 8.2
+   - Composer
+   - Node.js & NPM
+   - MySQL 8.0+
+
+2. **Clone the Repository**
+   ```bash
+   git clone https://github.com/admxlz/admixcentral.git
+   cd admixcentral
+   ```
+
+3. **Install Dependencies**
    ```bash
    composer install
-   npm install
    ```
 
-3. **Configure Environment**
+4. **Run Installation Wizard**
+   AdmixCentral includes a guided installer to configure your environment, database, and encryption keys automatically.
    ```bash
-   cp .env.example .env
-   php artisan key:generate
+   php artisan install
    ```
-   *Note: Ensure your `.env` is configured for MySQL credentials:*
-   ```bash
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=admixcentral
-   DB_USERNAME=root
-   DB_PASSWORD=
-   ```
-
-4. **Run Migrations**
-   This sets up the database schema.
-   ```bash
-   php artisan migrate
-   ```
+   *Follow the on-screen prompts to enter your database credentials.*
 
 5. **Build Frontend Assets**
-   This step is critical for CSS and JS to load correctly.
    ```bash
-   npm run build
+   npm ci && npm run build
    ```
 
-6. **Serve the Application (Development Mode)**
+6. **Web Server Configuration**
+   You can serve the application locally:
    ```bash
-   php artisan serve --host=0.0.0.0 --port=8000
+   php artisan serve
    ```
-   or preferably using composer to start backend and frontend (Vite) concurrently:
-   ```bash
-   composer run dev
-   ```
-   The application will be available at `http://127.0.0.1:8000`.
-   **Note:** On first access, you will be redirected to the Setup Wizard to create your admin account.
+   For production, see the [Production Deployment](#production-deployment-nginx--php-fpm--ssl) section below.
+
+### Troubleshooting
+
+- **"Duplicate column name" error**: This is fixed in the latest version. The installer handles existing columns gracefully.
+- **"Connection refused"**: Ensure your MySQL server is running and accessible. The installer will let you retry credentials.
+- **Setup Wizard skipped**: If `.env` already exists, the installer might skip some steps. You can run `php artisan install` again or edit `.env` manually if needed.
 
 ---
 
@@ -138,20 +139,26 @@ Ensure your server has the following installed:
 - MySQL 8.0+ or MariaDB 10.5+
 - Certbot (for SSL)
 
-### 2. File Ownership & Permissions
-Set the correct permissions for the web server user (usually `www-data`):
+### 2. File Ownership & Permissions (Critical)
+**NEVER** run Composer or NPM as root. This causes permission issues with the web server.
+
+Run commands as the web server user (usually `www-data`) or your deployment user:
 
 ```bash
 cd /var/www/admixcentral
 
-# Create storage link
-php artisan storage:link
+# 1. Set ownership to your web user (e.g., www-data)
+sudo chown -R www-data:www-data .
 
-# Set ownership
-chown -R www-data:www-data .
+# 2. Run commands as that user
+sudo -u www-data composer install --no-dev
+sudo -u www-data npm ci && sudo -u www-data npm run build
 
-# Set permissions for storage directory
-chmod -R 775 storage bootstrap/cache
+# 3. Create storage link
+sudo -u www-data php artisan storage:link
+
+# 4. Set permissions for writeable directories
+sudo chmod -R 775 storage bootstrap/cache
 ```
 
 ### 3. Nginx Configuration
@@ -159,32 +166,29 @@ Create a new configuration file at `/etc/nginx/sites-available/admixcentral`:
 
 ```nginx
 server {
-    listen 80;
-    server_name dashboard.yourdomain.com;
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
     return 301 https://$host$request_uri;
 }
 
 server {
-    listen 443 ssl http2;
-    server_name dashboard.yourdomain.com;
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+    server_name _;
     root /var/www/admixcentral/public;
 
-    # IMPORTANT: Ensure the storage link exists and points to the correct location
-    # Run: php artisan storage:link
+    # SSL Configuration (Let's Encrypt placeholders)
+    # ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    # include /etc/letsencrypt/options-ssl-nginx.conf;
+    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-XSS-Protection "1; mode=block";
-    add_header X-Content-Type-Options "nosniff";
+    # ... (rest of config)
 
     index index.html index.htm index.php;
 
     charset utf-8;
-
-    # SSL Configuration (Let's Encrypt placeholders)
-    # ssl_certificate /etc/letsencrypt/live/dashboard.yourdomain.com/fullchain.pem;
-    # ssl_certificate_key /etc/letsencrypt/live/dashboard.yourdomain.com/privkey.pem;
-    # include /etc/letsencrypt/options-ssl-nginx.conf;
-    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
@@ -206,6 +210,9 @@ server {
         deny all;
     }
 }
+
+# IMPORTANT: Remove the default Nginx site to avoid conflicts
+# sudo rm /etc/nginx/sites-enabled/default
 ```
 
 Enable the site:
