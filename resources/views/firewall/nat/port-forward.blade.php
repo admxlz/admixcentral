@@ -161,29 +161,12 @@
 
                     {{-- Toolbar: bulk buttons + Add Rule --}}
                     <div class="flex justify-between items-center mb-4 mt-4">
-                        <div class="flex space-x-2">
-                            <button type="button" @click="submitBulk('enable')"
-                                :disabled="selected.length === 0"
-                                :class="selected.length === 0 ? 'opacity-50 cursor-not-allowed' : ''"
-                                class="btn-primary">
-                                Enable
-                            </button>
-                            <button type="button" @click="submitBulk('disable')"
-                                :disabled="selected.length === 0"
-                                :class="selected.length === 0 ? 'opacity-50 cursor-not-allowed' : ''"
-                                class="inline-flex items-center px-3 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-500">
-                                Disable
-                            </button>
-                            <button type="button" @click="submitBulk('delete')"
-                                :disabled="selected.length === 0"
-                                :class="selected.length === 0 ? 'opacity-50 cursor-not-allowed' : ''"
-                                class="inline-flex items-center px-3 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500">
-                                Delete
-                            </button>
-                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Port Forward Rules</h3>
+                        @if(!auth()->user()->isReadOnly())
                         <x-button-add @click="$dispatch('open-create-modal')">
                             Add Rule
                         </x-button-add>
+                        @endif
                     </div>
 
                     {{-- Rules Table --}}
@@ -191,21 +174,42 @@
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
-                                    <th scope="col" class="px-2 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="width:36px;">
-                                        <input type="checkbox" @click="toggleAll()" x-model="allSelected"
-                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                    </th>
-                                    <th scope="col" class="px-3 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="width: 40px;">Status</th>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Interface</th>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Protocol</th>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Source Address</th>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Source Ports</th>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Dest. Address</th>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Dest. Ports</th>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">NAT IP</th>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">NAT Ports</th>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
-                                    <th scope="col" class="px-3 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                    <th scope="col"
+                                        class="px-3 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                                        style="width: 40px;">
+                                        Status</th>
+                                    <th scope="col"
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Interface</th>
+                                    <th scope="col"
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Protocol</th>
+                                    <th scope="col"
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Source Address</th>
+                                    <th scope="col"
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Source Ports</th>
+                                    <th scope="col"
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Dest. Address</th>
+                                    <th scope="col"
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Dest. Ports</th>
+                                    <th scope="col"
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        NAT IP</th>
+                                    <th scope="col"
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        NAT Ports</th>
+                                    <th scope="col"
+                                        class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Description</th>
+                                    @if(!auth()->user()->isReadOnly())
+                                    <th scope="col"
+                                        class="px-3 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Actions</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -218,8 +222,10 @@
                                         </td>
                                         {{-- Toggle Status --}}
                                         <td class="px-3 py-2 whitespace-nowrap text-center">
-                                            <form action="{{ route('firewall.nat.port-forward.toggle', ['firewall' => $firewall, 'id' => $index]) }}"
-                                                  method="POST" class="inline-block">
+                                            @if(!auth()->user()->isReadOnly())
+                                            <form
+                                                action="{{ route('firewall.nat.port-forward.toggle', ['firewall' => $firewall, 'id' => $index]) }}"
+                                                method="POST" class="inline-block">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="focus:outline-none" title="Toggle Status">
@@ -234,6 +240,18 @@
                                                     @endif
                                                 </button>
                                             </form>
+                                            @else
+                                                {{-- Show static status icon for readonly --}}
+                                                @if(!empty($rule['disabled']))
+                                                    <svg class="w-5 h-5 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                @else
+                                                    <svg class="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                @endif
+                                            @endif
                                         </td>
                                         <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ strtoupper($rule['interface'] ?? '') }}</td>
                                         <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ strtoupper($rule['protocol'] ?? '') }}</td>
@@ -304,10 +322,7 @@
                                         <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                             {{ $rule['local_port'] ?? ($rule['local-port'] ?? '*') }}
                                         </td>
-
-                                        <td class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">{{ $rule['descr'] ?? '' }}</td>
-
-                                        {{-- Actions --}}
+                                        @if(!auth()->user()->isReadOnly())
                                         <td class="px-3 py-2 whitespace-nowrap text-center text-sm font-medium">
                                             <div class="flex justify-center items-center space-x-2">
                                                 <button @click="editRule({{ json_encode($rule) }}, {{ $index }})"
@@ -324,6 +339,7 @@
                                                 </button>
                                             </div>
                                         </td>
+                                        @endif
                                     </tr>
                                 @empty
                                     <tr>
