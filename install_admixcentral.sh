@@ -669,6 +669,13 @@ provision_cron() {
 
   local cron_line="* * * * * ${RUNTIME_WEB_USER} php ${INSTALL_DIR}/artisan schedule:run >> /dev/null 2>&1"
   local cron_file="/etc/cron.d/admixcentral"
+  local cron_dir="/etc/cron.d"
+
+  # Only create if missing (handles Arch clean installs)
+  if [[ ! -d "$cron_dir" ]]; then
+    mkdir -p "$cron_dir"
+    chmod 0755 "$cron_dir"
+  fi
 
   # Idempotent: only write if the artisan schedule:run line is not already present.
   if [[ -f "$cron_file" ]] && grep -qF "artisan schedule:run" "$cron_file"; then
